@@ -1,0 +1,80 @@
+<%- include('partials/head.html', { title }) %>
+<body class="app-screen">
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-mark">GD</span>
+        <div>
+          <strong><%= professor.full_name %></strong>
+          <span><%= professor.employee_number %></span>
+        </div>
+      </div>
+
+      <nav class="subject-nav" aria-label="Materias">
+        <% assignments.forEach((assignment) => { %>
+          <a href="#materia-<%= assignment.id %>">
+            <span><%= assignment.subject_name %></span>
+            <small><%= assignment.subject_code ? assignment.subject_code + ' - ' : '' %><%= assignment.group_code %></small>
+          </a>
+        <% }) %>
+      </nav>
+
+      <form action="/logout" method="post">
+        <button class="ghost-button sidebar-logout" type="submit">Salir</button>
+      </form>
+    </aside>
+
+    <main class="main-content">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Reportes parciales</p>
+          <h1>Materias asignadas</h1>
+        </div>
+        <div class="semester-pill">
+          <span>Semestre</span>
+          <strong><%= assignments[0] ? assignments[0].semester : 'Sin periodo' %></strong>
+        </div>
+      </header>
+
+      <% if (!assignments.length) { %>
+        <section class="empty-state">
+          <h2>Sin materias asignadas</h2>
+          <p>Cuando se carguen las materias apareceran aqui.</p>
+        </section>
+      <% } %>
+
+      <section class="matrix" aria-label="Estado de reportes">
+        <div class="matrix-row matrix-head">
+          <span>Materia</span>
+          <span>Grupo</span>
+          <span>R1</span>
+          <span>R2</span>
+          <span>R3</span>
+        </div>
+
+        <% assignments.forEach((assignment) => { %>
+          <article class="matrix-row" id="materia-<%= assignment.id %>">
+            <div class="subject-cell">
+              <strong><%= assignment.subject_name %></strong>
+              <small><%= assignment.career || 'Carrera pendiente' %></small>
+            </div>
+            <span class="group-code"><%= assignment.subject_code ? assignment.subject_code + ' - ' : '' %><%= assignment.group_code %></span>
+
+            <% [1, 2, 3].forEach((period) => {
+              const status = assignment[`report_${period}_status`];
+              const files = assignment[`report_${period}_files`];
+              const badgeClass = status === 'submitted' ? 'status-submitted' : status === 'draft' ? 'status-draft' : 'status-empty';
+              const label = status === 'submitted' ? 'Enviado' : status === 'draft' ? 'Borrador' : 'Abrir';
+            %>
+              <a class="report-pill <%= badgeClass %>" href="/reportes/materias/<%= assignment.id %>/parcial/<%= period %>">
+                <span><%= label %></span>
+                <small><%= files || 0 %></small>
+              </a>
+            <% }) %>
+          </article>
+        <% }) %>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<%- include('partials/head.html', { title }) %>
+<body class="app-screen">
+  <div class="layout report-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-mark">GD</span>
+        <div>
+          <strong><%= professor.full_name %></strong>
+          <span><%= professor.employee_number %></span>
+        </div>
+      </div>
+      <nav class="subject-nav" aria-label="Navegacion">
+        <a href="/dashboard">
+          <span>Tablero</span>
+          <small>R1, R2, R3</small>
+        </a>
+      </nav>
+      <form action="/logout" method="post">
+        <button class="ghost-button sidebar-logout" type="submit">Salir</button>
+      </form>
+    </aside>
+
+    <main class="main-content">
+      <header class="page-header report-header">
+        <div>
+          <p class="eyebrow">Reporte parcial <%= period %></p>
+          <h1><%= assignment.subject_name %></h1>
+          <p class="header-meta"><%= assignment.subject_code ? assignment.subject_code + ' - ' : '' %><%= assignment.group_code %> · <%= assignment.semester %></p>
+        </div>
+        <a class="ghost-button" href="/dashboard">Volver</a>
+      </header>
+
+      <% if (saved) { %>
+        <div class="notice">Cambios guardados.</div>
+      <% } %>
+
+      <form
+        class="report-form"
+        action="/reportes/materias/<%= assignment.id %>/parcial/<%= period %>"
+        method="post"
+        enctype="multipart/form-data"
+        data-subject-code="<%= assignment.subject_code || '' %>"
+        data-group-code="<%= assignment.group_code %>"
+      >
+        <section class="form-section">
+          <div class="section-heading">
+            <h2>Datos relevantes</h2>
+          </div>
+
+          <div class="readonly-grid">
+            <label>
+              <span>Docente</span>
+              <input value="<%= assignment.professor_name %>" readonly>
+            </label>
+            <label>
+              <span>Materia</span>
+              <input value="<%= assignment.subject_name %>" readonly>
+            </label>
+            <label>
+              <span>Grupo</span>
+              <input value="<%= assignment.subject_code ? assignment.subject_code + ' - ' : '' %><%= assignment.group_code %>" readonly>
+            </label>
+            <label>
+              <span>Carrera</span>
+              <input value="<%= assignment.career || '' %>" readonly>
+            </label>
+          </div>
+
+          <div class="number-grid">
+            <label>
+              <span>Alumnos inscritos</span>
+              <input class="calc-input" name="enrolled_students" type="number" min="0" value="<%= report ? report.enrolled_students : '' %>" required>
+            </label>
+            <label>
+              <span>Alumnos aprobados</span>
+              <input class="calc-input" name="approved_students" type="number" min="0" value="<%= report ? report.approved_students : '' %>" required>
+            </label>
+            <label>
+              <span>Ausentes</span>
+              <input class="calc-input" name="absent_students" type="number" min="0" value="<%= report ? report.absent_students : '' %>" required>
+            </label>
+          </div>
+
+          <div class="metrics" aria-live="polite">
+            <div>
+              <span>Aprobacion</span>
+              <strong data-metric="approved"><%= report ? Number(report.approved_percentage || 0).toFixed(1) : '0.0' %>%</strong>
+            </div>
+            <div>
+              <span>Ausencias</span>
+              <strong data-metric="absent"><%= report ? Number(report.absent_percentage || 0).toFixed(1) : '0.0' %>%</strong>
+            </div>
+            <div>
+              <span>Reprobacion</span>
+              <strong data-metric="failed"><%= report ? Number(report.reproval_percentage || 0).toFixed(1) : '0.0' %>%</strong>
+            </div>
+          </div>
+
+          <label class="wide-field">
+            <span>Observaciones del grupo</span>
+            <textarea name="observations" rows="4" required><%= report ? report.observations : 'No aplica' %></textarea>
+          </label>
+        </section>
+
+        <section class="form-section">
+          <div class="section-heading">
+            <h2>Evidencias de evaluacion</h2>
+          </div>
+
+          <div class="upload-grid">
+            <% categories.forEach((category) => { %>
+              <article class="upload-block" data-upload-block data-category-label="<%= category.label %>">
+                <div class="upload-copy">
+                  <h3><%= category.label %></h3>
+                  <p><%= category.prompt %></p>
+                </div>
+
+                <fieldset class="unit-picker">
+                  <legend>Unidad</legend>
+                  <% romanUnits.forEach((unit) => { %>
+                    <label>
+                      <input type="checkbox" name="units_<%= category.key %>" value="<%= unit %>">
+                      <span><%= unit %></span>
+                    </label>
+                  <% }) %>
+                </fieldset>
+
+                <label class="file-drop">
+                  <input type="file" name="evidence_<%= category.key %>" accept="<%= category.accept %>" multiple>
+                  <span>Seleccionar archivos</span>
+                </label>
+                <output class="filename-preview"></output>
+
+                <% const files = evidenceByCategory[category.key] || []; %>
+                <% if (files.length) { %>
+                  <ul class="evidence-list">
+                    <% files.forEach((file) => { %>
+                      <li>
+                        <a href="/reportes/evidencias/<%= file.id %>/descargar"><%= file.stored_name %></a>
+                        <small><%= bytesToHuman(file.size_bytes) %></small>
+                      </li>
+                    <% }) %>
+                  </ul>
+                <% } %>
+              </article>
+            <% }) %>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <div class="section-heading">
+            <h2>Actividades y avance</h2>
+          </div>
+
+          <label class="wide-field">
+            <span>Actividades adicionales</span>
+            <textarea name="additional_activities" rows="4" required><%= report ? report.additional_activities : 'No aplica' %></textarea>
+          </label>
+
+          <fieldset class="choice-field">
+            <legend>Avance inferior al programado</legend>
+            <label>
+              <input type="radio" name="progress_delayed" value="0" <%= !report || !report.progress_delayed ? 'checked' : '' %>>
+              <span>No</span>
+            </label>
+            <label>
+              <input type="radio" name="progress_delayed" value="1" <%= report && report.progress_delayed ? 'checked' : '' %>>
+              <span>Si</span>
+            </label>
+          </fieldset>
+
+          <label class="wide-field">
+            <span>Notas de avance</span>
+            <textarea name="progress_notes" rows="3"><%= report ? report.progress_notes : '' %></textarea>
+          </label>
+        </section>
+
+        <div class="form-actions">
+          <button class="ghost-button" name="action" value="draft" type="submit">Guardar borrador</button>
+          <button class="primary-button" name="action" value="submit" type="submit">Enviar reporte</button>
+        </div>
+      </form>
+    </main>
+  </div>
+</body>
+</html>
