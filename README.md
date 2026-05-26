@@ -44,6 +44,12 @@ Usa un numero de empleado cargado en la semilla, por ejemplo:
 - `2289` Fortunato Ramirez Arzate
 - `2982` Angelica Maria Garzon Fontecha
 
+Si MySQL no esta disponible en desarrollo local, la app usa automaticamente esos mismos datos en memoria para que puedas entrar y revisar el flujo. Para exigir conexion real a MySQL, configura:
+
+```bash
+DB_DEMO_FALLBACK=false
+```
+
 ## Flujo docente
 
 1. El docente entra con su numero de empleado.
