@@ -26,7 +26,8 @@ const assignment = {
 const common = {
   appName: 'Gestion Docente',
   currentPath: '/',
-  professor
+  professor,
+  isAdmin: true
 };
 
 async function render(view, locals) {
@@ -77,6 +78,88 @@ async function main() {
     bytesToHuman,
     reportLabel: 'Reporte parcial 1',
     saved: false,
+    error: null
+  });
+
+  await render('admin-dashboard.html', {
+    title: 'Administracion',
+    saved: null,
+    professors: [
+      {
+        id: professor.id,
+        employee_number: professor.employee_number,
+        full_name: professor.full_name,
+        email: null,
+        active: 1
+      }
+    ],
+    subjects: [
+      {
+        id: 1,
+        name: assignment.subject_name,
+        subject_code: null,
+        credits: 4
+      }
+    ],
+    assignments: [
+      {
+        ...assignment,
+        professor_id: professor.id,
+        subject_id: 1,
+        active: 1
+      }
+    ]
+  });
+
+  await render('admin-professor-form.html', {
+    title: 'Nuevo profesor',
+    action: '/admin/profesores',
+    professor: {
+      employee_number: '',
+      full_name: '',
+      email: '',
+      department: 'DIEE',
+      active: 1
+    },
+    error: null
+  });
+
+  await render('admin-subject-form.html', {
+    title: 'Nueva materia',
+    action: '/admin/materias',
+    subject: {
+      name: '',
+      subject_code: '',
+      credits: ''
+    },
+    error: null
+  });
+
+  await render('admin-assignment-form.html', {
+    title: 'Nueva asignacion',
+    action: '/admin/asignaciones',
+    assignment: {
+      professor_id: '',
+      subject_id: '',
+      group_code: '',
+      career: '',
+      semester: '',
+      active: 1
+    },
+    professors: [
+      {
+        id: professor.id,
+        employee_number: professor.employee_number,
+        full_name: professor.full_name
+      }
+    ],
+    subjects: [
+      {
+        id: 1,
+        name: assignment.subject_name,
+        subject_code: null
+      }
+    ],
     error: null
   });
 
