@@ -1,0 +1,42 @@
+<%- include('partials/head.html', { title }) %>
+<body class="app-screen">
+  <main class="main-content narrow-content">
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">Materias</p>
+        <h1><%= title %></h1>
+      </div>
+      <a class="ghost-button" href="/admin#materias">Volver</a>
+    </header>
+
+    <% if (error) { %>
+      <div class="notice notice-error"><%= error %></div>
+    <% } %>
+
+    <form class="admin-form" action="<%= action %>" method="post">
+      <section class="form-section">
+        <label class="wide-field">
+          <span>Nombre de la materia</span>
+          <input name="name" value="<%= subject.name || '' %>" required>
+        </label>
+
+        <div class="readonly-grid">
+          <label>
+            <span>Clave</span>
+            <input name="subject_code" value="<%= subject.subject_code || '' %>">
+          </label>
+          <label>
+            <span>Creditos</span>
+            <input name="credits" type="number" min="0" value="<%= subject.credits || '' %>">
+          </label>
+        </div>
+      </section>
+
+      <div class="form-actions">
+        <a class="ghost-button" href="/admin#materias">Cancelar</a>
+        <button class="primary-button" type="submit">Guardar</button>
+      </div>
+    </form>
+  </main>
+</body>
+</html>

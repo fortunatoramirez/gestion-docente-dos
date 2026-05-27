@@ -6,8 +6,10 @@ const express = require('express');
 const session = require('express-session');
 
 const authRoutes = require('./routes/authRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const reportRoutes = require('./routes/reportRoutes');
+const { isAdminProfessor } = require('./middleware/auth');
 
 const app = express();
 
@@ -37,10 +39,12 @@ app.use((req, res, next) => {
   res.locals.appName = process.env.APP_NAME || 'Gestion Docente';
   res.locals.currentPath = req.path;
   res.locals.professor = req.session.professor || null;
+  res.locals.isAdmin = isAdminProfessor(req.session.professor);
   next();
 });
 
 app.use('/', authRoutes);
+app.use('/admin', adminRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/reportes', reportRoutes);
 

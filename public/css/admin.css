@@ -1,0 +1,142 @@
+select {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  background: #ffffff;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.narrow-content {
+  width: min(100%, 840px);
+}
+
+.admin-content {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.admin-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.admin-summary div,
+.admin-panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 10px 28px rgba(34, 48, 58, 0.08);
+}
+
+.admin-summary div {
+  display: grid;
+  gap: 4px;
+  padding: 18px;
+}
+
+.admin-summary span {
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.admin-summary strong {
+  color: var(--brand-strong);
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.admin-panel {
+  overflow: hidden;
+}
+
+.admin-panel .section-heading {
+  align-items: center;
+  margin: 0;
+  padding: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+  border-bottom: 1px solid var(--line);
+  padding: 12px 14px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.data-table th {
+  color: var(--muted);
+  background: #eef4f8;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.data-table td small {
+  display: block;
+  color: var(--muted);
+}
+
+.data-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.table-link {
+  color: var(--brand-strong);
+  font-weight: 800;
+}
+
+.status-chip {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.status-on {
+  color: #075985;
+  background: #e0f2fe;
+  border-color: #bae6fd;
+}
+
+.status-off {
+  color: #6b7280;
+  background: #f3f4f6;
+}
+
+.admin-form {
+  display: grid;
+  gap: 18px;
+}
+
+@media (max-width: 920px) {
+  .admin-summary {
+    grid-template-columns: 1fr;
+  }
+}

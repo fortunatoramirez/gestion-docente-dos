@@ -16,7 +16,8 @@ function normalizeProfessor(source, index) {
     employee_number: source.employeeNumber,
     full_name: source.fullName,
     email: null,
-    department: 'DIEE'
+    department: 'DIEE',
+    active: 1
   };
 }
 
@@ -67,6 +68,59 @@ function findProfessorByEmployeeNumber(employeeNumber) {
   return state.professors.find((professor) => professor.employee_number === String(employeeNumber)) || null;
 }
 
+function listProfessors() {
+  hydrate();
+  return [...state.professors].sort((a, b) => {
+    if (Number(b.active !== 0) !== Number(a.active !== 0)) return Number(b.active !== 0) - Number(a.active !== 0);
+    return a.full_name.localeCompare(b.full_name);
+  });
+}
+
+function findProfessorById(professorId) {
+  hydrate();
+  return state.professors.find((professor) => professor.id === Number(professorId)) || null;
+}
+
+function createProfessor(payload) {
+  hydrate();
+  const professor = {
+    id: state.professors.length + 1,
+    ...payload
+  };
+  state.professors.push(professor);
+  return professor.id;
+}
+
+function updateProfessor(professorId, payload) {
+  const professor = findProfessorById(professorId);
+  if (professor) Object.assign(professor, payload);
+}
+
+function listSubjects() {
+  hydrate();
+  return [...state.subjects].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function findSubjectById(subjectId) {
+  hydrate();
+  return state.subjects.find((subject) => subject.id === Number(subjectId)) || null;
+}
+
+function createSubject(payload) {
+  hydrate();
+  const subject = {
+    id: state.subjects.length + 1,
+    ...payload
+  };
+  state.subjects.push(subject);
+  return subject.id;
+}
+
+function updateSubject(subjectId, payload) {
+  const subject = findSubjectById(subjectId);
+  if (subject) Object.assign(subject, payload);
+}
+
 function reportStats(assignmentId, period) {
   const report = state.reports.find(
     (item) => item.assignment_id === assignmentId && item.period === period
@@ -102,6 +156,7 @@ function assignmentView(assignment) {
     subject_name: subject.name,
     subject_code: subject.subject_code,
     credits: subject.credits,
+    active: assignment.active,
     report_1_status: report1.status,
     report_2_status: report2.status,
     report_3_status: report3.status,
@@ -119,6 +174,23 @@ function listAssignmentsForProfessor(professorId) {
     .sort((a, b) => a.subject_name.localeCompare(b.subject_name) || a.group_code.localeCompare(b.group_code));
 }
 
+function listAssignmentsAdmin() {
+  hydrate();
+  return state.assignments
+    .map(assignmentView)
+    .sort((a, b) => {
+      if (Number(b.active !== 0) !== Number(a.active !== 0)) return Number(b.active !== 0) - Number(a.active !== 0);
+      return a.professor_name.localeCompare(b.professor_name)
+        || a.subject_name.localeCompare(b.subject_name)
+        || a.group_code.localeCompare(b.group_code);
+    });
+}
+
+function findAssignmentByIdAdmin(assignmentId) {
+  hydrate();
+  return state.assignments.find((item) => item.id === Number(assignmentId)) || null;
+}
+
 function findAssignmentByIdForProfessor(assignmentId, professorId) {
   hydrate();
   const assignment = state.assignments.find(
@@ -126,6 +198,21 @@ function findAssignmentByIdForProfessor(assignmentId, professorId) {
   );
 
   return assignment ? assignmentView(assignment) : null;
+}
+
+function createAssignment(payload) {
+  hydrate();
+  const assignment = {
+    id: state.assignments.length + 1,
+    ...payload
+  };
+  state.assignments.push(assignment);
+  return assignment.id;
+}
+
+function updateAssignment(assignmentId, payload) {
+  const assignment = findAssignmentByIdAdmin(assignmentId);
+  if (assignment) Object.assign(assignment, payload);
 }
 
 function findReportByAssignmentAndPeriod(assignmentId, period) {
@@ -200,13 +287,25 @@ function removeEvidence(evidenceId) {
 }
 
 module.exports = {
+  createAssignment,
+  createProfessor,
+  createSubject,
+  findAssignmentByIdAdmin,
   findProfessorByEmployeeNumber,
+  findProfessorById,
+  findSubjectById,
   listAssignmentsForProfessor,
+  listAssignmentsAdmin,
+  listProfessors,
+  listSubjects,
   findAssignmentByIdForProfessor,
   findReportByAssignmentAndPeriod,
   upsertReport,
   createEvidence,
   listEvidenceByReportId,
   findEvidenceByIdForProfessor,
-  removeEvidence
+  removeEvidence,
+  updateAssignment,
+  updateProfessor,
+  updateSubject
 };
