@@ -23,7 +23,7 @@
     <main class="main-content">
       <header class="page-header report-header">
         <div>
-          <p class="eyebrow">Reporte parcial <%= period %></p>
+          <p class="eyebrow"><%= reportLabel %></p>
           <h1><%= assignment.subject_name %></h1>
           <p class="header-meta"><%= assignment.subject_code ? assignment.subject_code + ' - ' : '' %><%= assignment.group_code %> · <%= assignment.semester %></p>
         </div>
@@ -32,6 +32,10 @@
 
       <% if (saved) { %>
         <div class="notice">Cambios guardados.</div>
+      <% } %>
+
+      <% if (error) { %>
+        <div class="notice notice-error"><%= error %></div>
       <% } %>
 
       <form
@@ -116,7 +120,7 @@
                 </div>
 
                 <fieldset class="unit-picker">
-                  <legend>Unidad</legend>
+                  <legend>Unidad <small>obligatoria al subir evidencia</small></legend>
                   <% romanUnits.forEach((unit) => { %>
                     <label>
                       <input type="checkbox" name="units_<%= category.key %>" value="<%= unit %>">
@@ -127,7 +131,7 @@
 
                 <label class="file-drop">
                   <input type="file" name="evidence_<%= category.key %>" accept="<%= category.accept %>" multiple>
-                  <span>Seleccionar archivos</span>
+                  <span>Arrastra archivos aqui o selecciona</span>
                 </label>
                 <output class="filename-preview"></output>
 

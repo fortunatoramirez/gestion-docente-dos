@@ -5,7 +5,15 @@ const Assignment = require('../models/assignmentModel');
 const Report = require('../models/reportModel');
 const Evidence = require('../models/evidenceModel');
 const { evidenceCategories } = require('../utils/categories');
-const { buildEvidenceFileName, bytesToHuman, romanUnits, selectedUnits } = require('../utils/filename');
+const {
+  buildEvidenceFileName,
+  bytesToHuman,
+  cleanFolderSegment,
+  hasSelectedUnits,
+  reportFolderName,
+  romanUnits,
+  selectedUnits
+} = require('../utils/filename');
 const { uploadRoot } = require('../config/paths');
 
 function parsePeriod(value) {
@@ -43,6 +51,32 @@ function groupEvidence(files) {
   }, {});
 }
 
+function reportLabel(period) {
+  return Number(period) === 3 ? 'Reporte final' : `Reporte parcial ${period}`;
+}
+
+function listUploadedFiles(files) {
+  return Object.values(files || {}).flat();
+}
+
+async function cleanupUploadedFiles(files) {
+  await Promise.all(
+    listUploadedFiles(files).map((file) => fs.unlink(file.path).catch(() => {}))
+  );
+}
+
+function validateEvidenceUnits({ files, body }) {
+  const missingCategories = evidenceCategories.filter((category) => {
+    const uploadedFiles = files[`evidence_${category.key}`] || [];
+    return uploadedFiles.length && !hasSelectedUnits(body[`units_${category.key}`]);
+  });
+
+  if (!missingCategories.length) return null;
+
+  const labels = missingCategories.map((category) => category.label).join(', ');
+  return `Selecciona al menos una unidad para: ${labels}.`;
+}
+
 function appendCounter(fileName, counter) {
   const ext = path.extname(fileName);
   const base = path.basename(fileName, ext);
@@ -69,9 +103,9 @@ async function uniquePath(directory, fileName) {
 async function persistUploadedFiles({ files, body, reportId, assignment, period }) {
   const targetDir = path.join(
     uploadRoot,
-    String(assignment.employee_number),
-    String(assignment.id),
-    `reporte-${period}`
+    `profesor_${cleanFolderSegment(assignment.employee_number, 'sin_numero')}`,
+    reportFolderName(period),
+    cleanFolderSegment(assignment.subject_name, 'materia_sin_nombre')
   );
 
   await fs.mkdir(targetDir, { recursive: true });
@@ -105,6 +139,24 @@ async function persistUploadedFiles({ files, body, reportId, assignment, period 
   }
 }
 
+async function renderReportForm(req, res, { assignment, period, report, saved = false, error = null }) {
+  const evidence = await Evidence.listByReportId(report && report.id);
+
+  return res.render('report-form.html', {
+    title: reportLabel(period),
+    assignment,
+    period,
+    report,
+    evidenceByCategory: groupEvidence(evidence),
+    categories: evidenceCategories,
+    romanUnits,
+    bytesToHuman,
+    reportLabel: reportLabel(period),
+    saved,
+    error
+  });
+}
+
 async function showForm(req, res, next) {
   try {
     const period = parsePeriod(req.params.period);
@@ -117,17 +169,10 @@ async function showForm(req, res, next) {
     if (!assignment) return res.redirect('/dashboard');
 
     const report = await Report.findByAssignmentAndPeriod(assignment.id, period);
-    const evidence = await Evidence.listByReportId(report && report.id);
-
-    return res.render('report-form.html', {
-      title: `Reporte ${period}`,
+    return renderReportForm(req, res, {
       assignment,
       period,
       report,
-      evidenceByCategory: groupEvidence(evidence),
-      categories: evidenceCategories,
-      romanUnits,
-      bytesToHuman,
       saved: req.query.guardado === '1'
     });
   } catch (error) {
@@ -145,6 +190,25 @@ async function save(req, res, next) {
       req.session.professor.id
     );
     if (!assignment) return res.redirect('/dashboard');
+
+    const unitsError = validateEvidenceUnits({ files: req.files || {}, body: req.body });
+    if (unitsError) {
+      await cleanupUploadedFiles(req.files || {});
+      const report = await Report.findByAssignmentAndPeriod(assignment.id, period);
+      return res.status(400).render('report-form.html', {
+        title: reportLabel(period),
+        assignment,
+        period,
+        report,
+        evidenceByCategory: groupEvidence(await Evidence.listByReportId(report && report.id)),
+        categories: evidenceCategories,
+        romanUnits,
+        bytesToHuman,
+        reportLabel: reportLabel(period),
+        saved: false,
+        error: unitsError
+      });
+    }
 
     const enrolled = toInteger(req.body.enrolled_students);
     const approved = toInteger(req.body.approved_students);
