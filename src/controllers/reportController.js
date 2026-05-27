@@ -1,20 +1,17 @@
 const fs = require('fs/promises');
-const path = require('path');
 
 const Assignment = require('../models/assignmentModel');
 const Report = require('../models/reportModel');
 const Evidence = require('../models/evidenceModel');
+const evidenceStorage = require('../services/evidenceStorage');
 const { evidenceCategories } = require('../utils/categories');
 const {
   buildEvidenceFileName,
   bytesToHuman,
-  cleanFolderSegment,
   hasSelectedUnits,
-  reportFolderName,
   romanUnits,
   selectedUnits
 } = require('../utils/filename');
-const { uploadRoot } = require('../config/paths');
 
 function parsePeriod(value) {
   const period = Number(value);
@@ -77,39 +74,7 @@ function validateEvidenceUnits({ files, body }) {
   return `Selecciona al menos una unidad para: ${labels}.`;
 }
 
-function appendCounter(fileName, counter) {
-  const ext = path.extname(fileName);
-  const base = path.basename(fileName, ext);
-  return `${base}-${counter}${ext}`;
-}
-
-async function uniquePath(directory, fileName) {
-  let counter = 1;
-  let candidateName = fileName;
-  let candidatePath = path.join(directory, candidateName);
-
-  while (true) {
-    try {
-      await fs.access(candidatePath);
-      counter += 1;
-      candidateName = appendCounter(fileName, counter);
-      candidatePath = path.join(directory, candidateName);
-    } catch (error) {
-      return { candidateName, candidatePath };
-    }
-  }
-}
-
 async function persistUploadedFiles({ files, body, reportId, assignment, period }) {
-  const targetDir = path.join(
-    uploadRoot,
-    `profesor_${cleanFolderSegment(assignment.employee_number, 'sin_numero')}`,
-    reportFolderName(period),
-    cleanFolderSegment(assignment.subject_name, 'materia_sin_nombre')
-  );
-
-  await fs.mkdir(targetDir, { recursive: true });
-
   for (const category of evidenceCategories) {
     const uploadedFiles = files[`evidence_${category.key}`] || [];
     const units = body[`units_${category.key}`];
@@ -122,18 +87,25 @@ async function persistUploadedFiles({ files, body, reportId, assignment, period 
         originalName: file.originalname,
         index
       });
-      const unique = await uniquePath(targetDir, storedName);
-      await fs.rename(file.path, unique.candidatePath);
+      const storedFile = await evidenceStorage.storeEvidenceFile({
+        file,
+        storedName,
+        assignment,
+        period
+      });
 
       await Evidence.create({
         report_id: reportId,
         category: category.key,
         units: selectedUnits(units),
         original_name: file.originalname,
-        stored_name: unique.candidateName,
+        stored_name: storedFile.storedName,
         mime_type: file.mimetype,
         size_bytes: file.size,
-        path: unique.candidatePath
+        path: storedFile.path,
+        storage_provider: storedFile.storage_provider,
+        storage_key: storedFile.storage_key,
+        web_url: storedFile.web_url
       });
     }
   }
@@ -252,7 +224,7 @@ async function downloadEvidence(req, res, next) {
     );
     if (!evidence) return res.redirect('/dashboard');
 
-    return res.download(evidence.path, evidence.stored_name);
+    return evidenceStorage.downloadEvidence(evidence, res);
   } catch (error) {
     return next(error);
   }
@@ -266,8 +238,8 @@ async function deleteEvidence(req, res, next) {
     );
     if (!evidence) return res.redirect('/dashboard');
 
+    await evidenceStorage.removeEvidence(evidence);
     await Evidence.remove(evidence.id);
-    await fs.unlink(evidence.path).catch(() => {});
 
     return res.redirect(
       `/reportes/materias/${evidence.assignment_id}/parcial/${evidence.period}?guardado=1`
