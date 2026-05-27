@@ -1,0 +1,79 @@
+<%- include('partials/head.html', { title }) %>
+<body class="app-screen">
+  <main class="main-content narrow-content">
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">Asignaciones</p>
+        <h1><%= title %></h1>
+      </div>
+      <a class="ghost-button" href="/admin#asignaciones">Volver</a>
+    </header>
+
+    <% if (error) { %>
+      <div class="notice notice-error"><%= error %></div>
+    <% } %>
+
+    <form class="admin-form" action="<%= action %>" method="post">
+      <section class="form-section">
+        <div class="readonly-grid">
+          <label>
+            <span>Profesor</span>
+            <select name="professor_id" required>
+              <option value="">Selecciona</option>
+              <% professors.forEach((item) => { %>
+                <option value="<%= item.id %>" <%= Number(assignment.professor_id) === Number(item.id) ? 'selected' : '' %>>
+                  <%= item.full_name %> - <%= item.employee_number %>
+                </option>
+              <% }) %>
+            </select>
+          </label>
+          <label>
+            <span>Materia</span>
+            <select name="subject_id" required>
+              <option value="">Selecciona</option>
+              <% subjects.forEach((item) => { %>
+                <option value="<%= item.id %>" <%= Number(assignment.subject_id) === Number(item.id) ? 'selected' : '' %>>
+                  <%= item.name %><%= item.subject_code ? ' - ' + item.subject_code : '' %>
+                </option>
+              <% }) %>
+            </select>
+          </label>
+        </div>
+
+        <div class="readonly-grid">
+          <label>
+            <span>Grupo</span>
+            <input name="group_code" value="<%= assignment.group_code || '' %>" required>
+          </label>
+          <label>
+            <span>Semestre</span>
+            <input name="semester" value="<%= assignment.semester || '' %>" required>
+          </label>
+        </div>
+
+        <label class="wide-field">
+          <span>Carrera</span>
+          <input name="career" value="<%= assignment.career || '' %>">
+        </label>
+
+        <fieldset class="choice-field">
+          <legend>Estado</legend>
+          <label>
+            <input type="radio" name="active" value="1" <%= Number(assignment.active) !== 0 ? 'checked' : '' %>>
+            <span>Activa</span>
+          </label>
+          <label>
+            <input type="radio" name="active" value="0" <%= Number(assignment.active) === 0 ? 'checked' : '' %>>
+            <span>Inactiva</span>
+          </label>
+        </fieldset>
+      </section>
+
+      <div class="form-actions">
+        <a class="ghost-button" href="/admin#asignaciones">Cancelar</a>
+        <button class="primary-button" type="submit">Guardar</button>
+      </div>
+    </form>
+  </main>
+</body>
+</html>
