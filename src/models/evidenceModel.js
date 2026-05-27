@@ -5,6 +5,13 @@ const { withDemoFallback } = require('../utils/dbFallback');
 async function create(payload) {
   return withDemoFallback(
     async () => {
+      const evidence = {
+        storage_provider: 'local',
+        storage_key: payload.path,
+        web_url: null,
+        ...payload
+      };
+
       const [result] = await db.execute(
         `INSERT INTO evidence_files (
             report_id,
@@ -14,7 +21,10 @@ async function create(payload) {
             stored_name,
             mime_type,
             size_bytes,
-            path
+            path,
+            storage_provider,
+            storage_key,
+            web_url
           )
           VALUES (
             :report_id,
@@ -24,9 +34,12 @@ async function create(payload) {
             :stored_name,
             :mime_type,
             :size_bytes,
-            :path
+            :path,
+            :storage_provider,
+            :storage_key,
+            :web_url
           )`,
-        payload
+        evidence
       );
 
       return result.insertId;
