@@ -1,0 +1,170 @@
+<%- include('partials/head.html', { title }) %>
+<body class="app-screen">
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-mark">GD</span>
+        <div>
+          <strong><%= professor.full_name %></strong>
+          <span>Administrador</span>
+        </div>
+      </div>
+
+      <nav class="subject-nav" aria-label="Administracion">
+        <a href="/dashboard">
+          <span>Tablero docente</span>
+          <small>Reportes</small>
+        </a>
+        <a href="#profesores">
+          <span>Profesores</span>
+          <small><%= professors.length %> registros</small>
+        </a>
+        <a href="#materias">
+          <span>Materias</span>
+          <small><%= subjects.length %> registros</small>
+        </a>
+        <a href="#asignaciones">
+          <span>Asignaciones</span>
+          <small><%= assignments.length %> grupos</small>
+        </a>
+      </nav>
+
+      <form action="/logout" method="post">
+        <button class="ghost-button sidebar-logout" type="submit">Salir</button>
+      </form>
+    </aside>
+
+    <main class="main-content admin-content">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Panel</p>
+          <h1>Administracion</h1>
+        </div>
+        <div class="admin-actions">
+          <a class="ghost-button" href="/admin/materias/nueva">Materia</a>
+          <a class="ghost-button" href="/admin/profesores/nuevo">Profesor</a>
+          <a class="primary-button" href="/admin/asignaciones/nueva">Asignacion</a>
+        </div>
+      </header>
+
+      <% if (saved) { %>
+        <div class="notice">Cambios guardados.</div>
+      <% } %>
+
+      <section class="admin-summary" aria-label="Resumen">
+        <div>
+          <span>Profesores</span>
+          <strong><%= professors.length %></strong>
+        </div>
+        <div>
+          <span>Materias</span>
+          <strong><%= subjects.length %></strong>
+        </div>
+        <div>
+          <span>Asignaciones</span>
+          <strong><%= assignments.length %></strong>
+        </div>
+      </section>
+
+      <section class="admin-panel" id="profesores">
+        <div class="section-heading">
+          <h2>Profesores</h2>
+          <a class="ghost-button" href="/admin/profesores/nuevo">Agregar</a>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Numero</th>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Estado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% professors.forEach((item) => { %>
+                <tr>
+                  <td><%= item.employee_number %></td>
+                  <td><strong><%= item.full_name %></strong></td>
+                  <td><%= item.email || 'Pendiente' %></td>
+                  <td><span class="status-chip <%= item.active ? 'status-on' : 'status-off' %>"><%= item.active ? 'Activo' : 'Inactivo' %></span></td>
+                  <td><a class="table-link" href="/admin/profesores/<%= item.id %>/editar">Editar</a></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="admin-panel" id="materias">
+        <div class="section-heading">
+          <h2>Materias</h2>
+          <a class="ghost-button" href="/admin/materias/nueva">Agregar</a>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Clave</th>
+                <th>Creditos</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% subjects.forEach((item) => { %>
+                <tr>
+                  <td><strong><%= item.name %></strong></td>
+                  <td><%= item.subject_code || 'Pendiente' %></td>
+                  <td><%= item.credits || 'Pendiente' %></td>
+                  <td><a class="table-link" href="/admin/materias/<%= item.id %>/editar">Editar</a></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="admin-panel" id="asignaciones">
+        <div class="section-heading">
+          <h2>Asignaciones</h2>
+          <a class="ghost-button" href="/admin/asignaciones/nueva">Agregar</a>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Profesor</th>
+                <th>Materia</th>
+                <th>Grupo</th>
+                <th>Semestre</th>
+                <th>Estado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% assignments.forEach((item) => { %>
+                <tr>
+                  <td>
+                    <strong><%= item.professor_name %></strong>
+                    <small><%= item.employee_number %></small>
+                  </td>
+                  <td>
+                    <strong><%= item.subject_name %></strong>
+                    <small><%= item.career || 'Carrera pendiente' %></small>
+                  </td>
+                  <td><%= item.subject_code ? item.subject_code + ' - ' : '' %><%= item.group_code %></td>
+                  <td><%= item.semester %></td>
+                  <td><span class="status-chip <%= item.active ? 'status-on' : 'status-off' %>"><%= item.active ? 'Activa' : 'Inactiva' %></span></td>
+                  <td><a class="table-link" href="/admin/asignaciones/<%= item.id %>/editar">Editar</a></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
