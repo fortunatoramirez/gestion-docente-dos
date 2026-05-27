@@ -16,6 +16,10 @@ function storageDriver() {
   return String(process.env.STORAGE_DRIVER || LOCAL_PROVIDER).toLowerCase();
 }
 
+function readJsonFile(filePath) {
+  return JSON.parse(fs.readFileSync(path.resolve(filePath), 'utf8'));
+}
+
 function evidenceFolderSegments(assignment, period) {
   return [
     `profesor_${cleanFolderSegment(assignment.employee_number, 'sin_numero')}`,
@@ -50,6 +54,28 @@ async function uniqueLocalPath(directory, fileName) {
 function driveAuthOptions() {
   const scopes = ['https://www.googleapis.com/auth/drive'];
 
+  if (process.env.GOOGLE_OAUTH_CLIENT_KEY_FILE && process.env.GOOGLE_OAUTH_TOKEN_FILE) {
+    const clientFile = readJsonFile(process.env.GOOGLE_OAUTH_CLIENT_KEY_FILE);
+    const clientConfig = clientFile.installed || clientFile.web;
+
+    if (!clientConfig) {
+      throw new Error('El archivo GOOGLE_OAUTH_CLIENT_KEY_FILE no parece ser un cliente OAuth valido.');
+    }
+
+    const redirectUri = process.env.GOOGLE_OAUTH_REDIRECT_URI
+      || (clientConfig.redirect_uris && clientConfig.redirect_uris[0])
+      || 'http://localhost';
+
+    const auth = new google.auth.OAuth2(
+      clientConfig.client_id,
+      clientConfig.client_secret,
+      redirectUri
+    );
+
+    auth.setCredentials(readJsonFile(process.env.GOOGLE_OAUTH_TOKEN_FILE));
+    return auth;
+  }
+
   if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
     return {
       credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON),
@@ -74,13 +100,17 @@ function driveRootFolderId() {
 async function getDriveClient() {
   if (driveClient) return driveClient;
 
-  const auth = new google.auth.GoogleAuth(driveAuthOptions());
+  const authOptions = driveAuthOptions();
+  const auth = authOptions instanceof google.auth.OAuth2
+    ? authOptions
+    : new google.auth.GoogleAuth(authOptions);
+
   driveClient = google.drive({ version: 'v3', auth });
   return driveClient;
 }
 
 function escapeDriveQueryValue(value) {
-  return String(value).replace(/\/g, '\\').replace(/'/g, "\'");
+  return String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 
 async function findDriveFolder(drive, parentId, folderName) {
