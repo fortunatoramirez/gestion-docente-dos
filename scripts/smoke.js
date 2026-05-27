@@ -75,7 +75,9 @@ async function main() {
     categories: evidenceCategories,
     romanUnits,
     bytesToHuman,
-    saved: false
+    reportLabel: 'Reporte parcial 1',
+    saved: false,
+    error: null
   });
 
   console.log('Smoke render OK');
