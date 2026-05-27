@@ -9,7 +9,9 @@ const professor = {
   id: 1,
   employee_number: '2289',
   full_name: 'RAMIREZ ARZATE FORTUNATO',
-  department: 'DIEE'
+  department: 'DIEE',
+  email: null,
+  must_change_password: 0
 };
 
 const assignment = {
@@ -27,7 +29,8 @@ const common = {
   appName: 'Gestion Docente',
   currentPath: '/',
   professor,
-  isAdmin: true
+  isAdmin: true,
+  passwordChangeRequired: false
 };
 
 async function render(view, locals) {
@@ -64,6 +67,13 @@ async function main() {
     ]
   });
 
+  await render('profile.html', {
+    title: 'Mi perfil',
+    professor,
+    saved: false,
+    error: null
+  });
+
   await render('report-form.html', {
     title: 'Reporte 1',
     assignment,
@@ -90,6 +100,7 @@ async function main() {
         employee_number: professor.employee_number,
         full_name: professor.full_name,
         email: null,
+        must_change_password: 0,
         active: 1
       }
     ],
