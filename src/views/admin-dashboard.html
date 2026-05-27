@@ -11,6 +11,10 @@
       </div>
 
       <nav class="subject-nav" aria-label="Administracion">
+        <a href="/perfil">
+          <span>Mi perfil</span>
+          <small>Contrasena</small>
+        </a>
         <a href="/dashboard">
           <span>Tablero docente</span>
           <small>Reportes</small>
@@ -78,6 +82,7 @@
                 <th>Numero</th>
                 <th>Nombre</th>
                 <th>Correo</th>
+                <th>Contrasena</th>
                 <th>Estado</th>
                 <th></th>
               </tr>
@@ -88,6 +93,11 @@
                   <td><%= item.employee_number %></td>
                   <td><strong><%= item.full_name %></strong></td>
                   <td><%= item.email || 'Pendiente' %></td>
+                  <td>
+                    <span class="status-chip <%= item.must_change_password ? 'status-warning' : 'status-on' %>">
+                      <%= item.must_change_password ? 'Temporal' : 'Actualizada' %>
+                    </span>
+                  </td>
                   <td><span class="status-chip <%= item.active ? 'status-on' : 'status-off' %>"><%= item.active ? 'Activo' : 'Inactivo' %></span></td>
                   <td><a class="table-link" href="/admin/profesores/<%= item.id %>/editar">Editar</a></td>
                 </tr>

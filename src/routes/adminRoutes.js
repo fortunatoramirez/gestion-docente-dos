@@ -1,10 +1,11 @@
 const express = require('express');
 const AdminController = require('../controllers/adminController');
-const { requireAdmin } = require('../middleware/auth');
+const { requireAdmin, requirePasswordReady } = require('../middleware/auth');
 
 const router = express.Router();
 
 router.use(requireAdmin);
+router.use(requirePasswordReady);
 
 router.get('/', AdminController.index);
 

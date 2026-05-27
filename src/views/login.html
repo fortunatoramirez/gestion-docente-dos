@@ -23,6 +23,15 @@
           required
         >
 
+        <label for="password">Contrasena</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          autocomplete="current-password"
+          required
+        >
+
         <% if (error) { %>
           <p class="form-error"><%= error %></p>
         <% } %>

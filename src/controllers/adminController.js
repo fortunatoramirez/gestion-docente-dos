@@ -40,6 +40,10 @@ function optionalText(value) {
   return clean || null;
 }
 
+function optionalPassword(value) {
+  return String(value || '').trim();
+}
+
 function checkboxActive(value) {
   return value === '1' ? 1 : 0;
 }
@@ -152,6 +156,7 @@ async function createProfessor(req, res, next) {
       });
     }
 
+    payload.temporary_password = optionalPassword(req.body.temporary_password) || payload.employee_number;
     await Professor.create(payload);
     return res.redirect('/admin?guardado=profesor');
   } catch (error) {
@@ -188,6 +193,15 @@ async function updateProfessor(req, res, next) {
     }
 
     await Professor.update(req.params.id, payload);
+
+    const temporaryPassword = optionalPassword(req.body.temporary_password);
+    if (temporaryPassword) {
+      await Professor.setPassword(req.params.id, temporaryPassword, { mustChange: true });
+      if (Number(req.session.professor.id) === Number(req.params.id)) {
+        req.session.professor.must_change_password = 1;
+      }
+    }
+
     return res.redirect('/admin?guardado=profesor');
   } catch (error) {
     return next(error);
