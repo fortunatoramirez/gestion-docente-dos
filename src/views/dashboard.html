@@ -11,6 +11,12 @@
       </div>
 
       <nav class="subject-nav" aria-label="Materias">
+        <% if (isAdmin) { %>
+          <a href="/admin">
+            <span>Administracion</span>
+            <small>Profesores y materias</small>
+          </a>
+        <% } %>
         <% assignments.forEach((assignment) => { %>
           <a href="#materia-<%= assignment.id %>">
             <span><%= assignment.subject_name %></span>
