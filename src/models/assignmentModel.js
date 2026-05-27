@@ -66,7 +66,111 @@ async function findByIdForProfessor(assignmentId, professorId) {
   );
 }
 
+async function listAllAdmin() {
+  return withDemoFallback(
+    async () => {
+      const [rows] = await db.execute(
+        `SELECT
+            a.id,
+            a.group_code,
+            a.career,
+            a.semester,
+            a.active,
+            p.id AS professor_id,
+            p.employee_number,
+            p.full_name AS professor_name,
+            s.id AS subject_id,
+            s.name AS subject_name,
+            s.subject_code
+          FROM teaching_assignments a
+          INNER JOIN professors p ON p.id = a.professor_id
+          INNER JOIN subjects s ON s.id = a.subject_id
+          ORDER BY a.active DESC, p.full_name ASC, s.name ASC, a.group_code ASC`
+      );
+
+      return rows;
+    },
+    () => demoStore.listAssignmentsAdmin()
+  );
+}
+
+async function findByIdAdmin(assignmentId) {
+  return withDemoFallback(
+    async () => {
+      const [rows] = await db.execute(
+        `SELECT
+            id,
+            professor_id,
+            subject_id,
+            group_code,
+            career,
+            semester,
+            active
+          FROM teaching_assignments
+          WHERE id = :assignmentId
+          LIMIT 1`,
+        { assignmentId }
+      );
+
+      return rows[0] || null;
+    },
+    () => demoStore.findAssignmentByIdAdmin(assignmentId)
+  );
+}
+
+async function create(payload) {
+  return withDemoFallback(
+    async () => {
+      const [result] = await db.execute(
+        `INSERT INTO teaching_assignments (
+            professor_id,
+            subject_id,
+            group_code,
+            career,
+            semester,
+            active
+          )
+          VALUES (
+            :professor_id,
+            :subject_id,
+            :group_code,
+            :career,
+            :semester,
+            :active
+          )`,
+        payload
+      );
+
+      return result.insertId;
+    },
+    () => demoStore.createAssignment(payload)
+  );
+}
+
+async function update(assignmentId, payload) {
+  return withDemoFallback(
+    async () => {
+      await db.execute(
+        `UPDATE teaching_assignments
+         SET professor_id = :professor_id,
+             subject_id = :subject_id,
+             group_code = :group_code,
+             career = :career,
+             semester = :semester,
+             active = :active
+         WHERE id = :assignmentId`,
+        { assignmentId, ...payload }
+      );
+    },
+    () => demoStore.updateAssignment(assignmentId, payload)
+  );
+}
+
 module.exports = {
+  create,
+  findByIdAdmin,
   listForProfessor,
-  findByIdForProfessor
+  findByIdForProfessor,
+  listAllAdmin,
+  update
 };
