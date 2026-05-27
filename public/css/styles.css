@@ -3,10 +3,10 @@
   --muted: #627181;
   --line: #d9e0e7;
   --panel: #ffffff;
-  --paper: #f5f7f1;
-  --brand: #245b5f;
-  --brand-strong: #123f43;
-  --mint: #dff0e4;
+  --paper: #eef6fb;
+  --brand: #0f5f9f;
+  --brand-strong: #083f73;
+  --mint: #e3f4ff;
   --amber: #ffe3a6;
   --coral: #ffd6c9;
   --sky: #dceafe;
@@ -362,9 +362,15 @@ input[readonly] {
 .notice {
   margin-bottom: 18px;
   padding: 12px 14px;
-  color: #1f5c33;
+  color: #08456f;
   background: var(--mint);
   font-weight: 800;
+}
+
+.notice-error {
+  color: #8a2d1d;
+  background: #ffe8e2;
+  border-color: #f2b8aa;
 }
 
 .report-form {
@@ -475,6 +481,13 @@ input[readonly] {
   flex-basis: 100%;
 }
 
+.unit-picker legend small {
+  display: inline;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
 .unit-picker label,
 .choice-field label {
   display: inline-flex;
@@ -501,6 +514,15 @@ input[readonly] {
   background: #ffffff;
   color: var(--brand-strong);
   font-weight: 800;
+  text-align: center;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.file-drop.is-dragging,
+.file-drop:hover {
+  border-color: var(--brand);
+  background: #e8f4fc;
+  color: var(--brand);
 }
 
 .file-drop input {
@@ -517,6 +539,19 @@ input[readonly] {
   color: var(--muted);
   font-size: 0.86rem;
   overflow-wrap: anywhere;
+}
+
+.upload-block.needs-units {
+  border-color: #e4876f;
+  background: #fff8f6;
+}
+
+.upload-block.needs-units .unit-picker legend::after {
+  content: "Selecciona una unidad para continuar.";
+  display: block;
+  margin-top: 4px;
+  color: #9d3a25;
+  font-size: 0.82rem;
 }
 
 .evidence-list {
