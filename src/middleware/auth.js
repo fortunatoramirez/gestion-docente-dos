@@ -6,6 +6,18 @@ function requireAuth(req, res, next) {
   return next();
 }
 
+function requirePasswordReady(req, res, next) {
+  if (!req.session.professor) {
+    return res.redirect('/');
+  }
+
+  if (req.session.professor.must_change_password) {
+    return res.redirect('/perfil');
+  }
+
+  return next();
+}
+
 function adminEmployeeNumbers() {
   return String(process.env.ADMIN_EMPLOYEE_NUMBERS || '')
     .split(',')
@@ -35,7 +47,7 @@ function requireAdmin(req, res, next) {
 
 function redirectIfAuthenticated(req, res, next) {
   if (req.session.professor) {
-    return res.redirect('/dashboard');
+    return res.redirect(req.session.professor.must_change_password ? '/perfil' : '/dashboard');
   }
 
   return next();
@@ -45,5 +57,6 @@ module.exports = {
   isAdminProfessor,
   requireAdmin,
   requireAuth,
+  requirePasswordReady,
   redirectIfAuthenticated
 };

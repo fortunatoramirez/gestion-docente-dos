@@ -8,6 +8,7 @@ const session = require('express-session');
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const { isAdminProfessor } = require('./middleware/auth');
 
@@ -40,10 +41,12 @@ app.use((req, res, next) => {
   res.locals.currentPath = req.path;
   res.locals.professor = req.session.professor || null;
   res.locals.isAdmin = isAdminProfessor(req.session.professor);
+  res.locals.passwordChangeRequired = Boolean(req.session.professor && req.session.professor.must_change_password);
   next();
 });
 
 app.use('/', authRoutes);
+app.use('/perfil', profileRoutes);
 app.use('/admin', adminRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/reportes', reportRoutes);
