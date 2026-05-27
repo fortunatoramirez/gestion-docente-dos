@@ -17,7 +17,11 @@ function normalizeProfessor(source, index) {
     full_name: source.fullName,
     email: null,
     department: 'DIEE',
-    active: 1
+    active: 1,
+    password_hash: null,
+    must_change_password: 1,
+    password_changed_at: null,
+    last_login_at: null
   };
 }
 
@@ -85,7 +89,11 @@ function createProfessor(payload) {
   hydrate();
   const professor = {
     id: state.professors.length + 1,
-    ...payload
+    ...payload,
+    password_hash: payload.password_hash || null,
+    must_change_password: payload.must_change_password ?? 1,
+    password_changed_at: null,
+    last_login_at: null
   };
   state.professors.push(professor);
   return professor.id;
@@ -94,6 +102,22 @@ function createProfessor(payload) {
 function updateProfessor(professorId, payload) {
   const professor = findProfessorById(professorId);
   if (professor) Object.assign(professor, payload);
+}
+
+function setProfessorPassword(professorId, passwordHash, mustChange) {
+  const professor = findProfessorById(professorId);
+  if (!professor) return;
+
+  Object.assign(professor, {
+    password_hash: passwordHash,
+    must_change_password: mustChange,
+    password_changed_at: new Date()
+  });
+}
+
+function recordProfessorLogin(professorId) {
+  const professor = findProfessorById(professorId);
+  if (professor) professor.last_login_at = new Date();
 }
 
 function listSubjects() {
@@ -305,6 +329,8 @@ module.exports = {
   listEvidenceByReportId,
   findEvidenceByIdForProfessor,
   removeEvidence,
+  recordProfessorLogin,
+  setProfessorPassword,
   updateAssignment,
   updateProfessor,
   updateSubject
