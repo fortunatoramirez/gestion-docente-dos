@@ -98,6 +98,18 @@ GOOGLE_SERVICE_ACCOUNT_KEY_FILE=/ruta/segura/service-account.json
 
 Tambien puedes usar `GOOGLE_SERVICE_ACCOUNT_JSON` con el JSON completo si prefieres no guardar el archivo de credenciales en disco. La carpeta raiz debe estar compartida con el correo de la cuenta de servicio con permiso de editor.
 
+Si la carpeta esta en "Mi unidad" y no en una unidad compartida, usa OAuth para que Drive guarde los archivos con la cuota de tu cuenta:
+
+```bash
+STORAGE_DRIVER=google_drive
+GOOGLE_DRIVE_ROOT_FOLDER_ID=id_de_la_carpeta_raiz
+GOOGLE_OAUTH_CLIENT_KEY_FILE=/ruta/segura/client_secret.json
+GOOGLE_OAUTH_TOKEN_FILE=/ruta/segura/google-drive-oauth-token.json
+GOOGLE_OAUTH_REDIRECT_URI=http://127.0.0.1:3031/oauth2callback
+```
+
+Autoriza la cuenta una sola vez con `node scripts/google-drive-oauth.js`; el comando imprime una URL de Google, guarda el token en `GOOGLE_OAUTH_TOKEN_FILE` y despues la aplicacion puede subir evidencias a Drive.
+
 Si actualizas una base de datos existente, ejecuta la migracion:
 
 ```bash
