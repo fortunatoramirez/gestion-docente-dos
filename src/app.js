@@ -13,10 +13,12 @@ const reportRoutes = require('./routes/reportRoutes');
 const { isAdminProfessor } = require('./middleware/auth');
 
 const app = express();
+const isProduction = process.env.NODE_ENV === 'production';
 
 app.engine('html', ejs.renderFile);
 app.set('view engine', 'html');
 app.set('views', path.join(__dirname, 'views'));
+if (isProduction) app.set('trust proxy', 1);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -31,6 +33,7 @@ app.use(
     cookie: {
       httpOnly: true,
       sameSite: 'lax',
+      secure: isProduction,
       maxAge: 1000 * 60 * 60 * 8
     }
   })
