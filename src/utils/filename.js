@@ -16,12 +16,27 @@ function cleanSegment(value) {
     .trim();
 }
 
+function cleanFolderSegment(value, fallback = 'sin_nombre') {
+  return cleanSegment(value)
+    .replace(/[ .]+$/g, '')
+    .replace(/\s+/g, '_')
+    .toLowerCase() || fallback;
+}
+
 function selectedUnits(value) {
   const values = normalizeList(value)
     .map((unit) => String(unit).toUpperCase().trim())
     .filter((unit) => romanUnits.includes(unit));
 
   return values.length ? values.join('-') : 'SIN-UNIDAD';
+}
+
+function hasSelectedUnits(value) {
+  return selectedUnits(value) !== 'SIN-UNIDAD';
+}
+
+function reportFolderName(period) {
+  return Number(period) === 3 ? 'reporte_final' : `reporte_${period}`;
 }
 
 function buildEvidenceFileName({ assignment, categoryLabel, units, originalName, index = 0 }) {
@@ -44,6 +59,9 @@ function bytesToHuman(size) {
 module.exports = {
   buildEvidenceFileName,
   bytesToHuman,
+  cleanFolderSegment,
+  hasSelectedUnits,
+  reportFolderName,
   selectedUnits,
   romanUnits
 };
