@@ -36,6 +36,18 @@
           <input name="email" type="email" value="<%= professor.email || '' %>">
         </label>
 
+        <label class="wide-field">
+          <span>Contrasena temporal</span>
+          <input name="temporary_password" type="password" autocomplete="new-password">
+          <small class="field-hint">
+            <% if (professor.id) { %>
+              Dejala vacia para conservar la actual.
+            <% } else { %>
+              Si queda vacia se usara el numero de empleado.
+            <% } %>
+          </small>
+        </label>
+
         <fieldset class="choice-field">
           <legend>Estado</legend>
           <label>
