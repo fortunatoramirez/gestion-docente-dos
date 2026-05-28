@@ -13,11 +13,11 @@
       <nav class="subject-nav" aria-label="Materias">
         <a href="/perfil">
           <span>Mi perfil</span>
-          <small>Contrasena</small>
+          <small>Contraseña</small>
         </a>
         <% if (isAdmin) { %>
           <a href="/admin">
-            <span>Administracion</span>
+            <span>Administración</span>
             <small>Profesores y materias</small>
           </a>
         <% } %>
@@ -42,14 +42,14 @@
         </div>
         <div class="semester-pill">
           <span>Semestre</span>
-          <strong><%= assignments[0] ? assignments[0].semester : 'Sin periodo' %></strong>
+          <strong><%= assignments[0] ? assignments[0].semester : 'Sin período' %></strong>
         </div>
       </header>
 
       <% if (!assignments.length) { %>
         <section class="empty-state">
           <h2>Sin materias asignadas</h2>
-          <p>Cuando se carguen las materias apareceran aqui.</p>
+          <p>Cuando se carguen las materias aparecerán aquí.</p>
         </section>
       <% } %>
 

@@ -11,6 +11,10 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const { isAdminProfessor } = require('./middleware/auth');
+const {
+  MAX_FILES_PER_UPLOAD_FIELD,
+  MAX_UPLOAD_MB
+} = require('./utils/uploadLimits');
 
 const app = express();
 const isProduction = process.env.NODE_ENV === 'production';
@@ -40,7 +44,7 @@ app.use(
 );
 
 app.use((req, res, next) => {
-  res.locals.appName = process.env.APP_NAME || 'Gestion Docente';
+  res.locals.appName = process.env.APP_NAME || 'Gestión Docente';
   res.locals.currentPath = req.path;
   res.locals.professor = req.session.professor || null;
   res.locals.isAdmin = isAdminProfessor(req.session.professor);
@@ -57,7 +61,7 @@ app.use('/reportes', reportRoutes);
 app.use((req, res) => {
   res.status(404).render('error.html', {
     title: 'No encontrado',
-    message: 'La pagina solicitada no esta disponible.'
+    message: 'La página solicitada no está disponible.'
   });
 });
 
@@ -65,14 +69,21 @@ app.use((err, req, res, next) => {
   if (err.code === 'LIMIT_FILE_SIZE') {
     return res.status(413).render('error.html', {
       title: 'Archivo demasiado grande',
-      message: `El archivo excede el limite configurado de ${process.env.MAX_UPLOAD_MB || 512} MB.`
+      message: `Cada caja de evidencia acepta hasta ${MAX_UPLOAD_MB} MB en total.`
+    });
+  }
+
+  if (err.code === 'LIMIT_UNEXPECTED_FILE' || err.code === 'LIMIT_FILE_COUNT') {
+    return res.status(413).render('error.html', {
+      title: 'Demasiados archivos',
+      message: `Cada caja de evidencia acepta hasta ${MAX_FILES_PER_UPLOAD_FIELD} archivos.`
     });
   }
 
   console.error(err);
   return res.status(500).render('error.html', {
     title: 'Error',
-    message: 'Ocurrio un problema al procesar la solicitud.'
+    message: 'Ocurrió un problema al procesar la solicitud.'
   });
 });
 

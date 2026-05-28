@@ -26,7 +26,7 @@ const assignment = {
 };
 
 const common = {
-  appName: 'Gestion Docente',
+  appName: 'Gestión Docente',
   currentPath: '/',
   professor,
   isAdmin: true,
@@ -40,7 +40,7 @@ async function render(view, locals) {
   });
 
   if (!html.includes('<!doctype html>')) {
-    throw new Error(`${view} no genero HTML completo`);
+    throw new Error(`${view} no generó HTML completo`);
   }
 }
 
@@ -87,12 +87,18 @@ async function main() {
     romanUnits,
     bytesToHuman,
     reportLabel: 'Reporte parcial 1',
+    reprovalObservationThreshold: 33,
+    maxFilesPerUpload: 5,
+    maxUploadMb: 20,
+    defaultObservations: 'No aplica',
+    defaultAdditionalActivities: 'no aplica',
+    additionalActivitiesHelp: 'En esta sección deberá realizar una breve descripción de los avances de las actividades adicionales que se tienen encomendadas, dichas actividades pueden ser: Asesor interno de residencias profesionales, elaboración / actualización de Especialidades, despacho de alguna de las Jefaturas del Departamento, etc.',
     saved: false,
     error: null
   });
 
   await render('admin-dashboard.html', {
-    title: 'Administracion',
+    title: 'Administración',
     saved: null,
     professors: [
       {
@@ -147,7 +153,7 @@ async function main() {
   });
 
   await render('admin-assignment-form.html', {
-    title: 'Nueva asignacion',
+    title: 'Nueva asignación',
     action: '/admin/asignaciones',
     assignment: {
       professor_id: '',

@@ -7,13 +7,13 @@ const evidenceCategories = [
   },
   {
     key: 'presentation',
-    label: 'Presentacion',
+    label: 'Presentación',
     prompt: 'Evidencia de presentaciones del alumnado',
     accept: '.pdf,.ppt,.pptx,.jpg,.jpeg,.png,.mp4,.mov,.zip'
   },
   {
     key: 'research',
-    label: 'Investigacion',
+    label: 'Investigación',
     prompt: 'Evidencia de investigaciones realizadas',
     accept: '.pdf,.doc,.docx,.jpg,.jpeg,.png,.zip'
   },
@@ -25,14 +25,14 @@ const evidenceCategories = [
   },
   {
     key: 'practice',
-    label: 'Practica',
-    prompt: 'Evidencia de practicas realizadas',
+    label: 'Práctica',
+    prompt: 'Evidencia de prácticas realizadas',
     accept: '.pdf,.doc,.docx,.jpg,.jpeg,.png,.mp4,.mov,.zip'
   },
   {
     key: 'other',
     label: 'Otro',
-    prompt: 'Otros instrumentos de evaluacion',
+    prompt: 'Otros instrumentos de evaluación',
     accept: '.pdf,.doc,.docx,.jpg,.jpeg,.png,.mp4,.mov,.zip'
   }
 ];

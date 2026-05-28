@@ -50,9 +50,9 @@ async function verifyPassword(password, passwordHash) {
 
 function validateNewPassword(password, professor) {
   const clean = normalizePassword(password);
-  if (clean.length < 8) return 'La nueva contrasena debe tener al menos 8 caracteres.';
+  if (clean.length < 8) return 'La nueva contraseña debe tener al menos 8 caracteres.';
   if (professor && clean === String(professor.employee_number)) {
-    return 'La nueva contrasena no puede ser igual al numero de empleado.';
+    return 'La nueva contraseña no puede ser igual al número de empleado.';
   }
 
   return null;

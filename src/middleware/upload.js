@@ -2,10 +2,12 @@ const fs = require('fs');
 const multer = require('multer');
 const { tempUploadRoot } = require('../config/paths');
 const { evidenceCategories } = require('../utils/categories');
+const {
+  MAX_FILES_PER_UPLOAD_FIELD,
+  MAX_UPLOAD_BYTES
+} = require('../utils/uploadLimits');
 
 fs.mkdirSync(tempUploadRoot, { recursive: true });
-
-const maxUploadMb = Number(process.env.MAX_UPLOAD_MB || 512);
 
 const storage = multer.diskStorage({
   destination: tempUploadRoot,
@@ -18,14 +20,14 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   limits: {
-    fileSize: maxUploadMb * 1024 * 1024,
-    files: evidenceCategories.length * 5
+    fileSize: MAX_UPLOAD_BYTES,
+    files: evidenceCategories.length * MAX_FILES_PER_UPLOAD_FIELD
   }
 });
 
 const reportUploadFields = evidenceCategories.map((category) => ({
   name: `evidence_${category.key}`,
-  maxCount: 5
+  maxCount: MAX_FILES_PER_UPLOAD_FIELD
 }));
 
 module.exports = upload.fields(reportUploadFields);

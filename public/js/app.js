@@ -1,7 +1,79 @@
 (function () {
+  const MB_IN_BYTES = 1024 * 1024;
+
   function numberFromInput(selector) {
     const value = Number(document.querySelector(selector)?.value || 0);
     return Number.isFinite(value) && value > 0 ? value : 0;
+  }
+
+  function normalizeText(value) {
+    return String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim()
+      .toLowerCase();
+  }
+
+  function reportFormConfig(form) {
+    return {
+      maxFiles: Number(form.dataset.maxFilesPerUpload || 5),
+      maxUploadMb: Number(form.dataset.maxUploadMb || 20),
+      reprovalThreshold: Number(form.dataset.reprovalThreshold || 33),
+      defaultObservations: form.dataset.defaultObservations || 'No aplica'
+    };
+  }
+
+  function isDefaultObservation(value) {
+    return normalizeText(value) === 'no aplica';
+  }
+
+  function validateObservations(reprovalPercentage, showMessage) {
+    const form = document.querySelector('.report-form');
+    const textarea = form?.querySelector('[name="observations"]');
+    if (!form || !textarea) return true;
+
+    const { reprovalThreshold, defaultObservations } = reportFormConfig(form);
+    const required = reprovalPercentage > reprovalThreshold;
+    const invalid = required && (!textarea.value.trim() || isDefaultObservation(textarea.value));
+    textarea.setCustomValidity(
+      invalid
+        ? `Cuando la reprobación excede el ${reprovalThreshold}%, escribe las estrategias destinadas a solventar esta condición.`
+        : ''
+    );
+
+    if (!required && !textarea.value.trim()) {
+      textarea.value = defaultObservations;
+    }
+
+    if (invalid && showMessage) {
+      textarea.reportValidity();
+      textarea.focus();
+    }
+
+    return !invalid;
+  }
+
+  function updateObservationRequirement(reprovalPercentage) {
+    const form = document.querySelector('.report-form');
+    const textarea = form?.querySelector('[name="observations"]');
+    const hint = form?.querySelector('[data-observations-hint]');
+    if (!form || !textarea) return true;
+
+    const { reprovalThreshold, defaultObservations } = reportFormConfig(form);
+    const required = reprovalPercentage > reprovalThreshold;
+    textarea.required = required;
+
+    if (hint) {
+      hint.textContent = required
+        ? `El índice de reprobación excede el ${reprovalThreshold}%; describe las estrategias destinadas a solventar dicha condición.`
+        : `Si el índice de reprobación excede el ${reprovalThreshold}%, describe las estrategias destinadas a solventar dicha condición.`;
+    }
+
+    if (!required && !textarea.value.trim()) {
+      textarea.value = defaultObservations;
+    }
+
+    return validateObservations(reprovalPercentage, false);
   }
 
   function updateMetrics() {
@@ -19,6 +91,9 @@
       const target = document.querySelector(`[data-metric="${key}"]`);
       if (target) target.textContent = `${value.toFixed(1)}%`;
     });
+
+    updateObservationRequirement(metrics.failed);
+    return metrics;
   }
 
   function cleanSegment(value) {
@@ -50,11 +125,44 @@
     return !needsUnits;
   }
 
+  function setUploadMessage(block, message) {
+    const fileInput = block.querySelector('input[type="file"]');
+    const output = block.querySelector('.filename-preview');
+    if (fileInput) fileInput.setCustomValidity(message || '');
+    if (output && message) output.textContent = message;
+  }
+
+  function validateUploadLimits(block) {
+    const form = block.closest('form');
+    const fileInput = block.querySelector('input[type="file"]');
+    if (!form || !fileInput || !fileInput.files) return true;
+
+    const { maxFiles, maxUploadMb } = reportFormConfig(form);
+    const files = Array.from(fileInput.files);
+    const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
+    const maxBytes = maxUploadMb * MB_IN_BYTES;
+    let message = '';
+
+    if (files.length > maxFiles) {
+      message = `Cada caja permite hasta ${maxFiles} archivos.`;
+    } else if (totalBytes > maxBytes) {
+      message = `Cada caja permite hasta ${maxUploadMb} MB en total.`;
+    }
+
+    setUploadMessage(block, message);
+    return !message;
+  }
+
   function updatePreview(block) {
     const form = block.closest('form');
     const fileInput = block.querySelector('input[type="file"]');
     const output = block.querySelector('.filename-preview');
     if (!form || !fileInput || !output) return;
+
+    if (!validateUploadLimits(block)) {
+      updateUnitState(block);
+      return;
+    }
 
     const subjectCode = cleanSegment(form.dataset.subjectCode);
     const groupCode = cleanSegment(form.dataset.groupCode);
@@ -108,6 +216,25 @@
     if (!form) return;
 
     form.addEventListener('submit', (event) => {
+      const metrics = updateMetrics();
+      const observationsOk = validateObservations(metrics.failed, true);
+      if (!observationsOk) {
+        event.preventDefault();
+        return;
+      }
+
+      const invalidUploadBlock = Array.from(form.querySelectorAll('[data-upload-block]')).find((block) => {
+        return !validateUploadLimits(block);
+      });
+
+      if (invalidUploadBlock) {
+        event.preventDefault();
+        const fileInput = invalidUploadBlock.querySelector('input[type="file"]');
+        if (fileInput) fileInput.reportValidity();
+        invalidUploadBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
       const invalidBlock = Array.from(form.querySelectorAll('[data-upload-block]')).find((block) => {
         return !updateUnitState(block);
       });
@@ -126,8 +253,18 @@
   });
   updateMetrics();
 
+  const observations = document.querySelector('[name="observations"]');
+  if (observations) {
+    observations.addEventListener('input', () => {
+      validateObservations(updateMetrics().failed, false);
+    });
+  }
+
   document.querySelectorAll('[data-upload-block]').forEach((block) => {
-    block.addEventListener('change', () => updatePreview(block));
+    block.addEventListener('change', () => {
+      updatePreview(block);
+      validateUploadLimits(block);
+    });
     setupDropZone(block);
   });
 

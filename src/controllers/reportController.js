@@ -12,6 +12,17 @@ const {
   romanUnits,
   selectedUnits
 } = require('../utils/filename');
+const {
+  MAX_FILES_PER_UPLOAD_FIELD,
+  MAX_UPLOAD_BYTES,
+  MAX_UPLOAD_MB
+} = require('../utils/uploadLimits');
+const { stripAccents } = require('../utils/text');
+
+const REPROVAL_OBSERVATION_THRESHOLD = 33;
+const DEFAULT_OBSERVATIONS = 'No aplica';
+const DEFAULT_ADDITIONAL_ACTIVITIES = 'no aplica';
+const ADDITIONAL_ACTIVITIES_HELP = 'En esta sección deberá realizar una breve descripción de los avances de las actividades adicionales que se tienen encomendadas, dichas actividades pueden ser: Asesor interno de residencias profesionales, elaboración / actualización de Especialidades, despacho de alguna de las Jefaturas del Departamento, etc.';
 
 function parsePeriod(value) {
   const period = Number(value);
@@ -74,6 +85,46 @@ function validateEvidenceUnits({ files, body }) {
   return `Selecciona al menos una unidad para: ${labels}.`;
 }
 
+function validateEvidenceUploadLimits(files) {
+  for (const category of evidenceCategories) {
+    const uploadedFiles = files[`evidence_${category.key}`] || [];
+    const totalSize = uploadedFiles.reduce((total, file) => total + Number(file.size || 0), 0);
+
+    if (uploadedFiles.length > MAX_FILES_PER_UPLOAD_FIELD) {
+      return `Puedes subir hasta ${MAX_FILES_PER_UPLOAD_FIELD} archivos en ${category.label}.`;
+    }
+
+    if (totalSize > MAX_UPLOAD_BYTES) {
+      return `Los archivos de ${category.label} exceden ${MAX_UPLOAD_MB} MB en total.`;
+    }
+  }
+
+  return null;
+}
+
+function requiresReprovalObservations(reprovalPercentage) {
+  return Number(reprovalPercentage) > REPROVAL_OBSERVATION_THRESHOLD;
+}
+
+function normalizeReportText({ observations, additionalActivities, reprovalPercentage }) {
+  const cleanObservations = String(observations || '').trim();
+  const cleanAdditionalActivities = String(additionalActivities || '').trim();
+
+  if (requiresReprovalObservations(reprovalPercentage)) {
+    const normalizedObservations = stripAccents(cleanObservations).toLowerCase();
+    if (!cleanObservations || normalizedObservations === DEFAULT_OBSERVATIONS.toLowerCase()) {
+      return {
+        error: `Cuando el índice de reprobación excede el ${REPROVAL_OBSERVATION_THRESHOLD}%, comenta las estrategias destinadas a solventar dicha condición.`
+      };
+    }
+  }
+
+  return {
+    observations: cleanObservations || DEFAULT_OBSERVATIONS,
+    additionalActivities: cleanAdditionalActivities || DEFAULT_ADDITIONAL_ACTIVITIES
+  };
+}
+
 async function persistUploadedFiles({ files, body, reportId, assignment, period }) {
   for (const category of evidenceCategories) {
     const uploadedFiles = files[`evidence_${category.key}`] || [];
@@ -124,6 +175,12 @@ async function renderReportForm(req, res, { assignment, period, report, saved = 
     romanUnits,
     bytesToHuman,
     reportLabel: reportLabel(period),
+    reprovalObservationThreshold: REPROVAL_OBSERVATION_THRESHOLD,
+    maxFilesPerUpload: MAX_FILES_PER_UPLOAD_FIELD,
+    maxUploadMb: MAX_UPLOAD_MB,
+    defaultObservations: DEFAULT_OBSERVATIONS,
+    defaultAdditionalActivities: DEFAULT_ADDITIONAL_ACTIVITIES,
+    additionalActivitiesHelp: ADDITIONAL_ACTIVITIES_HELP,
     saved,
     error
   });
@@ -163,22 +220,16 @@ async function save(req, res, next) {
     );
     if (!assignment) return res.redirect('/dashboard');
 
+    const uploadLimitError = validateEvidenceUploadLimits(req.files || {});
     const unitsError = validateEvidenceUnits({ files: req.files || {}, body: req.body });
-    if (unitsError) {
+    if (uploadLimitError || unitsError) {
       await cleanupUploadedFiles(req.files || {});
       const report = await Report.findByAssignmentAndPeriod(assignment.id, period);
-      return res.status(400).render('report-form.html', {
-        title: reportLabel(period),
+      return renderReportForm(req, res.status(400), {
         assignment,
         period,
         report,
-        evidenceByCategory: groupEvidence(await Evidence.listByReportId(report && report.id)),
-        categories: evidenceCategories,
-        romanUnits,
-        bytesToHuman,
-        reportLabel: reportLabel(period),
-        saved: false,
-        error: unitsError
+        error: uploadLimitError || unitsError
       });
     }
 
@@ -187,6 +238,22 @@ async function save(req, res, next) {
     const absent = toInteger(req.body.absent_students);
     const percentages = calculatePercentages({ enrolled, approved, absent });
     const status = req.body.action === 'submit' ? 'submitted' : 'draft';
+    const reportText = normalizeReportText({
+      observations: req.body.observations,
+      additionalActivities: req.body.additional_activities,
+      reprovalPercentage: percentages.reprovalPercentage
+    });
+
+    if (reportText.error) {
+      await cleanupUploadedFiles(req.files || {});
+      const report = await Report.findByAssignmentAndPeriod(assignment.id, period);
+      return renderReportForm(req, res.status(422), {
+        assignment,
+        period,
+        report,
+        error: reportText.error
+      });
+    }
 
     const reportId = await Report.upsertReport(assignment.id, period, {
       enrolled_students: enrolled,
@@ -195,8 +262,8 @@ async function save(req, res, next) {
       approved_percentage: percentages.approvedPercentage,
       absent_percentage: percentages.absentPercentage,
       reproval_percentage: percentages.reprovalPercentage,
-      observations: String(req.body.observations || '').trim(),
-      additional_activities: String(req.body.additional_activities || '').trim(),
+      observations: reportText.observations,
+      additional_activities: reportText.additionalActivities,
       progress_delayed: req.body.progress_delayed === '1' ? 1 : 0,
       progress_notes: String(req.body.progress_notes || '').trim(),
       status

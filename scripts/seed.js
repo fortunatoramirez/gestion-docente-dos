@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const db = require('../src/config/database');
+const { normalizeCatalogName } = require('../src/utils/text');
 
 const semester = 'Ene-Jun 2026';
 
@@ -330,6 +331,11 @@ function careerFromGroup(groupCode) {
 }
 
 async function upsertProfessor(connection, professor) {
+  const normalizedProfessor = {
+    ...professor,
+    fullName: normalizeCatalogName(professor.fullName)
+  };
+
   const [result] = await connection.execute(
     `INSERT INTO professors (employee_number, full_name, department)
      VALUES (:employeeNumber, :fullName, 'DIEE')
@@ -338,13 +344,14 @@ async function upsertProfessor(connection, professor) {
        department = VALUES(department),
        active = 1,
        id = LAST_INSERT_ID(id)`,
-    professor
+    normalizedProfessor
   );
 
   return result.insertId;
 }
 
 async function upsertSubject(connection, name, groupCode, credits, subjectCode = null) {
+  const normalizedName = normalizeCatalogName(name);
   const [result] = await connection.execute(
     `INSERT INTO subjects (name, subject_code, credits)
      VALUES (:name, :subjectCode, :credits)
@@ -353,7 +360,7 @@ async function upsertSubject(connection, name, groupCode, credits, subjectCode =
        credits = VALUES(credits),
        id = LAST_INSERT_ID(id)`,
     {
-      name,
+      name: normalizedName,
       subjectCode,
       credits,
       groupCode

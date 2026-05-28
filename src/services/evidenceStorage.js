@@ -21,10 +21,16 @@ function readJsonFile(filePath) {
 }
 
 function evidenceFolderSegments(assignment, period) {
+  const professorFolder = [
+    cleanFolderSegment(assignment.employee_number, 'sin_numero'),
+    cleanFolderSegment(assignment.professor_name, 'sin_nombre')
+  ].join('_');
+
   return [
-    `profesor_${cleanFolderSegment(assignment.employee_number, 'sin_numero')}`,
+    professorFolder,
     reportFolderName(period),
-    cleanFolderSegment(assignment.subject_name, 'materia_sin_nombre')
+    cleanFolderSegment(assignment.subject_name, 'materia_sin_nombre'),
+    'evidencias'
   ];
 }
 
@@ -59,7 +65,7 @@ function driveAuthOptions() {
     const clientConfig = clientFile.installed || clientFile.web;
 
     if (!clientConfig) {
-      throw new Error('El archivo GOOGLE_OAUTH_CLIENT_KEY_FILE no parece ser un cliente OAuth valido.');
+      throw new Error('El archivo GOOGLE_OAUTH_CLIENT_KEY_FILE no parece ser un cliente OAuth válido.');
     }
 
     const redirectUri = process.env.GOOGLE_OAUTH_REDIRECT_URI

@@ -18,7 +18,7 @@
           </a>
           <% if (isAdmin) { %>
             <a href="/admin">
-              <span>Administracion</span>
+              <span>Administración</span>
               <small>Profesores y materias</small>
             </a>
           <% } %>
@@ -39,11 +39,11 @@
       </header>
 
       <% if (passwordChangeRequired) { %>
-        <div class="notice notice-warning">Actualiza tu contrasena para continuar.</div>
+        <div class="notice notice-warning">Actualiza tu contraseña para continuar.</div>
       <% } %>
 
       <% if (saved) { %>
-        <div class="notice">Contrasena actualizada.</div>
+        <div class="notice">Contraseña actualizada.</div>
       <% } %>
 
       <% if (error) { %>
@@ -56,7 +56,7 @@
           <strong><%= professor.full_name %></strong>
         </div>
         <div>
-          <span>Numero de empleado</span>
+          <span>Número de empleado</span>
           <strong><%= professor.employee_number %></strong>
         </div>
         <div>
@@ -69,21 +69,21 @@
         </div>
       </section>
 
-      <form class="admin-form" action="/perfil/password" method="post" id="password-form">
+      <form class="admin-form" action="/perfil/password" method="post">
         <section class="form-section">
           <div class="readonly-grid">
             <label>
-              <span>Contrasena actual</span>
+              <span>Contraseña actual</span>
               <input name="current_password" type="password" autocomplete="current-password" required>
             </label>
             <label>
-              <span>Nueva contrasena</span>
+              <span>Nueva contraseña</span>
               <input name="new_password" type="password" autocomplete="new-password" minlength="8" required>
             </label>
           </div>
 
           <label class="wide-field">
-            <span>Confirmar nueva contrasena</span>
+            <span>Confirmar nueva contraseña</span>
             <input name="confirm_password" type="password" autocomplete="new-password" minlength="8" required>
           </label>
         </section>

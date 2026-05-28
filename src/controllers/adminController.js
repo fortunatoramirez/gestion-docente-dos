@@ -1,6 +1,7 @@
 const Assignment = require('../models/assignmentModel');
 const Professor = require('../models/professorModel');
 const Subject = require('../models/subjectModel');
+const { normalizeCatalogName } = require('../utils/text');
 
 function blankProfessor() {
   return {
@@ -51,7 +52,7 @@ function checkboxActive(value) {
 function professorPayload(body) {
   return {
     employee_number: cleanText(body.employee_number),
-    full_name: cleanText(body.full_name).toUpperCase(),
+    full_name: normalizeCatalogName(body.full_name),
     email: optionalText(body.email),
     department: optionalText(body.department),
     active: checkboxActive(body.active)
@@ -61,7 +62,7 @@ function professorPayload(body) {
 function subjectPayload(body) {
   const credits = Number(body.credits);
   return {
-    name: cleanText(body.name).toUpperCase(),
+    name: normalizeCatalogName(body.name),
     subject_code: optionalText(body.subject_code),
     credits: Number.isFinite(credits) && credits > 0 ? Math.round(credits) : null
   };
@@ -79,7 +80,7 @@ function assignmentPayload(body) {
 }
 
 function validateProfessor(payload) {
-  if (!payload.employee_number) return 'Ingresa el numero de empleado.';
+  if (!payload.employee_number) return 'Ingresa el número de empleado.';
   if (!payload.full_name) return 'Ingresa el nombre completo.';
   return null;
 }
@@ -115,7 +116,7 @@ async function index(req, res, next) {
     ]);
 
     return res.render('admin-dashboard.html', {
-      title: 'Administracion',
+      title: 'Administración',
       professors,
       subjects,
       assignments,
@@ -295,7 +296,7 @@ async function renderAssignmentForm(res, { title, action, assignment, error = nu
 async function newAssignment(req, res, next) {
   try {
     return renderAssignmentForm(res, {
-      title: 'Nueva asignacion',
+      title: 'Nueva asignación',
       action: '/admin/asignaciones',
       assignment: blankAssignment()
     });
@@ -310,7 +311,7 @@ async function createAssignment(req, res, next) {
     const error = validateAssignment(payload);
     if (error) {
       return res.status(422).render('admin-assignment-form.html', {
-        title: 'Nueva asignacion',
+        title: 'Nueva asignación',
         action: '/admin/asignaciones',
         assignment: payload,
         error,
@@ -331,7 +332,7 @@ async function editAssignment(req, res, next) {
     if (!assignment) return res.redirect('/admin');
 
     return renderAssignmentForm(res, {
-      title: 'Editar asignacion',
+      title: 'Editar asignación',
       action: `/admin/asignaciones/${assignment.id}`,
       assignment
     });
@@ -346,7 +347,7 @@ async function updateAssignment(req, res, next) {
     const error = validateAssignment(payload);
     if (error) {
       return res.status(422).render('admin-assignment-form.html', {
-        title: 'Editar asignacion',
+        title: 'Editar asignación',
         action: `/admin/asignaciones/${req.params.id}`,
         assignment: { id: req.params.id, ...payload },
         error,

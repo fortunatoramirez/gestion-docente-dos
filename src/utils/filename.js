@@ -1,4 +1,5 @@
 const path = require('path');
+const { stripAccents } = require('./text');
 
 const romanUnits = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
 
@@ -8,9 +9,7 @@ function normalizeList(value) {
 }
 
 function cleanSegment(value) {
-  return String(value || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
+  return stripAccents(value)
     .replace(/[^a-zA-Z0-9 _.-]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
