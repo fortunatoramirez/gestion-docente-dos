@@ -54,7 +54,7 @@ async function updatePassword(req, res, next) {
     if (!currentPassword || !newPassword || !confirmPassword) {
       return renderProfile(res.status(422), {
         professor,
-        error: 'Completa todos los campos de contrasena.'
+        error: 'Completa todos los campos de contraseña.'
       });
     }
 
@@ -62,14 +62,14 @@ async function updatePassword(req, res, next) {
     if (!currentIsValid) {
       return renderProfile(res.status(401), {
         professor,
-        error: 'La contrasena actual no coincide.'
+        error: 'La contraseña actual no coincide.'
       });
     }
 
     if (newPassword !== confirmPassword) {
       return renderProfile(res.status(422), {
         professor,
-        error: 'La confirmacion no coincide.'
+        error: 'La confirmación no coincide.'
       });
     }
 

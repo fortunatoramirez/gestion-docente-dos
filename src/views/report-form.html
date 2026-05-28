@@ -9,10 +9,10 @@
           <span><%= professor.employee_number %></span>
         </div>
       </div>
-      <nav class="subject-nav" aria-label="Navegacion">
+      <nav class="subject-nav" aria-label="Navegación">
         <a href="/perfil">
           <span>Mi perfil</span>
-          <small>Contrasena</small>
+          <small>Contraseña</small>
         </a>
         <a href="/dashboard">
           <span>Tablero</span>
@@ -49,7 +49,13 @@
         enctype="multipart/form-data"
         data-subject-code="<%= assignment.subject_code || '' %>"
         data-group-code="<%= assignment.group_code %>"
+        data-max-files-per-upload="<%= maxFilesPerUpload %>"
+        data-max-upload-mb="<%= maxUploadMb %>"
+        data-reproval-threshold="<%= reprovalObservationThreshold %>"
+        data-default-observations="<%= defaultObservations %>"
       >
+        <% const currentReproval = report ? Number(report.reproval_percentage || 0) : 0; %>
+        <% const observationsRequired = currentReproval > reprovalObservationThreshold; %>
         <section class="form-section">
           <div class="section-heading">
             <h2>Datos relevantes</h2>
@@ -91,7 +97,7 @@
 
           <div class="metrics" aria-live="polite">
             <div>
-              <span>Aprobacion</span>
+              <span>Aprobación</span>
               <strong data-metric="approved"><%= report ? Number(report.approved_percentage || 0).toFixed(1) : '0.0' %>%</strong>
             </div>
             <div>
@@ -99,20 +105,23 @@
               <strong data-metric="absent"><%= report ? Number(report.absent_percentage || 0).toFixed(1) : '0.0' %>%</strong>
             </div>
             <div>
-              <span>Reprobacion</span>
+              <span>Reprobación</span>
               <strong data-metric="failed"><%= report ? Number(report.reproval_percentage || 0).toFixed(1) : '0.0' %>%</strong>
             </div>
           </div>
 
           <label class="wide-field">
             <span>Observaciones del grupo</span>
-            <textarea name="observations" rows="4" required><%= report ? report.observations : 'No aplica' %></textarea>
+            <small class="field-hint" data-observations-hint>
+              Si el índice de reprobación excede el <%= reprovalObservationThreshold %>%, describe las estrategias destinadas a solventar dicha condición.
+            </small>
+            <textarea name="observations" rows="4" <%= observationsRequired ? 'required' : '' %>><%= report && report.observations ? report.observations : defaultObservations %></textarea>
           </label>
         </section>
 
         <section class="form-section">
           <div class="section-heading">
-            <h2>Evidencias de evaluacion</h2>
+            <h2>Evidencias de evaluación</h2>
           </div>
 
           <div class="upload-grid">
@@ -135,8 +144,9 @@
 
                 <label class="file-drop">
                   <input type="file" name="evidence_<%= category.key %>" accept="<%= category.accept %>" multiple>
-                  <span>Arrastra archivos aqui o selecciona</span>
+                  <span>Arrastra archivos aquí o selecciona</span>
                 </label>
+                <small class="field-hint">Máximo <%= maxFilesPerUpload %> archivos y <%= maxUploadMb %> MB en total por caja.</small>
                 <output class="filename-preview"></output>
 
                 <% const files = evidenceByCategory[category.key] || []; %>
@@ -162,7 +172,8 @@
 
           <label class="wide-field">
             <span>Actividades adicionales</span>
-            <textarea name="additional_activities" rows="4" required><%= report ? report.additional_activities : 'No aplica' %></textarea>
+            <small class="field-hint"><%= additionalActivitiesHelp %></small>
+            <textarea name="additional_activities" rows="4" required><%= report && report.additional_activities ? report.additional_activities : defaultAdditionalActivities %></textarea>
           </label>
 
           <fieldset class="choice-field">
@@ -173,7 +184,7 @@
             </label>
             <label>
               <input type="radio" name="progress_delayed" value="1" <%= report && report.progress_delayed ? 'checked' : '' %>>
-              <span>Si</span>
+              <span>Sí</span>
             </label>
           </fieldset>
 

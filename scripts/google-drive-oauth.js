@@ -21,7 +21,7 @@ function oauthClient() {
   const credentials = readJson(clientPath);
   const config = credentials.installed || credentials.web;
   if (!config) {
-    throw new Error('El archivo OAuth no contiene una seccion installed o web.');
+    throw new Error('El archivo OAuth no contiene una sección installed o web.');
   }
 
   const redirectUri = process.env.GOOGLE_OAUTH_REDIRECT_URI || 'http://127.0.0.1:3031/oauth2callback';

@@ -34,7 +34,7 @@ async function login(req, res, next) {
     if (!employeeNumber || !password) {
       return res.status(422).render('login.html', {
         title: 'Acceso',
-        error: 'Ingresa tu numero de empleado y contrasena.',
+        error: 'Ingresa tu número de empleado y contraseña.',
         employeeNumber
       });
     }
@@ -43,7 +43,7 @@ async function login(req, res, next) {
     if (!professor) {
       return res.status(404).render('login.html', {
         title: 'Acceso',
-        error: 'No encontramos ese numero de empleado.',
+        error: 'No encontramos ese número de empleado.',
         employeeNumber
       });
     }
@@ -52,7 +52,7 @@ async function login(req, res, next) {
     if (!validPassword) {
       return res.status(401).render('login.html', {
         title: 'Acceso',
-        error: 'La contrasena no coincide.',
+        error: 'La contraseña no coincide.',
         employeeNumber
       });
     }

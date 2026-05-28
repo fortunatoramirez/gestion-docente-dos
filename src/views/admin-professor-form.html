@@ -17,7 +17,7 @@
       <section class="form-section">
         <div class="readonly-grid">
           <label>
-            <span>Numero de empleado</span>
+            <span>Número de empleado</span>
             <input name="employee_number" value="<%= professor.employee_number || '' %>" required>
           </label>
           <label>
@@ -37,13 +37,13 @@
         </label>
 
         <label class="wide-field">
-          <span>Contrasena temporal</span>
+          <span>Contraseña temporal</span>
           <input name="temporary_password" type="password" autocomplete="new-password">
           <small class="field-hint">
             <% if (professor.id) { %>
-              Dejala vacia para conservar la actual.
+              Déjala vacía para conservar la actual.
             <% } else { %>
-              Si queda vacia se usara el numero de empleado.
+              Si queda vacía se usará el número de empleado.
             <% } %>
           </small>
         </label>
