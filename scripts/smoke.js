@@ -89,9 +89,9 @@ async function main() {
     reportLabel: 'Reporte parcial 1',
     reprovalObservationThreshold: 33,
     maxFilesPerUpload: 5,
-    maxUploadMb: 20,
-    defaultObservations: 'No aplica',
-    defaultAdditionalActivities: 'no aplica',
+    maxUploadMb: 100,
+    defaultObservations: '',
+    defaultAdditionalActivities: '',
     additionalActivitiesHelp: 'En esta sección deberá realizar una breve descripción de los avances de las actividades adicionales que se tienen encomendadas, dichas actividades pueden ser: Asesor interno de residencias profesionales, elaboración / actualización de Especialidades, despacho de alguna de las Jefaturas del Departamento, etc.',
     saved: false,
     error: null

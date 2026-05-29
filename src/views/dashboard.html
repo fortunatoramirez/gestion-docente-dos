@@ -57,9 +57,9 @@
         <div class="matrix-row matrix-head">
           <span>Materia</span>
           <span>Grupo</span>
-          <span>R1</span>
-          <span>R2</span>
-          <span>Final</span>
+          <span class="report-column">Reporte 1</span>
+          <span class="report-column">Reporte 2</span>
+          <span class="report-column">Reporte Final</span>
         </div>
 
         <% assignments.forEach((assignment) => { %>
@@ -75,9 +75,9 @@
               const files = assignment[`report_${period}_files`];
               const badgeClass = status === 'submitted' ? 'status-submitted' : status === 'draft' ? 'status-draft' : 'status-empty';
               const label = status === 'submitted' ? 'Enviado' : status === 'draft' ? 'Borrador' : 'Abrir';
-              const reportName = period === 3 ? 'Final' : `R${period}`;
+              const reportName = period === 3 ? 'Reporte Final' : `Reporte ${period}`;
             %>
-              <a class="report-pill <%= badgeClass %>" href="/reportes/materias/<%= assignment.id %>/parcial/<%= period %>">
+              <a class="report-pill report-column <%= badgeClass %>" href="/reportes/materias/<%= assignment.id %>/parcial/<%= period %>">
                 <span><%= label %></span>
                 <small><%= reportName %> · <%= files || 0 %> archivos</small>
               </a>

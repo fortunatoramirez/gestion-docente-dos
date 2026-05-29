@@ -146,7 +146,7 @@
                   <input type="file" name="evidence_<%= category.key %>" accept="<%= category.accept %>" multiple>
                   <span>Arrastra archivos aquí o selecciona</span>
                 </label>
-                <small class="field-hint">Máximo <%= maxFilesPerUpload %> archivos y <%= maxUploadMb %> MB en total por caja.</small>
+                <small class="field-hint">Máximo <%= maxFilesPerUpload %> archivos por caja. Cada archivo puede pesar hasta <%= maxUploadMb %> MB.</small>
                 <output class="filename-preview"></output>
 
                 <% const files = evidenceByCategory[category.key] || []; %>
@@ -173,7 +173,7 @@
           <label class="wide-field">
             <span>Actividades adicionales</span>
             <small class="field-hint"><%= additionalActivitiesHelp %></small>
-            <textarea name="additional_activities" rows="4" required><%= report && report.additional_activities ? report.additional_activities : defaultAdditionalActivities %></textarea>
+            <textarea name="additional_activities" rows="4"><%= report && report.additional_activities ? report.additional_activities : defaultAdditionalActivities %></textarea>
           </label>
 
           <fieldset class="choice-field">
@@ -199,6 +199,14 @@
           <button class="primary-button" name="action" value="submit" type="submit">Enviar reporte</button>
         </div>
       </form>
+
+      <div class="submit-overlay" data-submit-overlay hidden>
+        <div class="submit-dialog" role="status" aria-live="assertive">
+          <span class="submit-spinner" aria-hidden="true"></span>
+          <h2 data-submit-title>Enviando reporte</h2>
+          <p data-submit-message>Estamos guardando la información y subiendo las evidencias. Por favor, mantén esta ventana abierta.</p>
+        </div>
+      </div>
     </main>
   </div>
 </body>
