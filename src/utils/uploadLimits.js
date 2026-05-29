@@ -1,5 +1,5 @@
 const MAX_FILES_PER_UPLOAD_FIELD = 5;
-const MAX_UPLOAD_MB = Number(process.env.MAX_UPLOAD_MB || 20);
+const MAX_UPLOAD_MB = Number(process.env.MAX_UPLOAD_MB || 100);
 const MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024;
 
 module.exports = {

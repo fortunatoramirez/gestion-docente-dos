@@ -20,8 +20,8 @@ const {
 const { stripAccents } = require('../utils/text');
 
 const REPROVAL_OBSERVATION_THRESHOLD = 33;
-const DEFAULT_OBSERVATIONS = 'No aplica';
-const DEFAULT_ADDITIONAL_ACTIVITIES = 'no aplica';
+const DEFAULT_OBSERVATIONS = '';
+const DEFAULT_ADDITIONAL_ACTIVITIES = '';
 const ADDITIONAL_ACTIVITIES_HELP = 'En esta sección deberá realizar una breve descripción de los avances de las actividades adicionales que se tienen encomendadas, dichas actividades pueden ser: Asesor interno de residencias profesionales, elaboración / actualización de Especialidades, despacho de alguna de las Jefaturas del Departamento, etc.';
 
 function parsePeriod(value) {
@@ -88,18 +88,22 @@ function validateEvidenceUnits({ files, body }) {
 function validateEvidenceUploadLimits(files) {
   for (const category of evidenceCategories) {
     const uploadedFiles = files[`evidence_${category.key}`] || [];
-    const totalSize = uploadedFiles.reduce((total, file) => total + Number(file.size || 0), 0);
 
     if (uploadedFiles.length > MAX_FILES_PER_UPLOAD_FIELD) {
       return `Puedes subir hasta ${MAX_FILES_PER_UPLOAD_FIELD} archivos en ${category.label}.`;
     }
 
-    if (totalSize > MAX_UPLOAD_BYTES) {
-      return `Los archivos de ${category.label} exceden ${MAX_UPLOAD_MB} MB en total.`;
+    const oversizedFile = uploadedFiles.find((file) => Number(file.size || 0) > MAX_UPLOAD_BYTES);
+    if (oversizedFile) {
+      return `Cada archivo de ${category.label} puede pesar hasta ${MAX_UPLOAD_MB} MB.`;
     }
   }
 
   return null;
+}
+
+function isDefaultText(value) {
+  return stripAccents(value).trim().toLowerCase() === 'no aplica';
 }
 
 function requiresReprovalObservations(reprovalPercentage) {
@@ -111,8 +115,7 @@ function normalizeReportText({ observations, additionalActivities, reprovalPerce
   const cleanAdditionalActivities = String(additionalActivities || '').trim();
 
   if (requiresReprovalObservations(reprovalPercentage)) {
-    const normalizedObservations = stripAccents(cleanObservations).toLowerCase();
-    if (!cleanObservations || normalizedObservations === DEFAULT_OBSERVATIONS.toLowerCase()) {
+    if (!cleanObservations || isDefaultText(cleanObservations)) {
       return {
         error: `Cuando el índice de reprobación excede el ${REPROVAL_OBSERVATION_THRESHOLD}%, comenta las estrategias destinadas a solventar dicha condición.`
       };
@@ -164,12 +167,19 @@ async function persistUploadedFiles({ files, body, reportId, assignment, period 
 
 async function renderReportForm(req, res, { assignment, period, report, saved = false, error = null }) {
   const evidence = await Evidence.listByReportId(report && report.id);
+  const displayReport = report
+    ? {
+        ...report,
+        observations: isDefaultText(report.observations) ? '' : report.observations,
+        additional_activities: isDefaultText(report.additional_activities) ? '' : report.additional_activities
+      }
+    : null;
 
   return res.render('report-form.html', {
     title: reportLabel(period),
     assignment,
     period,
-    report,
+    report: displayReport,
     evidenceByCategory: groupEvidence(evidence),
     categories: evidenceCategories,
     romanUnits,

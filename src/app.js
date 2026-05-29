@@ -69,7 +69,7 @@ app.use((err, req, res, next) => {
   if (err.code === 'LIMIT_FILE_SIZE') {
     return res.status(413).render('error.html', {
       title: 'Archivo demasiado grande',
-      message: `Cada caja de evidencia acepta hasta ${MAX_UPLOAD_MB} MB en total.`
+      message: `Cada archivo de evidencia puede pesar hasta ${MAX_UPLOAD_MB} MB.`
     });
   }
 

@@ -17,9 +17,9 @@
   function reportFormConfig(form) {
     return {
       maxFiles: Number(form.dataset.maxFilesPerUpload || 5),
-      maxUploadMb: Number(form.dataset.maxUploadMb || 20),
+      maxUploadMb: Number(form.dataset.maxUploadMb || 100),
       reprovalThreshold: Number(form.dataset.reprovalThreshold || 33),
-      defaultObservations: form.dataset.defaultObservations || 'No aplica'
+      defaultObservations: form.dataset.defaultObservations || ''
     };
   }
 
@@ -32,7 +32,7 @@
     const textarea = form?.querySelector('[name="observations"]');
     if (!form || !textarea) return true;
 
-    const { reprovalThreshold, defaultObservations } = reportFormConfig(form);
+    const { reprovalThreshold } = reportFormConfig(form);
     const required = reprovalPercentage > reprovalThreshold;
     const invalid = required && (!textarea.value.trim() || isDefaultObservation(textarea.value));
     textarea.setCustomValidity(
@@ -40,10 +40,6 @@
         ? `Cuando la reprobación excede el ${reprovalThreshold}%, escribe las estrategias destinadas a solventar esta condición.`
         : ''
     );
-
-    if (!required && !textarea.value.trim()) {
-      textarea.value = defaultObservations;
-    }
 
     if (invalid && showMessage) {
       textarea.reportValidity();
@@ -59,7 +55,7 @@
     const hint = form?.querySelector('[data-observations-hint]');
     if (!form || !textarea) return true;
 
-    const { reprovalThreshold, defaultObservations } = reportFormConfig(form);
+    const { reprovalThreshold } = reportFormConfig(form);
     const required = reprovalPercentage > reprovalThreshold;
     textarea.required = required;
 
@@ -67,10 +63,6 @@
       hint.textContent = required
         ? `El índice de reprobación excede el ${reprovalThreshold}%; describe las estrategias destinadas a solventar dicha condición.`
         : `Si el índice de reprobación excede el ${reprovalThreshold}%, describe las estrategias destinadas a solventar dicha condición.`;
-    }
-
-    if (!required && !textarea.value.trim()) {
-      textarea.value = defaultObservations;
     }
 
     return validateObservations(reprovalPercentage, false);
@@ -139,14 +131,13 @@
 
     const { maxFiles, maxUploadMb } = reportFormConfig(form);
     const files = Array.from(fileInput.files);
-    const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
     const maxBytes = maxUploadMb * MB_IN_BYTES;
     let message = '';
 
     if (files.length > maxFiles) {
       message = `Cada caja permite hasta ${maxFiles} archivos.`;
-    } else if (totalBytes > maxBytes) {
-      message = `Cada caja permite hasta ${maxUploadMb} MB en total.`;
+    } else if (files.some((file) => file.size > maxBytes)) {
+      message = `Cada archivo puede pesar hasta ${maxUploadMb} MB.`;
     }
 
     setUploadMessage(block, message);
@@ -245,6 +236,48 @@
       const firstUnit = invalidBlock.querySelector('.unit-picker input');
       if (firstUnit) firstUnit.focus();
       invalidBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    });
+
+    form.addEventListener('submit', (event) => {
+      if (event.defaultPrevented) return;
+      preserveSubmitAction(form, event.submitter);
+      showSubmitOverlay(form, event.submitter);
+    });
+  }
+
+  function preserveSubmitAction(form, submitter) {
+    if (!submitter || submitter.name !== 'action') return;
+
+    let actionInput = form.querySelector('input[type="hidden"][name="action"]');
+    if (!actionInput) {
+      actionInput = document.createElement('input');
+      actionInput.type = 'hidden';
+      actionInput.name = 'action';
+      form.appendChild(actionInput);
+    }
+
+    actionInput.value = submitter.value || '';
+  }
+
+  function showSubmitOverlay(form, submitter) {
+    const overlay = document.querySelector('[data-submit-overlay]');
+    if (!overlay) return;
+
+    const title = overlay.querySelector('[data-submit-title]');
+    const message = overlay.querySelector('[data-submit-message]');
+    const isFinalSubmit = submitter && submitter.value === 'submit';
+
+    if (title) title.textContent = isFinalSubmit ? 'Enviando reporte' : 'Guardando borrador';
+    if (message) {
+      message.textContent = 'Estamos guardando la información y subiendo las evidencias. Por favor, mantén esta ventana abierta.';
+    }
+
+    overlay.hidden = false;
+    form.classList.add('is-submitting');
+    form.querySelectorAll('button').forEach((control) => {
+      control.disabled = true;
+      control.setAttribute('aria-disabled', 'true');
     });
   }
 
