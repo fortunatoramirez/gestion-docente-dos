@@ -11,11 +11,11 @@
       </div>
 
       <nav class="subject-nav" aria-label="Administración">
-        <a href="/perfil">
+        <a href="<%= urlFor('/perfil') %>">
           <span>Mi perfil</span>
           <small>Contraseña</small>
         </a>
-        <a href="/dashboard">
+        <a href="<%= urlFor('/dashboard') %>">
           <span>Tablero docente</span>
           <small>Reportes</small>
         </a>
@@ -31,9 +31,13 @@
           <span>Asignaciones</span>
           <small><%= assignments.length %> grupos</small>
         </a>
+        <a href="#reportes">
+          <span>Reportes</span>
+          <small><%= submittedReportCount %>/<%= expectedReportCount %> enviados</small>
+        </a>
       </nav>
 
-      <form action="/logout" method="post">
+      <form action="<%= urlFor('/logout') %>" method="post">
         <button class="ghost-button sidebar-logout" type="submit">Salir</button>
       </form>
     </aside>
@@ -45,9 +49,9 @@
           <h1>Administración</h1>
         </div>
         <div class="admin-actions">
-          <a class="ghost-button" href="/admin/materias/nueva">Materia</a>
-          <a class="ghost-button" href="/admin/profesores/nuevo">Profesor</a>
-          <a class="primary-button" href="/admin/asignaciones/nueva">Asignación</a>
+          <a class="ghost-button" href="<%= urlFor('/admin/materias/nueva') %>">Materia</a>
+          <a class="ghost-button" href="<%= urlFor('/admin/profesores/nuevo') %>">Profesor</a>
+          <a class="primary-button" href="<%= urlFor('/admin/asignaciones/nueva') %>">Asignación</a>
         </div>
       </header>
 
@@ -68,12 +72,62 @@
           <span>Asignaciones</span>
           <strong><%= assignments.length %></strong>
         </div>
+        <div>
+          <span>Reportes enviados</span>
+          <strong><%= submittedReportCount %>/<%= expectedReportCount %></strong>
+        </div>
+      </section>
+
+      <section class="admin-panel" id="reportes">
+        <div class="section-heading">
+          <h2>Reportes docentes</h2>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table report-status-table">
+            <thead>
+              <tr>
+                <th>Profesor</th>
+                <th>Materia</th>
+                <th>Grupo</th>
+                <th>Reporte 1</th>
+                <th>Reporte 2</th>
+                <th>Reporte Final</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% reportSummary.forEach((item) => { %>
+                <tr>
+                  <td>
+                    <strong><%= item.professor_name %></strong>
+                    <small><%= item.employee_number %></small>
+                  </td>
+                  <td>
+                    <strong><%= item.subject_name %></strong>
+                    <small><%= item.subject_code || 'Sin clave' %></small>
+                  </td>
+                  <td><%= item.group_code %></td>
+                  <% [1, 2, 3].forEach((period) => {
+                    const status = item[`report_${period}_status`];
+                    const files = item[`report_${period}_files`] || 0;
+                    const chipClass = status === 'submitted' ? 'status-on' : status === 'draft' ? 'status-warning' : 'status-off';
+                    const label = status === 'submitted' ? 'Enviado' : status === 'draft' ? 'Borrador' : 'Pendiente';
+                  %>
+                    <td>
+                      <span class="status-chip <%= chipClass %>"><%= label %></span>
+                      <small><%= files %> archivos</small>
+                    </td>
+                  <% }) %>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <section class="admin-panel" id="profesores">
         <div class="section-heading">
           <h2>Profesores</h2>
-          <a class="ghost-button" href="/admin/profesores/nuevo">Agregar</a>
+          <a class="ghost-button" href="<%= urlFor('/admin/profesores/nuevo') %>">Agregar</a>
         </div>
         <div class="table-scroll">
           <table class="data-table">
@@ -99,7 +153,7 @@
                     </span>
                   </td>
                   <td><span class="status-chip <%= item.active ? 'status-on' : 'status-off' %>"><%= item.active ? 'Activo' : 'Inactivo' %></span></td>
-                  <td><a class="table-link" href="/admin/profesores/<%= item.id %>/editar">Editar</a></td>
+                  <td><a class="table-link" href="<%= urlFor('/admin/profesores/' + item.id + '/editar') %>">Editar</a></td>
                 </tr>
               <% }) %>
             </tbody>
@@ -110,7 +164,7 @@
       <section class="admin-panel" id="materias">
         <div class="section-heading">
           <h2>Materias</h2>
-          <a class="ghost-button" href="/admin/materias/nueva">Agregar</a>
+          <a class="ghost-button" href="<%= urlFor('/admin/materias/nueva') %>">Agregar</a>
         </div>
         <div class="table-scroll">
           <table class="data-table">
@@ -128,7 +182,7 @@
                   <td><strong><%= item.name %></strong></td>
                   <td><%= item.subject_code || 'Pendiente' %></td>
                   <td><%= item.credits || 'Pendiente' %></td>
-                  <td><a class="table-link" href="/admin/materias/<%= item.id %>/editar">Editar</a></td>
+                  <td><a class="table-link" href="<%= urlFor('/admin/materias/' + item.id + '/editar') %>">Editar</a></td>
                 </tr>
               <% }) %>
             </tbody>
@@ -139,7 +193,7 @@
       <section class="admin-panel" id="asignaciones">
         <div class="section-heading">
           <h2>Asignaciones</h2>
-          <a class="ghost-button" href="/admin/asignaciones/nueva">Agregar</a>
+          <a class="ghost-button" href="<%= urlFor('/admin/asignaciones/nueva') %>">Agregar</a>
         </div>
         <div class="table-scroll">
           <table class="data-table">
@@ -167,7 +221,7 @@
                   <td><%= item.subject_code ? item.subject_code + ' - ' : '' %><%= item.group_code %></td>
                   <td><%= item.semester %></td>
                   <td><span class="status-chip <%= item.active ? 'status-on' : 'status-off' %>"><%= item.active ? 'Activa' : 'Inactiva' %></span></td>
-                  <td><a class="table-link" href="/admin/asignaciones/<%= item.id %>/editar">Editar</a></td>
+                  <td><a class="table-link" href="<%= urlFor('/admin/asignaciones/' + item.id + '/editar') %>">Editar</a></td>
                 </tr>
               <% }) %>
             </tbody>

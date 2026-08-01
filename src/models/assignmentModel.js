@@ -81,10 +81,21 @@ async function listAllAdmin() {
             p.full_name AS professor_name,
             s.id AS subject_id,
             s.name AS subject_name,
-            s.subject_code
+            s.subject_code,
+            MAX(CASE WHEN r.period = 1 THEN r.status END) AS report_1_status,
+            MAX(CASE WHEN r.period = 2 THEN r.status END) AS report_2_status,
+            MAX(CASE WHEN r.period = 3 THEN r.status END) AS report_3_status,
+            COUNT(DISTINCT CASE WHEN r.period = 1 THEN e.id END) AS report_1_files,
+            COUNT(DISTINCT CASE WHEN r.period = 2 THEN e.id END) AS report_2_files,
+            COUNT(DISTINCT CASE WHEN r.period = 3 THEN e.id END) AS report_3_files
           FROM teaching_assignments a
           INNER JOIN professors p ON p.id = a.professor_id
           INNER JOIN subjects s ON s.id = a.subject_id
+          LEFT JOIN reports r ON r.assignment_id = a.id
+          LEFT JOIN evidence_files e ON e.report_id = r.id
+          GROUP BY a.id, a.group_code, a.career, a.semester, a.active,
+            p.id, p.employee_number, p.full_name,
+            s.id, s.name, s.subject_code
           ORDER BY a.active DESC, p.full_name ASC, s.name ASC, a.group_code ASC`
       );
 

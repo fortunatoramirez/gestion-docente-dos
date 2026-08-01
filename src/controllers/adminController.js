@@ -114,12 +114,19 @@ async function index(req, res, next) {
       Subject.listAll(),
       Assignment.listAllAdmin()
     ]);
+    const submittedReportCount = assignments.reduce((total, assignment) => {
+      return total + [1, 2, 3].filter((period) => assignment[`report_${period}_status`] === 'submitted').length;
+    }, 0);
+    const expectedReportCount = assignments.length * 3;
 
     return res.render('admin-dashboard.html', {
       title: 'Administración',
       professors,
       subjects,
       assignments,
+      reportSummary: assignments,
+      submittedReportCount,
+      expectedReportCount,
       saved: req.query.guardado || null
     });
   } catch (error) {

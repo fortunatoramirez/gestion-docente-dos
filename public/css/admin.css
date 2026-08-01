@@ -27,7 +27,7 @@ select {
 
 .admin-summary {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -101,6 +101,10 @@ select {
 
 .data-table tr:last-child td {
   border-bottom: 0;
+}
+
+.report-status-table td:nth-child(n+4) {
+  min-width: 138px;
 }
 
 .table-link {

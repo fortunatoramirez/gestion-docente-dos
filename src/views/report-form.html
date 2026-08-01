@@ -10,16 +10,16 @@
         </div>
       </div>
       <nav class="subject-nav" aria-label="Navegación">
-        <a href="/perfil">
+        <a href="<%= urlFor('/perfil') %>">
           <span>Mi perfil</span>
           <small>Contraseña</small>
         </a>
-        <a href="/dashboard">
+        <a href="<%= urlFor('/dashboard') %>">
           <span>Tablero</span>
           <small>R1, R2, R3</small>
         </a>
       </nav>
-      <form action="/logout" method="post">
+      <form action="<%= urlFor('/logout') %>" method="post">
         <button class="ghost-button sidebar-logout" type="submit">Salir</button>
       </form>
     </aside>
@@ -31,7 +31,7 @@
           <h1><%= assignment.subject_name %></h1>
           <p class="header-meta"><%= assignment.subject_code ? assignment.subject_code + ' - ' : '' %><%= assignment.group_code %> · <%= assignment.semester %></p>
         </div>
-        <a class="ghost-button" href="/dashboard">Volver</a>
+        <a class="ghost-button" href="<%= urlFor('/dashboard') %>">Volver</a>
       </header>
 
       <% if (saved) { %>
@@ -44,7 +44,7 @@
 
       <form
         class="report-form"
-        action="/reportes/materias/<%= assignment.id %>/parcial/<%= period %>"
+        action="<%= urlFor('/reportes/materias/' + assignment.id + '/parcial/' + period) %>"
         method="post"
         enctype="multipart/form-data"
         data-subject-code="<%= assignment.subject_code || '' %>"
@@ -94,6 +94,7 @@
               <input class="calc-input" name="absent_students" type="number" min="0" value="<%= report ? report.absent_students : '' %>" required>
             </label>
           </div>
+          <small class="field-hint" data-counts-hint></small>
 
           <div class="metrics" aria-live="polite">
             <div>
@@ -126,35 +127,42 @@
 
           <div class="upload-grid">
             <% categories.forEach((category) => { %>
-              <article class="upload-block" data-upload-block data-category-label="<%= category.label %>">
+              <article class="upload-block" data-upload-block data-category-key="<%= category.key %>" data-category-label="<%= category.label %>" data-category-accept="<%= category.accept %>">
                 <div class="upload-copy">
                   <h3><%= category.label %></h3>
                   <p><%= category.prompt %></p>
                 </div>
 
-                <fieldset class="unit-picker">
-                  <legend>Unidad <small>obligatoria al subir evidencia</small></legend>
-                  <% romanUnits.forEach((unit) => { %>
-                    <label>
-                      <input type="checkbox" name="units_<%= category.key %>" value="<%= unit %>">
-                      <span><%= unit %></span>
-                    </label>
-                  <% }) %>
-                </fieldset>
+                <div class="upload-entry-list" data-upload-entry-list>
+                  <div class="upload-entry" data-upload-entry>
+                    <fieldset class="unit-picker">
+                      <legend>Unidad <small>obligatoria para este archivo</small></legend>
+                      <% romanUnits.forEach((unit) => { %>
+                        <label>
+                          <input type="checkbox" name="units_<%= category.key %>_0" value="<%= unit %>">
+                          <span><%= unit %></span>
+                        </label>
+                      <% }) %>
+                    </fieldset>
 
-                <label class="file-drop">
-                  <input type="file" name="evidence_<%= category.key %>" accept="<%= category.accept %>" multiple>
-                  <span>Arrastra archivos aquí o selecciona</span>
-                </label>
+                    <label class="file-drop">
+                      <input type="file" name="evidence_<%= category.key %>" accept="<%= category.accept %>">
+                      <span>Arrastra un archivo aquí o selecciona</span>
+                    </label>
+                    <button class="ghost-button remove-upload-entry" type="button" data-remove-upload-entry hidden>Quitar</button>
+                    <output class="filename-preview"></output>
+                  </div>
+                </div>
+                <button class="ghost-button add-upload-entry" type="button" data-add-upload-entry hidden>Agregar otro archivo</button>
                 <small class="field-hint">Máximo <%= maxFilesPerUpload %> archivos por caja. Cada archivo puede pesar hasta <%= maxUploadMb %> MB.</small>
-                <output class="filename-preview"></output>
+                <output class="upload-message" data-upload-message></output>
 
                 <% const files = evidenceByCategory[category.key] || []; %>
                 <% if (files.length) { %>
                   <ul class="evidence-list">
                     <% files.forEach((file) => { %>
                       <li>
-                        <a href="/reportes/evidencias/<%= file.id %>/descargar"><%= file.stored_name %></a>
+                        <a href="<%= urlFor('/reportes/evidencias/' + file.id + '/descargar') %>"><%= file.stored_name %></a>
                         <small><%= bytesToHuman(file.size_bytes) %></small>
                       </li>
                     <% }) %>

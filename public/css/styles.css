@@ -180,6 +180,11 @@ input[readonly] {
   font-size: 0.82rem;
 }
 
+.has-count-error [data-counts-hint] {
+  color: #8a2d1d;
+  font-weight: 800;
+}
+
 .layout {
   display: grid;
   min-height: 100vh;
@@ -496,10 +501,33 @@ input[readonly] {
 .upload-block {
   display: grid;
   gap: 14px;
-  border: 1px solid var(--line);
+  border: 2px solid #86bde8;
   border-radius: 8px;
-  background: #fbfcfd;
-  padding: 16px;
+  background: #ffffff;
+  padding: 18px;
+  box-shadow: 0 12px 30px rgba(8, 63, 115, 0.11);
+}
+
+.upload-copy {
+  margin: -18px -18px 2px;
+  border-bottom: 2px solid #b6d4ef;
+  border-radius: 6px 6px 0 0;
+  background: #e8f4fc;
+  padding: 14px 16px;
+}
+
+.upload-entry-list {
+  display: grid;
+  gap: 12px;
+}
+
+.upload-entry {
+  display: grid;
+  gap: 10px;
+  border: 1px solid #d7e4ee;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px;
 }
 
 .upload-copy h3,
@@ -507,9 +535,30 @@ input[readonly] {
   margin: 0;
 }
 
+.upload-copy h3 {
+  color: var(--brand-strong);
+  font-size: 1.08rem;
+}
+
 .upload-copy p {
   color: var(--muted);
   font-size: 0.92rem;
+}
+
+.add-upload-entry,
+.remove-upload-entry {
+  justify-self: start;
+  min-height: 32px;
+  border-color: #d7e4ee;
+  color: #4f6475;
+  background: #f8fafc;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.remove-upload-entry {
+  margin-top: -2px;
 }
 
 .unit-picker,
@@ -582,17 +631,27 @@ input[readonly] {
 .filename-preview {
   display: block;
   min-height: 22px;
-  color: var(--muted);
-  font-size: 0.86rem;
+  color: #1f2933;
+  font-size: 0.9rem;
+  font-weight: 700;
   overflow-wrap: anywhere;
 }
 
-.upload-block.needs-units {
+.upload-message {
+  display: block;
+  min-height: 22px;
+  color: #8a2d1d;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.upload-block.needs-units,
+.upload-entry.needs-units {
   border-color: #e4876f;
   background: #fff8f6;
 }
 
-.upload-block.needs-units .unit-picker legend::after {
+.upload-entry.needs-units .unit-picker legend::after {
   content: "Selecciona una unidad para continuar.";
   display: block;
   margin-top: 4px;

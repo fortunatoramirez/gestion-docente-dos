@@ -11,6 +11,7 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const { isAdminProfessor } = require('./middleware/auth');
+const { basePath, prefixRedirect, urlFor } = require('./config/basePath');
 const {
   MAX_FILES_PER_UPLOAD_FIELD,
   MAX_UPLOAD_MB
@@ -26,7 +27,8 @@ if (isProduction) app.set('trust proxy', 1);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '..', 'public')));
+app.use(express.static(path.join(__dirname, '..', 'public'), { redirect: false }));
+if (basePath) app.use(basePath, express.static(path.join(__dirname, '..', 'public'), { redirect: false }));
 
 app.use(
   session({
@@ -44,7 +46,16 @@ app.use(
 );
 
 app.use((req, res, next) => {
+  const originalRedirect = res.redirect.bind(res);
+  res.redirect = (statusOrUrl, maybeUrl) => {
+    if (typeof statusOrUrl === 'string') return originalRedirect(prefixRedirect(statusOrUrl));
+    if (typeof maybeUrl === 'string') return originalRedirect(statusOrUrl, prefixRedirect(maybeUrl));
+    return originalRedirect(statusOrUrl);
+  };
+
   res.locals.appName = process.env.APP_NAME || 'Gestión Docente';
+  res.locals.basePath = basePath;
+  res.locals.urlFor = urlFor;
   res.locals.currentPath = req.path;
   res.locals.professor = req.session.professor || null;
   res.locals.isAdmin = isAdminProfessor(req.session.professor);
@@ -52,11 +63,30 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/', authRoutes);
-app.use('/perfil', profileRoutes);
-app.use('/admin', adminRoutes);
-app.use('/dashboard', dashboardRoutes);
-app.use('/reportes', reportRoutes);
+if (basePath) {
+  app.get('/', (req, res) => {
+    res.redirect(urlFor('/'));
+  });
+}
+
+const appRoutes = express.Router();
+appRoutes.use('/', authRoutes);
+appRoutes.use('/perfil', profileRoutes);
+appRoutes.use('/admin', adminRoutes);
+appRoutes.use('/dashboard', dashboardRoutes);
+appRoutes.use('/reportes', reportRoutes);
+
+app.use(basePath || '/', appRoutes);
+
+if (basePath) {
+  app.use((req, res, next) => {
+    const legacyPaths = ['/perfil', '/admin', '/dashboard', '/reportes', '/login', '/logout'];
+    if (req.method === 'GET' && legacyPaths.some((legacyPath) => req.path === legacyPath || req.path.startsWith(`${legacyPath}/`))) {
+      return res.redirect(urlFor(req.originalUrl));
+    }
+    return next();
+  });
+}
 
 app.use((req, res) => {
   res.status(404).render('error.html', {

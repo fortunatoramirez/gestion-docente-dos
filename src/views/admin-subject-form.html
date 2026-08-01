@@ -6,14 +6,14 @@
         <p class="eyebrow">Materias</p>
         <h1><%= title %></h1>
       </div>
-      <a class="ghost-button" href="/admin#materias">Volver</a>
+      <a class="ghost-button" href="<%= urlFor('/admin#materias') %>">Volver</a>
     </header>
 
     <% if (error) { %>
       <div class="notice notice-error"><%= error %></div>
     <% } %>
 
-    <form class="admin-form" action="<%= action %>" method="post">
+      <form class="admin-form" action="<%= urlFor(action) %>" method="post">
       <section class="form-section">
         <label class="wide-field">
           <span>Nombre de la materia</span>
@@ -33,7 +33,7 @@
       </section>
 
       <div class="form-actions">
-        <a class="ghost-button" href="/admin#materias">Cancelar</a>
+        <a class="ghost-button" href="<%= urlFor('/admin#materias') %>">Cancelar</a>
         <button class="primary-button" type="submit">Guardar</button>
       </div>
     </form>

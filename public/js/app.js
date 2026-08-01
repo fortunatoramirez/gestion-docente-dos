@@ -68,23 +68,79 @@
     return validateObservations(reprovalPercentage, false);
   }
 
-  function updateMetrics() {
+  function currentMetrics() {
     const enrolled = numberFromInput('[name="enrolled_students"]');
     const approved = numberFromInput('[name="approved_students"]');
     const absent = numberFromInput('[name="absent_students"]');
-    const failed = Math.max(enrolled - approved - absent, 0);
-    const metrics = {
-      approved: enrolled ? (approved / enrolled) * 100 : 0,
-      absent: enrolled ? (absent / enrolled) * 100 : 0,
-      failed: enrolled ? (failed / enrolled) * 100 : 0
+    const failed = enrolled - approved - absent;
+
+    return {
+      enrolled,
+      approved,
+      absent,
+      failed,
+      approvedPercentage: enrolled ? (approved / enrolled) * 100 : 0,
+      absentPercentage: enrolled ? (absent / enrolled) * 100 : 0,
+      failedPercentage: enrolled ? (Math.max(failed, 0) / enrolled) * 100 : 0
+    };
+  }
+
+  function countInputs() {
+    return {
+      enrolled: document.querySelector('[name="enrolled_students"]'),
+      approved: document.querySelector('[name="approved_students"]'),
+      absent: document.querySelector('[name="absent_students"]')
+    };
+  }
+
+  function validateStudentCounts(metrics, showMessage) {
+    const form = document.querySelector('.report-form');
+    const hint = form?.querySelector('[data-counts-hint]');
+    const inputs = countInputs();
+    let target = null;
+    let message = '';
+
+    Object.values(inputs).forEach((input) => {
+      if (input) input.setCustomValidity('');
+    });
+
+    if (metrics.approved > metrics.enrolled) {
+      target = inputs.approved;
+      message = 'Los alumnos aprobados no pueden ser mayores que los alumnos inscritos.';
+    } else if (metrics.approved + metrics.absent > metrics.enrolled) {
+      target = inputs.absent;
+      message = 'La suma de alumnos aprobados y ausentes no puede ser mayor que los alumnos inscritos.';
+    }
+
+    if (target) target.setCustomValidity(message);
+    if (hint) {
+      hint.textContent = message || 'Aprobados + ausentes + reprobados debe coincidir con los alumnos inscritos.';
+    }
+    if (form) form.classList.toggle('has-count-error', Boolean(message));
+
+    if (message && showMessage && target) {
+      target.reportValidity();
+      target.focus();
+    }
+
+    return !message;
+  }
+
+  function updateMetrics() {
+    const metrics = currentMetrics();
+    const display = {
+      approved: metrics.approvedPercentage,
+      absent: metrics.absentPercentage,
+      failed: metrics.failedPercentage
     };
 
-    Object.entries(metrics).forEach(([key, value]) => {
+    Object.entries(display).forEach(([key, value]) => {
       const target = document.querySelector(`[data-metric="${key}"]`);
       if (target) target.textContent = `${value.toFixed(1)}%`;
     });
 
-    updateObservationRequirement(metrics.failed);
+    validateStudentCounts(metrics, false);
+    updateObservationRequirement(metrics.failedPercentage);
     return metrics;
   }
 
@@ -97,87 +153,226 @@
       .trim();
   }
 
-  function selectedUnits(block) {
-    const values = Array.from(block.querySelectorAll('.unit-picker input:checked')).map((input) => input.value);
+  function uploadEntries(block) {
+    return Array.from(block.querySelectorAll('[data-upload-entry]'));
+  }
+
+  function uploadFiles(block) {
+    return uploadEntries(block).flatMap((entry) => {
+      const fileInput = entry.querySelector('input[type="file"]');
+      return fileInput && fileInput.files && fileInput.files.length
+        ? Array.from(fileInput.files).map((file) => ({ entry, file, fileInput }))
+        : [];
+    });
+  }
+
+  function selectedUnits(entry) {
+    const values = Array.from(entry.querySelectorAll('.unit-picker input:checked')).map((input) => input.value);
     return values.length ? values.join('-') : 'SIN-UNIDAD';
   }
 
-  function blockHasFiles(block) {
-    const fileInput = block.querySelector('input[type="file"]');
+  function entryHasFile(entry) {
+    const fileInput = entry.querySelector('input[type="file"]');
     return Boolean(fileInput && fileInput.files && fileInput.files.length);
   }
 
-  function blockHasUnits(block) {
-    return block.querySelectorAll('.unit-picker input:checked').length > 0;
-  }
-
-  function updateUnitState(block) {
-    const needsUnits = blockHasFiles(block) && !blockHasUnits(block);
-    block.classList.toggle('needs-units', needsUnits);
-    return !needsUnits;
+  function entryHasUnits(entry) {
+    return entry.querySelectorAll('.unit-picker input:checked').length > 0;
   }
 
   function setUploadMessage(block, message) {
-    const fileInput = block.querySelector('input[type="file"]');
-    const output = block.querySelector('.filename-preview');
-    if (fileInput) fileInput.setCustomValidity(message || '');
-    if (output && message) output.textContent = message;
+    const output = block.querySelector('[data-upload-message]');
+    if (output) output.textContent = message || '';
+  }
+
+  function setFileValidity(block, message) {
+    uploadEntries(block).forEach((entry) => {
+      const fileInput = entry.querySelector('input[type="file"]');
+      if (fileInput) fileInput.setCustomValidity('');
+    });
+
+    if (!message) return;
+    const firstInput = block.querySelector('input[type="file"]');
+    if (firstInput) firstInput.setCustomValidity(message);
   }
 
   function validateUploadLimits(block) {
     const form = block.closest('form');
-    const fileInput = block.querySelector('input[type="file"]');
-    if (!form || !fileInput || !fileInput.files) return true;
+    if (!form) return true;
 
     const { maxFiles, maxUploadMb } = reportFormConfig(form);
-    const files = Array.from(fileInput.files);
+    const files = uploadFiles(block);
     const maxBytes = maxUploadMb * MB_IN_BYTES;
     let message = '';
 
     if (files.length > maxFiles) {
       message = `Cada caja permite hasta ${maxFiles} archivos.`;
-    } else if (files.some((file) => file.size > maxBytes)) {
+    } else if (files.some(({ file }) => file.size > maxBytes)) {
       message = `Cada archivo puede pesar hasta ${maxUploadMb} MB.`;
     }
 
+    setFileValidity(block, message);
     setUploadMessage(block, message);
     return !message;
   }
 
+  function validateUploadUnits(block, showMessage) {
+    const invalidEntry = uploadEntries(block).find((entry) => entryHasFile(entry) && !entryHasUnits(entry));
+    uploadEntries(block).forEach((entry) => {
+      entry.classList.toggle('needs-units', entry === invalidEntry);
+    });
+    block.classList.toggle('needs-units', Boolean(invalidEntry));
+
+    if (!invalidEntry) return true;
+
+    const message = 'Selecciona al menos una unidad para cada archivo.';
+    setUploadMessage(block, message);
+    const fileInput = invalidEntry.querySelector('input[type="file"]');
+    if (fileInput) fileInput.setCustomValidity(message);
+
+    if (showMessage) {
+      if (fileInput) fileInput.reportValidity();
+      const firstUnit = invalidEntry.querySelector('.unit-picker input');
+      if (firstUnit) firstUnit.focus();
+      invalidEntry.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    return false;
+  }
+
+  function updateEntryIndexes(block) {
+    const categoryKey = block.dataset.categoryKey;
+    const entries = uploadEntries(block);
+
+    entries.forEach((entry, index) => {
+      entry.dataset.entryIndex = String(index);
+      entry.querySelectorAll('.unit-picker input').forEach((input) => {
+        input.name = `units_${categoryKey}_${index}`;
+      });
+    });
+
+    updateRemoveButtons(block);
+  }
+
+  function updateRemoveButtons(block) {
+    const entries = uploadEntries(block);
+    entries.forEach((entry) => {
+      const removeButton = entry.querySelector('[data-remove-upload-entry]');
+      if (removeButton) removeButton.hidden = entries.length === 1 && !entryHasFile(entry);
+    });
+  }
+
   function updatePreview(block) {
     const form = block.closest('form');
-    const fileInput = block.querySelector('input[type="file"]');
-    const output = block.querySelector('.filename-preview');
-    if (!form || !fileInput || !output) return;
-
-    if (!validateUploadLimits(block)) {
-      updateUnitState(block);
-      return;
-    }
+    if (!form) return;
 
     const subjectCode = cleanSegment(form.dataset.subjectCode);
     const groupCode = cleanSegment(form.dataset.groupCode);
     const label = cleanSegment(block.dataset.categoryLabel);
     const prefix = subjectCode ? `${subjectCode} - ${groupCode}` : groupCode;
-    const names = Array.from(fileInput.files || []).map((file, index) => {
+
+    uploadEntries(block).forEach((entry, index) => {
+      const fileInput = entry.querySelector('input[type="file"]');
+      const output = entry.querySelector('.filename-preview');
+      const file = fileInput && fileInput.files && fileInput.files[0];
+      if (!output) return;
+
+      if (!file) {
+        output.textContent = '';
+        return;
+      }
+
       const extension = file.name.includes('.') ? `.${file.name.split('.').pop()}` : '';
       const suffix = index > 0 ? ` ${index + 1}` : '';
-      return `${selectedUnits(block)} ${prefix} ${label}${suffix}${extension}`;
+      output.textContent = `${selectedUnits(entry)} ${prefix} ${label}${suffix}${extension}`;
     });
 
-    output.textContent = names.join(' · ');
-    updateUnitState(block);
+    validateUploadLimits(block);
+    validateUploadUnits(block, false);
+    updateRemoveButtons(block);
+    updateAddButton(block);
+  }
+
+  function setSingleFile(fileInput, file) {
+    if (!file) return;
+
+    if (typeof DataTransfer === 'undefined') return;
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    fileInput.files = dataTransfer.files;
+  }
+
+  function createUploadEntry(block) {
+    const list = block.querySelector('[data-upload-entry-list]');
+    const firstEntry = block.querySelector('[data-upload-entry]');
+    if (!list || !firstEntry) return null;
+
+    const entry = firstEntry.cloneNode(true);
+    entry.classList.remove('needs-units');
+    entry.querySelectorAll('.unit-picker input').forEach((input) => {
+      input.checked = false;
+    });
+    const fileInput = entry.querySelector('input[type="file"]');
+    if (fileInput) {
+      fileInput.value = '';
+      fileInput.setCustomValidity('');
+    }
+    const preview = entry.querySelector('.filename-preview');
+    if (preview) preview.textContent = '';
+
+    list.appendChild(entry);
+    setupUploadEntry(block, entry);
+    updateEntryIndexes(block);
+    updateAddButton(block);
+    return entry;
+  }
+
+  function clearUploadEntry(entry) {
+    entry.classList.remove('needs-units');
+    entry.querySelectorAll('.unit-picker input').forEach((input) => {
+      input.checked = false;
+    });
+    const fileInput = entry.querySelector('input[type="file"]');
+    if (fileInput) {
+      fileInput.value = '';
+      fileInput.setCustomValidity('');
+    }
+    const preview = entry.querySelector('.filename-preview');
+    if (preview) preview.textContent = '';
+  }
+
+  function removeUploadEntry(block, entry) {
+    if (uploadEntries(block).length <= 1) {
+      clearUploadEntry(entry);
+      setUploadMessage(block, '');
+      updatePreview(block);
+      return;
+    }
+
+    entry.remove();
+    updateEntryIndexes(block);
+    updatePreview(block);
+  }
+
+  function updateAddButton(block) {
+    const button = block.querySelector('[data-add-upload-entry]');
+    if (!button) return;
+
+    const form = block.closest('form');
+    const { maxFiles } = form ? reportFormConfig(form) : { maxFiles: 5 };
+    const hasFiles = uploadFiles(block).length > 0;
+    button.hidden = !hasFiles || uploadEntries(block).length >= maxFiles;
   }
 
   function filesFromDrop(event) {
     return event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files.length
-      ? event.dataTransfer.files
-      : null;
+      ? Array.from(event.dataTransfer.files)
+      : [];
   }
 
-  function setupDropZone(block) {
-    const dropZone = block.querySelector('.file-drop');
-    const fileInput = block.querySelector('input[type="file"]');
+  function setupDropZone(block, entry) {
+    const dropZone = entry.querySelector('.file-drop');
+    const fileInput = entry.querySelector('input[type="file"]');
     if (!dropZone || !fileInput) return;
 
     ['dragenter', 'dragover'].forEach((eventName) => {
@@ -196,10 +391,51 @@
     dropZone.addEventListener('drop', (event) => {
       event.preventDefault();
       const files = filesFromDrop(event);
-      if (!files) return;
-      fileInput.files = files;
-      fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+      if (!files.length) return;
+
+      setSingleFile(fileInput, files[0]);
+      files.slice(1).forEach((file) => {
+        const newEntry = createUploadEntry(block);
+        const newInput = newEntry && newEntry.querySelector('input[type="file"]');
+        if (newInput) setSingleFile(newInput, file);
+      });
+      updatePreview(block);
     });
+  }
+
+  function setupUploadEntry(block, entry) {
+    const fileInput = entry.querySelector('input[type="file"]');
+    if (fileInput) {
+      fileInput.addEventListener('change', () => updatePreview(block));
+    }
+
+    entry.querySelectorAll('.unit-picker input').forEach((input) => {
+      input.addEventListener('change', () => updatePreview(block));
+    });
+
+    const removeButton = entry.querySelector('[data-remove-upload-entry]');
+    if (removeButton) {
+      removeButton.addEventListener('click', () => removeUploadEntry(block, entry));
+    }
+
+    setupDropZone(block, entry);
+  }
+
+  function setupUploadBlock(block) {
+    updateEntryIndexes(block);
+    uploadEntries(block).forEach((entry) => setupUploadEntry(block, entry));
+
+    const addButton = block.querySelector('[data-add-upload-entry]');
+    if (addButton) {
+      addButton.addEventListener('click', () => {
+        createUploadEntry(block);
+        const entries = uploadEntries(block);
+        const latest = entries[entries.length - 1];
+        latest?.querySelector('input[type="file"]')?.click();
+      });
+    }
+
+    updatePreview(block);
   }
 
   function setupEvidenceValidation() {
@@ -208,7 +444,13 @@
 
     form.addEventListener('submit', (event) => {
       const metrics = updateMetrics();
-      const observationsOk = validateObservations(metrics.failed, true);
+      const countsOk = validateStudentCounts(metrics, true);
+      if (!countsOk) {
+        event.preventDefault();
+        return;
+      }
+
+      const observationsOk = validateObservations(metrics.failedPercentage, true);
       if (!observationsOk) {
         event.preventDefault();
         return;
@@ -226,17 +468,13 @@
         return;
       }
 
-      const invalidBlock = Array.from(form.querySelectorAll('[data-upload-block]')).find((block) => {
-        return !updateUnitState(block);
+      const invalidUnitBlock = Array.from(form.querySelectorAll('[data-upload-block]')).find((block) => {
+        return !validateUploadUnits(block, true);
       });
 
-      if (!invalidBlock) return;
-
-      event.preventDefault();
-      const firstUnit = invalidBlock.querySelector('.unit-picker input');
-      if (firstUnit) firstUnit.focus();
-      invalidBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
+      if (invalidUnitBlock) {
+        event.preventDefault();
+      }
     });
 
     form.addEventListener('submit', (event) => {
@@ -289,17 +527,11 @@
   const observations = document.querySelector('[name="observations"]');
   if (observations) {
     observations.addEventListener('input', () => {
-      validateObservations(updateMetrics().failed, false);
+      validateObservations(updateMetrics().failedPercentage, false);
     });
   }
 
-  document.querySelectorAll('[data-upload-block]').forEach((block) => {
-    block.addEventListener('change', () => {
-      updatePreview(block);
-      validateUploadLimits(block);
-    });
-    setupDropZone(block);
-  });
+  document.querySelectorAll('[data-upload-block]').forEach(setupUploadBlock);
 
   setupEvidenceValidation();
 })();

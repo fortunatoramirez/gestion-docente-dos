@@ -2,6 +2,7 @@ const path = require('path');
 const ejs = require('ejs');
 
 const { evidenceCategories } = require('../src/utils/categories');
+const { basePath, urlFor } = require('../src/config/basePath');
 const { romanUnits, bytesToHuman } = require('../src/utils/filename');
 
 const viewsRoot = path.join(__dirname, '..', 'src', 'views');
@@ -28,6 +29,8 @@ const assignment = {
 const common = {
   appName: 'Gestión Docente',
   currentPath: '/',
+  basePath,
+  urlFor,
   professor,
   isAdmin: true,
   passwordChangeRequired: false
@@ -123,9 +126,28 @@ async function main() {
         ...assignment,
         professor_id: professor.id,
         subject_id: 1,
+        report_1_status: 'submitted',
+        report_2_status: 'draft',
+        report_3_status: null,
+        report_1_files: 2,
+        report_2_files: 1,
+        report_3_files: 0,
         active: 1
       }
-    ]
+    ],
+    reportSummary: [
+      {
+        ...assignment,
+        report_1_status: 'submitted',
+        report_2_status: 'draft',
+        report_3_status: null,
+        report_1_files: 2,
+        report_2_files: 1,
+        report_3_files: 0
+      }
+    ],
+    submittedReportCount: 1,
+    expectedReportCount: 3
   });
 
   await render('admin-professor-form.html', {

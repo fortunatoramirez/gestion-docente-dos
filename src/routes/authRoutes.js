@@ -5,6 +5,7 @@ const { redirectIfAuthenticated } = require('../middleware/auth');
 const router = express.Router();
 
 router.get('/', redirectIfAuthenticated, AuthController.showLogin);
+router.get('/login', redirectIfAuthenticated, AuthController.showLogin);
 router.post('/login', redirectIfAuthenticated, AuthController.login);
 router.post('/logout', AuthController.logout);
 

@@ -11,12 +11,12 @@
       </div>
 
       <nav class="subject-nav" aria-label="Materias">
-        <a href="/perfil">
+        <a href="<%= urlFor('/perfil') %>">
           <span>Mi perfil</span>
           <small>Contraseña</small>
         </a>
         <% if (isAdmin) { %>
-          <a href="/admin">
+          <a href="<%= urlFor('/admin') %>">
             <span>Administración</span>
             <small>Profesores y materias</small>
           </a>
@@ -29,7 +29,7 @@
         <% }) %>
       </nav>
 
-      <form action="/logout" method="post">
+      <form action="<%= urlFor('/logout') %>" method="post">
         <button class="ghost-button sidebar-logout" type="submit">Salir</button>
       </form>
     </aside>
@@ -77,7 +77,7 @@
               const label = status === 'submitted' ? 'Enviado' : status === 'draft' ? 'Borrador' : 'Abrir';
               const reportName = period === 3 ? 'Reporte Final' : `Reporte ${period}`;
             %>
-              <a class="report-pill report-column <%= badgeClass %>" href="/reportes/materias/<%= assignment.id %>/parcial/<%= period %>">
+              <a class="report-pill report-column <%= badgeClass %>" href="<%= urlFor('/reportes/materias/' + assignment.id + '/parcial/' + period) %>">
                 <span><%= label %></span>
                 <small><%= reportName %> · <%= files || 0 %> archivos</small>
               </a>

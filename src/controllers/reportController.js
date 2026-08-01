@@ -52,6 +52,18 @@ function calculatePercentages({ enrolled, approved, absent }) {
   };
 }
 
+function validateStudentCounts({ enrolled, approved, absent }) {
+  if (approved > enrolled) {
+    return 'Los alumnos aprobados no pueden ser mayores que los alumnos inscritos.';
+  }
+
+  if (approved + absent > enrolled) {
+    return 'La suma de alumnos aprobados y ausentes no puede ser mayor que los alumnos inscritos.';
+  }
+
+  return null;
+}
+
 function groupEvidence(files) {
   return evidenceCategories.reduce((groups, category) => {
     groups[category.key] = files.filter((file) => file.category === category.key);
@@ -74,15 +86,20 @@ async function cleanupUploadedFiles(files) {
 }
 
 function validateEvidenceUnits({ files, body }) {
-  const missingCategories = evidenceCategories.filter((category) => {
+  const missingFiles = [];
+
+  evidenceCategories.forEach((category) => {
     const uploadedFiles = files[`evidence_${category.key}`] || [];
-    return uploadedFiles.length && !hasSelectedUnits(body[`units_${category.key}`]);
+    uploadedFiles.forEach((file, index) => {
+      if (!hasSelectedUnits(unitsForFile(body, category.key, index))) {
+        missingFiles.push(`${category.label} ${index + 1}`);
+      }
+    });
   });
 
-  if (!missingCategories.length) return null;
+  if (!missingFiles.length) return null;
 
-  const labels = missingCategories.map((category) => category.label).join(', ');
-  return `Selecciona al menos una unidad para: ${labels}.`;
+  return `Selecciona al menos una unidad para: ${missingFiles.join(', ')}.`;
 }
 
 function validateEvidenceUploadLimits(files) {
@@ -110,6 +127,10 @@ function requiresReprovalObservations(reprovalPercentage) {
   return Number(reprovalPercentage) > REPROVAL_OBSERVATION_THRESHOLD;
 }
 
+function unitsForFile(body, categoryKey, index) {
+  return body[`units_${categoryKey}_${index}`] || body[`units_${categoryKey}`];
+}
+
 function normalizeReportText({ observations, additionalActivities, reprovalPercentage }) {
   const cleanObservations = String(observations || '').trim();
   const cleanAdditionalActivities = String(additionalActivities || '').trim();
@@ -131,9 +152,9 @@ function normalizeReportText({ observations, additionalActivities, reprovalPerce
 async function persistUploadedFiles({ files, body, reportId, assignment, period }) {
   for (const category of evidenceCategories) {
     const uploadedFiles = files[`evidence_${category.key}`] || [];
-    const units = body[`units_${category.key}`];
 
     for (const [index, file] of uploadedFiles.entries()) {
+      const units = unitsForFile(body, category.key, index);
       const storedName = buildEvidenceFileName({
         assignment,
         categoryLabel: category.label,
@@ -246,6 +267,18 @@ async function save(req, res, next) {
     const enrolled = toInteger(req.body.enrolled_students);
     const approved = toInteger(req.body.approved_students);
     const absent = toInteger(req.body.absent_students);
+    const countError = validateStudentCounts({ enrolled, approved, absent });
+    if (countError) {
+      await cleanupUploadedFiles(req.files || {});
+      const report = await Report.findByAssignmentAndPeriod(assignment.id, period);
+      return renderReportForm(req, res.status(422), {
+        assignment,
+        period,
+        report,
+        error: countError
+      });
+    }
+
     const percentages = calculatePercentages({ enrolled, approved, absent });
     const status = req.body.action === 'submit' ? 'submitted' : 'draft';
     const reportText = normalizeReportText({

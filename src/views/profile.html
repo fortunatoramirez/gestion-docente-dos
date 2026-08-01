@@ -12,12 +12,12 @@
 
       <nav class="subject-nav" aria-label="Perfil">
         <% if (!passwordChangeRequired) { %>
-          <a href="/dashboard">
+          <a href="<%= urlFor('/dashboard') %>">
             <span>Tablero docente</span>
             <small>Reportes</small>
           </a>
           <% if (isAdmin) { %>
-            <a href="/admin">
+            <a href="<%= urlFor('/admin') %>">
               <span>Administración</span>
               <small>Profesores y materias</small>
             </a>
@@ -25,7 +25,7 @@
         <% } %>
       </nav>
 
-      <form action="/logout" method="post">
+      <form action="<%= urlFor('/logout') %>" method="post">
         <button class="ghost-button sidebar-logout" type="submit">Salir</button>
       </form>
     </aside>
@@ -69,7 +69,7 @@
         </div>
       </section>
 
-      <form class="admin-form" action="/perfil/password" method="post">
+      <form class="admin-form" action="<%= urlFor('/perfil/password') %>" method="post">
         <section class="form-section">
           <div class="readonly-grid">
             <label>
@@ -90,7 +90,7 @@
 
         <div class="form-actions">
           <% if (!passwordChangeRequired) { %>
-            <a class="ghost-button" href="/dashboard">Volver</a>
+            <a class="ghost-button" href="<%= urlFor('/dashboard') %>">Volver</a>
           <% } %>
           <button class="primary-button" type="submit">Actualizar</button>
         </div>
