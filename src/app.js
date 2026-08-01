@@ -12,6 +12,7 @@ const profileRoutes = require('./routes/profileRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const { isAdminProfessor } = require('./middleware/auth');
 const { basePath, prefixRedirect, urlFor } = require('./config/basePath');
+const { createSessionStore, sessionTtlMs } = require('./config/sessionStore');
 const {
   MAX_FILES_PER_UPLOAD_FIELD,
   MAX_UPLOAD_MB
@@ -19,6 +20,7 @@ const {
 
 const app = express();
 const isProduction = process.env.NODE_ENV === 'production';
+const sessionStore = createSessionStore(session);
 
 app.engine('html', ejs.renderFile);
 app.set('view engine', 'html');
@@ -33,6 +35,7 @@ if (basePath) app.use(basePath, express.static(path.join(__dirname, '..', 'publi
 app.use(
   session({
     name: 'gestion_docente_sid',
+    store: sessionStore || undefined,
     secret: process.env.APP_SESSION_SECRET || 'dev-secret-change-me',
     resave: false,
     saveUninitialized: false,
@@ -40,7 +43,7 @@ app.use(
       httpOnly: true,
       sameSite: 'lax',
       secure: isProduction,
-      maxAge: 1000 * 60 * 60 * 8
+      maxAge: sessionTtlMs()
     }
   })
 );
