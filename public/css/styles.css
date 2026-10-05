@@ -354,7 +354,8 @@ input[readonly] {
   color: var(--muted);
 }
 
-.status-submitted {
+.status-submitted,
+.matrix-head .report-column-complete {
   color: #1c5c3b;
   background: #e7f5ed;
   border-color: #8fc4a4;

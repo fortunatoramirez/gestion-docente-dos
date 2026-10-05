@@ -1,5 +1,6 @@
 const path = require('path');
 const ejs = require('ejs');
+const assert = require('node:assert/strict');
 
 const { evidenceCategories } = require('../src/utils/categories');
 const { basePath, urlFor } = require('../src/config/basePath');
@@ -47,6 +48,8 @@ async function render(view, locals) {
   if (!html.includes('<!doctype html>')) {
     throw new Error(`${view} no generó HTML completo`);
   }
+
+  return html;
 }
 
 async function main() {
@@ -71,6 +74,22 @@ async function main() {
       }
     ]
   });
+
+  for (const statuses of [[], ['submitted'], ['submitted', 'submitted', 'submitted'], ['submitted', 'draft', 'submitted'], ['submitted', null]]) {
+    const assignments = statuses.map((status, index) => ({
+      ...assignment,
+      id: assignment.id + index,
+      report_1_status: status,
+      report_2_status: 'draft',
+      report_3_status: 'submitted'
+    }));
+    const html = await render('dashboard.html', { title: 'Tablero', assignments });
+    const completedHeaders = [...html.matchAll(/class="report-column report-column-complete"[^>]*>([^<]+)<\/span>/g)].map((match) => match[1]);
+    const expectedHeaders = [];
+    if (statuses.length && statuses.every((status) => status === 'submitted')) expectedHeaders.push('Reporte 1');
+    if (statuses.length) expectedHeaders.push('Reporte Final');
+    assert.deepEqual(completedHeaders, expectedHeaders, 'Only fully submitted report columns should be complete');
+  }
 
   await render('profile.html', {
     title: 'Mi perfil',

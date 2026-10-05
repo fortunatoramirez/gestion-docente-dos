@@ -61,9 +61,12 @@
         <div class="matrix-row matrix-head">
           <span>Materia</span>
           <span>Grupo</span>
-          <span class="report-column">Reporte 1</span>
-          <span class="report-column">Reporte 2</span>
-          <span class="report-column">Reporte Final</span>
+          <% [1, 2, 3].forEach((period) => {
+            const completed = assignments.length > 0 && assignments.every((assignment) => assignment[`report_${period}_status`] === 'submitted');
+            const reportName = period === 3 ? 'Reporte Final' : `Reporte ${period}`;
+          %>
+            <span class="report-column<%= completed ? ' report-column-complete' : '' %>" aria-label="<%= reportName %><%= completed ? ': todos los reportes enviados' : '' %>"><%= reportName %></span>
+          <% }) %>
         </div>
 
         <% assignments.forEach((assignment) => { %>
