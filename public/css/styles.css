@@ -355,8 +355,14 @@ input[readonly] {
 }
 
 .status-submitted {
-  background: var(--mint);
-  border-color: #a7d7b5;
+  color: #1c5c3b;
+  background: #e7f5ed;
+  border-color: #8fc4a4;
+  box-shadow: inset 0 0 0 1px rgba(35, 110, 71, 0.1);
+}
+
+.status-submitted small {
+  color: #3e6b52;
 }
 
 .status-draft {
@@ -398,6 +404,12 @@ input[readonly] {
   color: #8a2d1d;
   background: #ffe8e2;
   border-color: #f2b8aa;
+}
+
+.notice-success {
+  color: #1c5c3b;
+  background: #e7f5ed;
+  border-color: #8fc4a4;
 }
 
 .notice-warning {

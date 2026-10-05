@@ -34,7 +34,8 @@ const common = {
   professor,
   isAdmin: true,
   passwordChangeRequired: false,
-  activeSemester: '2026-3'
+  activeSemester: '2026-3',
+  successMessage: null
 };
 
 async function render(view, locals) {

@@ -322,7 +322,11 @@ async function save(req, res, next) {
     });
     await evidenceStorage.storeReportSnapshot(assignment, period, reportId);
 
-    return res.redirect(`/reportes/materias/${assignment.id}/parcial/${period}?guardado=1`);
+    const label = period === 3 ? 'Reporte final' : `Reporte ${period}`;
+    req.session.reportSuccessMessage = status === 'submitted'
+      ? `${label} enviado correctamente: ${assignment.subject_name} (${assignment.group_code}).`
+      : `Borrador guardado correctamente: ${assignment.subject_name} (${assignment.group_code}).`;
+    return res.redirect('/dashboard');
   } catch (error) {
     await cleanupUploadedFiles(req.files || {});
     return next(error);

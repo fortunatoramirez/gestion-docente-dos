@@ -46,6 +46,10 @@
         </div>
       </header>
 
+      <% if (successMessage) { %>
+        <div class="notice notice-success" role="status"><%= successMessage %></div>
+      <% } %>
+
       <% if (!assignments.length) { %>
         <section class="empty-state">
           <h2>Sin materias asignadas</h2>
