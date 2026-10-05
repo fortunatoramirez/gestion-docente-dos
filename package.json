@@ -11,7 +11,8 @@
     "test": "node scripts/smoke.js",
     "db:migrate-semesters": "node scripts/migrate-semesters.js",
     "db:import-semester": "node scripts/import-semester.js",
-    "test:semesters": "node scripts/test-semesters.js"
+    "test:semesters": "node scripts/test-semesters.js",
+    "test:import-plan": "node --test scripts/test-import-plan.js"
   },
   "keywords": [
     "express",

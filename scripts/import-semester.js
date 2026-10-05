@@ -38,6 +38,8 @@ function uniqueMatch(rows, predicate, label) {
 
 function buildPlan(data, existingProfessors, existingSubjects, existingAssignments) {
   const professors = [];
+  const emailUpdates = [];
+  const subjectCorrections = [];
   const subjects = new Map();
   const assignments = [];
   const nameMatches = [];
@@ -47,12 +49,33 @@ function buildPlan(data, existingProfessors, existingSubjects, existingAssignmen
       existing = uniqueMatch(existingProfessors, (row) => normalizeCatalogName(row.full_name) === normalizeCatalogName(source.nombre_fuente), source.nombre_fuente);
       if (existing && existing.employee_number && existing.employee_number !== source.numero_empleado) throw new Error(`El nombre ${source.nombre_fuente} ya está asociado al empleado ${existing.employee_number}.`);
     }
-    const professor = { source, existing, id: existing && existing.id };
+    const email = String(source.email || source.correo || '').trim();
+    if (email) {
+      const emailOwner = uniqueMatch(existingProfessors,
+        (row) => String(row.email || '').trim().toLowerCase() === email.toLowerCase(), email);
+      if (emailOwner && (!existing || emailOwner.id !== existing.id)) {
+        throw new Error(`El correo ${email} ya pertenece al empleado ${emailOwner.employee_number}.`);
+      }
+      if (existing && String(existing.email || '').trim()
+          && existing.email.trim().toLowerCase() !== email.toLowerCase()) {
+        throw new Error(`El empleado ${source.numero_empleado} ya tiene otro correo. Revisa la cuenta antes de cambiarlo.`);
+      }
+      if (existing && !String(existing.email || '').trim()) {
+        emailUpdates.push({ id: existing.id, employeeNumber: source.numero_empleado, email });
+      }
+    }
+    const professor = { source, email: email || null, existing, id: existing && existing.id };
     professors.push(professor);
     for (const entry of source.materias) {
       const name = normalizeCatalogName(entry.nombre_carga);
       if (!subjects.has(name)) {
         let subject = uniqueMatch(existingSubjects, (row) => normalizeCatalogName(row.name) === name, name);
+        // Only reuse the explicitly confirmed typo, never an arbitrary fuzzy match.
+        if (!subject && name === 'AUTOMATIZACION ROBOTICA') {
+          subject = uniqueMatch(existingSubjects,
+            (row) => normalizeCatalogName(row.name) === 'AUTOMTIZACION ROBOTICA', name);
+          if (subject) subjectCorrections.push({ id: subject.id, previousName: subject.name, name });
+        }
         if (!subject) {
           subject = uniqueMatch(existingSubjects, (row) => stripAccents(normalizeCatalogName(row.name)) === stripAccents(name), name);
           if (subject) nameMatches.push({ source: name, existing: subject.name, id: subject.id });
@@ -68,8 +91,10 @@ function buildPlan(data, existingProfessors, existingSubjects, existingAssignmen
   const inactivated = existingAssignments.filter((row) => row.semester === data.semestre.codigo && row.active && !wantedIds.has(row.id));
   const summary = {
     semester: data.semestre.codigo,
+    professorEmailsCompleted: emailUpdates,
+    subjectNamesCorrected: subjectCorrections,
     professorsReused: professors.filter((row) => row.existing).length,
-    professorsCreated: professors.filter((row) => !row.existing).map((row) => ({ employeeNumber: row.source.numero_empleado, name: row.source.nombre_fuente, email: row.source.email || null })),
+    professorsCreated: professors.filter((row) => !row.existing).map((row) => ({ employeeNumber: row.source.numero_empleado, name: row.source.nombre_fuente, email: row.email })),
     subjectsReused: [...subjects.values()].filter((row) => row.existing).length,
     subjectsCreated: [...subjects.values()].filter((row) => !row.existing).map((row) => row.name),
     assignmentsReused: assignments.filter((row) => row.existing).length,
@@ -79,7 +104,7 @@ function buildPlan(data, existingProfessors, existingSubjects, existingAssignmen
     legacyNameMatches: nameMatches,
     excludedFromSource: data.totales.asignaciones_excluidas
   };
-  return { professors, subjects, assignments, summary };
+  return { professors, subjects, assignments, emailUpdates, subjectCorrections, summary };
 }
 
 async function resolveDriveDestination(data) {
@@ -94,7 +119,7 @@ async function resolveDriveDestination(data) {
 }
 
 async function readPlan(data, connection = db) {
-  const [professors] = await connection.query('SELECT id,employee_number,full_name,active FROM professors');
+  const [professors] = await connection.query('SELECT id,employee_number,full_name,email,active FROM professors');
   const [subjects] = await connection.query('SELECT id,name,credits FROM subjects');
   const [assignments] = await connection.query('SELECT * FROM teaching_assignments');
   return buildPlan(data, professors, subjects, assignments);
@@ -120,11 +145,17 @@ async function applyImport(data, folder) {
       if (!professor.existing) {
         const passwordHash = await hashPassword(professor.source.numero_empleado);
         const [result] = await connection.execute(`INSERT INTO professors (employee_number,full_name,email,department,active,password_hash,must_change_password)
-          VALUES (?,?,?,NULL,1,?,1)`, [professor.source.numero_empleado, normalizeCatalogName(professor.source.nombre_fuente), professor.source.email || null, passwordHash]);
+          VALUES (?,?,?,NULL,1,?,1)`, [professor.source.numero_empleado, normalizeCatalogName(professor.source.nombre_fuente), professor.email, passwordHash]);
         professor.id = result.insertId;
       } else if (!professor.existing.employee_number) {
         await connection.execute('UPDATE professors SET employee_number = ? WHERE id = ?', [professor.source.numero_empleado, professor.id]);
       }
+    }
+    for (const update of plan.emailUpdates) {
+      await connection.execute('UPDATE professors SET email = ? WHERE id = ?', [update.email, update.id]);
+    }
+    for (const correction of plan.subjectCorrections) {
+      await connection.execute('UPDATE subjects SET name = ? WHERE id = ?', [correction.name, correction.id]);
     }
     for (const subject of plan.subjects.values()) {
       if (!subject.existing) {
