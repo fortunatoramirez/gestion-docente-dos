@@ -1,4 +1,5 @@
 const Assignment = require('../models/assignmentModel');
+const Semester = require('../models/semesterModel');
 
 async function index(req, res, next) {
   try {
@@ -6,6 +7,7 @@ async function index(req, res, next) {
 
     return res.render('dashboard.html', {
       title: 'Tablero',
+      activeSemester: (await Semester.current()).code,
       assignments
     });
   } catch (error) {

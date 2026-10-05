@@ -25,6 +25,17 @@ select {
   justify-content: flex-end;
 }
 
+.semester-filter {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.semester-filter select {
+  width: min(100%, 300px);
+}
+
 .admin-summary {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

@@ -42,14 +42,14 @@
         </div>
         <div class="semester-pill">
           <span>Semestre</span>
-          <strong><%= assignments[0] ? assignments[0].semester : 'Sin período' %></strong>
+          <strong><%= activeSemester %></strong>
         </div>
       </header>
 
       <% if (!assignments.length) { %>
         <section class="empty-state">
           <h2>Sin materias asignadas</h2>
-          <p>Cuando se carguen las materias aparecerán aquí.</p>
+          <p>No tienes materias asignadas para el semestre <%= activeSemester %>. Consulta al administrador si falta alguna asignación.</p>
         </section>
       <% } %>
 

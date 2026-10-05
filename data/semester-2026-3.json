@@ -1,0 +1,811 @@
+{
+  "version_formato": 2,
+  "semestre": {
+    "codigo": "2026-3",
+    "nombre": "Agosto–diciembre de 2026",
+    "anio": 2026
+  },
+  "fuente": "Docentes-2026-3.pdf",
+  "totales": {
+    "profesores_con_asignaciones": 35,
+    "asignaciones_a_cargar": 82,
+    "nombres_distintos_materia_a_cargar": 60,
+    "asignaciones_excluidas": 29,
+    "profesores_sin_asignaciones_tras_filtro": 2
+  },
+  "carpetas": {
+    "carpeta_raiz_nombre": "evidencia-docente",
+    "carpeta_semestre_nombre": "evidencia-docente-2026-3",
+    "carpeta_semestre_id": null,
+    "patron_carpeta_profesor": "{numero_empleado}_{nombre_normalizado}",
+    "nota": "Usar la carpeta de semestre ya creada dentro de la raíz; resolver y configurar su ID real."
+  },
+  "profesores": [
+    {
+      "numero_empleado": "2835",
+      "nombre_fuente": "AGUILERA GUERRERO JORGE NATANAEL",
+      "materias": [
+        {
+          "nombre_fuente": "DISEÑO DE ELEMENTOS DE MAQUINA ASISTIDO POR COMPUTADORA",
+          "clave_grupo": "IE7E",
+          "creditos": 5,
+          "pagina_pdf": 1,
+          "nombre_carga": "DISEÑO DE ELEMENTOS DE MAQUINA ASISTIDO POR COMPUTADORA"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "2106",
+      "nombre_fuente": "CABALLERO GUADARRAMA EDUARDO ENRIQUE",
+      "materias": [
+        {
+          "nombre_fuente": "ELECTRONEUMATICA APLICADA",
+          "clave_grupo": "IE8E",
+          "creditos": 6,
+          "pagina_pdf": 1,
+          "nombre_carga": "ELECTRONEUMATICA APLICADA"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "138",
+      "nombre_fuente": "CAMPOS HERNANDEZ PAUL JAVIER",
+      "materias": [
+        {
+          "nombre_fuente": "CIRCUITOS ELECTRICOS II",
+          "clave_grupo": "IE5A",
+          "creditos": 5,
+          "pagina_pdf": 2,
+          "nombre_carga": "CIRCUITOS ELECTRICOS II"
+        },
+        {
+          "nombre_fuente": "CIRCUITOS Y MAQUINAS ELECTRICAS",
+          "clave_grupo": "BM4A",
+          "creditos": 6,
+          "pagina_pdf": 2,
+          "nombre_carga": "CIRCUITOS Y MAQUINAS ELECTRICAS"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "176",
+      "nombre_fuente": "CARDENAS VALDEZ JOSE RICARDO",
+      "materias": [
+        {
+          "nombre_fuente": "INTRODUCCION A LAS TELECOMUNICACIONES",
+          "clave_grupo": "IE7A",
+          "creditos": 5,
+          "pagina_pdf": 2,
+          "nombre_carga": "INTRODUCCION A LAS TELECOMUNICACIONES"
+        },
+        {
+          "nombre_fuente": "SENSORES Y ACTUADORES",
+          "clave_grupo": "BM6A",
+          "creditos": 5,
+          "pagina_pdf": 2,
+          "nombre_carga": "SENSORES Y ACTUADORES"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "116",
+      "nombre_fuente": "CAZAREZ CASTRO NOHE RAMON",
+      "materias": [
+        {
+          "nombre_fuente": "MEDICIONES ELECTRICAS",
+          "clave_grupo": "BM3B",
+          "creditos": 3,
+          "pagina_pdf": 3,
+          "nombre_carga": "MEDICIONES ELECTRICAS"
+        },
+        {
+          "nombre_fuente": "MEDICIONES ELECTRICAS",
+          "clave_grupo": "BM3C",
+          "creditos": 3,
+          "pagina_pdf": 3,
+          "nombre_carga": "MEDICIONES ELECTRICAS"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "2184",
+      "nombre_fuente": "CERDA SUMBARDA YADIRA DENISSE",
+      "materias": [
+        {
+          "nombre_fuente": "FENOMENOS DE TRANSPORTE EN BIOSISTEMAS",
+          "clave_grupo": "BM4A",
+          "creditos": 5,
+          "pagina_pdf": 3,
+          "nombre_carga": "FENOMENOS DE TRANSPORTE EN BIOSISTEMAS"
+        },
+        {
+          "nombre_fuente": "BIOMATERIALES AVANZADOS",
+          "clave_grupo": "BM8A",
+          "creditos": 5,
+          "pagina_pdf": 3,
+          "nombre_carga": "BIOMATERIALES AVANZADOS"
+        },
+        {
+          "nombre_fuente": "PROPIEDADES DE LOS MATERIALES",
+          "clave_grupo": "BM6A",
+          "creditos": 4,
+          "pagina_pdf": 3,
+          "nombre_carga": "PROPIEDADES DE LOS MATERIALES"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "207",
+      "nombre_fuente": "CORIA DE LOS RIOS LUIS NESTOR",
+      "materias": [
+        {
+          "nombre_fuente": "CONTROL I",
+          "clave_grupo": "IE5A",
+          "creditos": 5,
+          "pagina_pdf": 4,
+          "nombre_carga": "CONTROL I"
+        },
+        {
+          "nombre_fuente": "INSTRUMENTACION",
+          "clave_grupo": "IE6A",
+          "creditos": 5,
+          "pagina_pdf": 4,
+          "nombre_carga": "INSTRUMENTACION"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "196",
+      "nombre_fuente": "CORRAL DOMINGUEZ ANGEL HUMBERTO",
+      "materias": [
+        {
+          "nombre_fuente": "MICROCONTROLADORES",
+          "clave_grupo": "IE7A",
+          "creditos": 5,
+          "pagina_pdf": 4,
+          "nombre_carga": "MICROCONTROLADORES"
+        },
+        {
+          "nombre_fuente": "ELECTRONICA DE POTENCIA",
+          "clave_grupo": "IE7A",
+          "creditos": 5,
+          "pagina_pdf": 4,
+          "nombre_carga": "ELECTRONICA DE POTENCIA"
+        },
+        {
+          "nombre_fuente": "ELECTRONICA ANALOGICA",
+          "clave_grupo": "BM5B",
+          "creditos": 5,
+          "pagina_pdf": 4,
+          "nombre_carga": "ELECTRONICA ANALOGICA"
+        },
+        {
+          "nombre_fuente": "MICROCONTROLADORES",
+          "clave_grupo": "BM6A",
+          "creditos": 5,
+          "pagina_pdf": 4,
+          "nombre_carga": "MICROCONTROLADORES"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "274",
+      "nombre_fuente": "ESCOBEDO MITRE DANIEL",
+      "materias": [
+        {
+          "nombre_fuente": "DISEÑO DIGITAL",
+          "clave_grupo": "IE5A",
+          "creditos": 5,
+          "pagina_pdf": 5,
+          "nombre_carga": "DISEÑO DIGITAL"
+        },
+        {
+          "nombre_fuente": "TEORIA ELECTROMAGNETICA",
+          "clave_grupo": "IE5A",
+          "creditos": 5,
+          "pagina_pdf": 5,
+          "nombre_carga": "TEORIA ELECTROMAGNETICA"
+        },
+        {
+          "nombre_fuente": "ELECTRONICA DIGITAL",
+          "clave_grupo": "BM5B",
+          "creditos": 5,
+          "pagina_pdf": 5,
+          "nombre_carga": "ELECTRONICA DIGITAL"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "334",
+      "nombre_fuente": "GAMBOA LOAIZA DIANA",
+      "materias": [
+        {
+          "nombre_fuente": "TALLER DE INVESTIGACION I",
+          "clave_grupo": "IE8A",
+          "creditos": 4,
+          "pagina_pdf": 5,
+          "nombre_carga": "TALLER DE INVESTIGACION I"
+        },
+        {
+          "nombre_fuente": "ELECTROMAGNETISMO",
+          "clave_grupo": "BM3B",
+          "creditos": 5,
+          "pagina_pdf": 5,
+          "nombre_carga": "ELECTROMAGNETISMO"
+        },
+        {
+          "nombre_fuente": "MEDICIONES ELECTRICAS",
+          "clave_grupo": "BM3A",
+          "creditos": 3,
+          "pagina_pdf": 5,
+          "nombre_carga": "MEDICIONES ELECTRICAS"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "2208",
+      "nombre_fuente": "GARCIA OLAIZ GEMA DANIRA",
+      "materias": [
+        {
+          "nombre_fuente": "OPTICA Y ONDAS",
+          "clave_grupo": "BM4A",
+          "creditos": 5,
+          "pagina_pdf": 5,
+          "nombre_carga": "OPTICA Y ONDAS"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "2982",
+      "nombre_fuente": "GARZON FONTECHA ANGELICA MARIA",
+      "materias": [
+        {
+          "nombre_fuente": "NANOFISICA I",
+          "clave_grupo": "NT5A",
+          "creditos": 5,
+          "pagina_pdf": 6,
+          "nombre_carga": "NANOFISICA I"
+        },
+        {
+          "nombre_fuente": "QUIMICA",
+          "clave_grupo": "IE1B",
+          "creditos": 4,
+          "pagina_pdf": 6,
+          "nombre_carga": "QUIMICA"
+        },
+        {
+          "nombre_fuente": "QUIMICA",
+          "clave_grupo": "IE1D",
+          "creditos": 4,
+          "pagina_pdf": 6,
+          "nombre_carga": "QUIMICA"
+        },
+        {
+          "nombre_fuente": "FISICA DE SEMICONDUCTORES",
+          "clave_grupo": "IE4A",
+          "creditos": 5,
+          "pagina_pdf": 6,
+          "nombre_carga": "FISICA DE SEMICONDUCTORES"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "3108",
+      "nombre_fuente": "GONZALEZ RAMIREZ OSCAR",
+      "materias": [
+        {
+          "nombre_fuente": "CONTROL II",
+          "clave_grupo": "IE6A",
+          "creditos": 5,
+          "pagina_pdf": 6,
+          "nombre_carga": "CONTROL II"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "3063",
+      "nombre_fuente": "GONZALEZ VILLA MONTSERRAT",
+      "materias": [
+        {
+          "nombre_fuente": "INTRODUCCION A LA INGENIERIA BIOMEDICA",
+          "clave_grupo": "BM1A",
+          "creditos": 4,
+          "pagina_pdf": 6,
+          "nombre_carga": "INTRODUCCION A LA INGENIERIA BIOMEDICA"
+        },
+        {
+          "nombre_fuente": "INTRODUCCION A LA INGENIERIA BIOMEDICA",
+          "clave_grupo": "BM1D",
+          "creditos": 4,
+          "pagina_pdf": 6,
+          "nombre_carga": "INTRODUCCION A LA INGENIERIA BIOMEDICA"
+        },
+        {
+          "nombre_fuente": "ANATOMIA Y FISIOLOGIA I",
+          "clave_grupo": "BM3B",
+          "creditos": 5,
+          "pagina_pdf": 6,
+          "nombre_carga": "ANATOMIA Y FISIOLOGIA I"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "469",
+      "nombre_fuente": "LARES BOCANEGRA VALENTE ATANACIO",
+      "materias": [
+        {
+          "nombre_fuente": "DESARROLLO Y EVALUACION DE PROYECTOS",
+          "clave_grupo": "IE10A",
+          "creditos": 3,
+          "pagina_pdf": 7,
+          "nombre_carga": "DESARROLLO Y EVALUACION DE PROYECTOS"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "2774",
+      "nombre_fuente": "LOZADA ROMERO ADRIEL LARIZA",
+      "materias": [
+        {
+          "nombre_fuente": "NORMATIVIDAD EN PRODUCTOS BIOMEDICOS",
+          "clave_grupo": "IE7A",
+          "creditos": 5,
+          "pagina_pdf": 7,
+          "nombre_carga": "NORMATIVIDAD EN PRODUCTOS BIOMEDICOS"
+        },
+        {
+          "nombre_fuente": "INTRODUCCION A SISTEMAS DE MANUFACTURA",
+          "clave_grupo": "BM7E",
+          "creditos": 5,
+          "pagina_pdf": 7,
+          "nombre_carga": "INTRODUCCION A SISTEMAS DE MANUFACTURA"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "2030",
+      "nombre_fuente": "MANZANAREZ GUEVARA LIZBETH ALEXIS",
+      "materias": [
+        {
+          "nombre_fuente": "FUNDAMENTOS DE INVESTIGACION",
+          "clave_grupo": "IQ1B",
+          "creditos": 4,
+          "pagina_pdf": 7,
+          "nombre_carga": "FUNDAMENTOS DE INVESTIGACION"
+        },
+        {
+          "nombre_fuente": "ANATOMIA Y FISIOLOGIA I",
+          "clave_grupo": "BM3A",
+          "creditos": 5,
+          "pagina_pdf": 7,
+          "nombre_carga": "ANATOMIA Y FISIOLOGIA I"
+        },
+        {
+          "nombre_fuente": "ANATOMIA Y FISIOLOGIA I",
+          "clave_grupo": "BM3C",
+          "creditos": 5,
+          "pagina_pdf": 7,
+          "nombre_carga": "ANATOMIA Y FISIOLOGIA I"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "2957",
+      "nombre_fuente": "MARQUEZ CASTRO JESUS EDUARDO",
+      "email": "jesus.marquezc201@tectijuana.edu.mx",
+      "materias": [
+        {
+          "nombre_fuente": "APLICACIONES DE BIOMATERIALES",
+          "clave_grupo": "BM9E",
+          "creditos": 5,
+          "pagina_pdf": 8,
+          "nombre_carga": "APLICACIONES DE BIOMATERIALES"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "538",
+      "nombre_fuente": "MARTINEZ GRACILIANO ARMANDO",
+      "materias": [
+        {
+          "nombre_fuente": "PROGRAMACION ESTRUCTURADA",
+          "clave_grupo": "IE1B",
+          "creditos": 5,
+          "pagina_pdf": 8,
+          "nombre_carga": "PROGRAMACION ESTRUCTURADA"
+        },
+        {
+          "nombre_fuente": "FUNDAMENTOS DE PROGRAMACION",
+          "clave_grupo": "BM1A",
+          "creditos": 5,
+          "pagina_pdf": 8,
+          "nombre_carga": "FUNDAMENTOS DE PROGRAMACION"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "2535",
+      "nombre_fuente": "MORENO GRIJALVA GRECIA ISIS",
+      "materias": [
+        {
+          "nombre_fuente": "INTRODUCCION A LA INGENIERIA BIOMEDICA",
+          "clave_grupo": "BM1B",
+          "creditos": 4,
+          "pagina_pdf": 8,
+          "nombre_carga": "INTRODUCCION A LA INGENIERIA BIOMEDICA"
+        },
+        {
+          "nombre_fuente": "INTRODUCCION A LA INGENIERIA BIOMEDICA",
+          "clave_grupo": "BM1C",
+          "creditos": 4,
+          "pagina_pdf": 8,
+          "nombre_carga": "INTRODUCCION A LA INGENIERIA BIOMEDICA"
+        },
+        {
+          "nombre_fuente": "FISICA MEDICA",
+          "clave_grupo": "BM5A",
+          "creditos": 5,
+          "pagina_pdf": 8,
+          "nombre_carga": "FISICA MEDICA"
+        },
+        {
+          "nombre_fuente": "FISICA MEDICA",
+          "clave_grupo": "BM5B",
+          "creditos": 5,
+          "pagina_pdf": 8,
+          "nombre_carga": "FISICA MEDICA"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "3066",
+      "nombre_fuente": "NATION MORALES JOEL LEE",
+      "materias": [
+        {
+          "nombre_fuente": "PROGRAMACION ESTRUCTURADA",
+          "clave_grupo": "IE1A",
+          "creditos": 5,
+          "pagina_pdf": 9,
+          "nombre_carga": "PROGRAMACION ESTRUCTURADA"
+        },
+        {
+          "nombre_fuente": "PROGRAMACION ESTRUCTURADA",
+          "clave_grupo": "IE1C",
+          "creditos": 5,
+          "pagina_pdf": 9,
+          "nombre_carga": "PROGRAMACION ESTRUCTURADA"
+        },
+        {
+          "nombre_fuente": "PROGRAMACION ESTRUCTURADA",
+          "clave_grupo": "IE1D",
+          "creditos": 5,
+          "pagina_pdf": 9,
+          "nombre_carga": "PROGRAMACION ESTRUCTURADA"
+        },
+        {
+          "nombre_fuente": "PROGRAMACION ORIENTADA A OBJETOS",
+          "clave_grupo": "BM2A",
+          "creditos": 4,
+          "pagina_pdf": 9,
+          "nombre_carga": "PROGRAMACION ORIENTADA A OBJETOS"
+        },
+        {
+          "nombre_fuente": "FUNDAMENTOS DE PROGRAMACION",
+          "clave_grupo": "BM1B",
+          "creditos": 5,
+          "pagina_pdf": 9,
+          "nombre_carga": "FUNDAMENTOS DE PROGRAMACION"
+        },
+        {
+          "nombre_fuente": "FUNDAMENTOS DE PROGRAMACION",
+          "clave_grupo": "BM1C",
+          "creditos": 5,
+          "pagina_pdf": 9,
+          "nombre_carga": "FUNDAMENTOS DE PROGRAMACION"
+        },
+        {
+          "nombre_fuente": "FUNDAMENTOS DE PROGRAMACION",
+          "clave_grupo": "BM1D",
+          "creditos": 5,
+          "pagina_pdf": 9,
+          "nombre_carga": "FUNDAMENTOS DE PROGRAMACION"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "658",
+      "nombre_fuente": "OLIVAS ONTIVEROS JOSE ANGEL",
+      "materias": [
+        {
+          "nombre_fuente": "OPTOELECTRONICA",
+          "clave_grupo": "IE8A",
+          "creditos": 5,
+          "pagina_pdf": 9,
+          "nombre_carga": "OPTOELECTRONICA"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "2956",
+      "nombre_fuente": "ORTEGA RAMIREZ FIDEL ALEJANDRO",
+      "email": "fidel.ortega193@tectijuana.edu.mx",
+      "materias": [
+        {
+          "nombre_fuente": "DISEÑO DIGITAL CON VHDL",
+          "clave_grupo": "IE6A",
+          "creditos": 5,
+          "pagina_pdf": 9,
+          "nombre_carga": "DISEÑO DIGITAL CON VHDL"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "724",
+      "nombre_fuente": "PONCE OLIVA CIPRIANO",
+      "materias": [
+        {
+          "nombre_fuente": "MEDICIONES ELECTRICAS",
+          "clave_grupo": "IE2A",
+          "creditos": 5,
+          "pagina_pdf": 10,
+          "nombre_carga": "MEDICIONES ELECTRICAS"
+        },
+        {
+          "nombre_fuente": "CIRCUITOS ELECTRICOS I",
+          "clave_grupo": "IE4A",
+          "creditos": 5,
+          "pagina_pdf": 10,
+          "nombre_carga": "CIRCUITOS ELECTRICOS I"
+        },
+        {
+          "nombre_fuente": "DIODOS Y TRANSISTORES",
+          "clave_grupo": "IE5A",
+          "creditos": 5,
+          "pagina_pdf": 10,
+          "nombre_carga": "DIODOS Y TRANSISTORES"
+        },
+        {
+          "nombre_fuente": "DISEÑO CON TRANSISTORES",
+          "clave_grupo": "IE6A",
+          "creditos": 5,
+          "pagina_pdf": 10,
+          "nombre_carga": "DISEÑO CON TRANSISTORES"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "696",
+      "nombre_fuente": "PRECIADO GUILLEN EDUARDO",
+      "materias": [
+        {
+          "nombre_fuente": "ELECTRONICA DIGITAL",
+          "clave_grupo": "BM5A",
+          "creditos": 5,
+          "pagina_pdf": 10,
+          "nombre_carga": "ELECTRONICA DIGITAL"
+        },
+        {
+          "nombre_fuente": "TALLER DE LIDERAZGO",
+          "clave_grupo": "TDL9A",
+          "creditos": 3,
+          "pagina_pdf": 10,
+          "nombre_carga": "TALLER DE LIDERAZGO"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "2289",
+      "nombre_fuente": "RAMIREZ ARZATE FORTUNATO",
+      "materias": [
+        {
+          "nombre_fuente": "SISTEMAS DE COMPUTO Y REDES",
+          "clave_grupo": "BM6A",
+          "creditos": 4,
+          "pagina_pdf": 10,
+          "nombre_carga": "SISTEMAS DE COMPUTO Y REDES"
+        },
+        {
+          "nombre_fuente": "TECNOLOGIAS DE BASES DE DATOS",
+          "clave_grupo": "BM5A",
+          "creditos": 4,
+          "pagina_pdf": 10,
+          "nombre_carga": "TECNOLOGIAS DE BASES DE DATOS"
+        },
+        {
+          "nombre_fuente": "TECNOLOGIAS DE BASES DE DATOS",
+          "clave_grupo": "BM5B",
+          "creditos": 4,
+          "pagina_pdf": 11,
+          "nombre_carga": "TECNOLOGIAS DE BASES DE DATOS"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "757",
+      "nombre_fuente": "RAMIREZ VILLALOBOS RAMON",
+      "materias": [
+        {
+          "nombre_fuente": "AMPLIFICADORES OPERACIONALES",
+          "clave_grupo": "IE7A",
+          "creditos": 5,
+          "pagina_pdf": 11,
+          "nombre_carga": "AMPLIFICADORES OPERACIONALES"
+        },
+        {
+          "nombre_fuente": "PROYECTO DE INGENIERIA BIOMEDICA",
+          "clave_grupo": "BM10A",
+          "creditos": 4,
+          "pagina_pdf": 11,
+          "nombre_carga": "PROYECTO DE INGENIERIA BIOMEDICA"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "865",
+      "nombre_fuente": "SERRANO PEREZ JOSUE",
+      "materias": [
+        {
+          "nombre_fuente": "MAQUINAS ELECTRICAS",
+          "clave_grupo": "IE6A",
+          "creditos": 5,
+          "pagina_pdf": 11,
+          "nombre_carga": "MAQUINAS ELECTRICAS"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "871",
+      "nombre_fuente": "SORIA ARTECHE BERTHA ALICIA",
+      "materias": [
+        {
+          "nombre_fuente": "ANATOMIA Y FISIOLOGIA II",
+          "clave_grupo": "BM4A",
+          "creditos": 5,
+          "pagina_pdf": 11,
+          "nombre_carga": "ANATOMIA Y FISIOLOGIA II"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "888",
+      "nombre_fuente": "SOTELO OROZCO ARTURO",
+      "materias": [
+        {
+          "nombre_fuente": "INSTRUMENTACION VIRTUAL",
+          "clave_grupo": "BM6A",
+          "creditos": 4,
+          "pagina_pdf": 12,
+          "nombre_carga": "INSTRUMENTACION VIRTUAL"
+        },
+        {
+          "nombre_fuente": "ELECTRONICA ANALOGICA",
+          "clave_grupo": "BM5A",
+          "creditos": 5,
+          "pagina_pdf": 12,
+          "nombre_carga": "ELECTRONICA ANALOGICA"
+        },
+        {
+          "nombre_fuente": "AUTOMTIZACION ROBOTICA",
+          "clave_grupo": "BM7E",
+          "creditos": 6,
+          "pagina_pdf": 12,
+          "nombre_carga": "AUTOMATIZACION ROBOTICA"
+        },
+        {
+          "nombre_fuente": "APRENDIZAJE MAQUINA EN EL DIAGNOSTICO CLINICO",
+          "clave_grupo": "BM9A",
+          "creditos": 5,
+          "pagina_pdf": 12,
+          "nombre_carga": "APRENDIZAJE MAQUINA EN EL DIAGNOSTICO CLINICO"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "922",
+      "nombre_fuente": "TRUJILLO REYES LEONARDO",
+      "materias": [
+        {
+          "nombre_fuente": "PROGRAMACION VISUAL",
+          "clave_grupo": "IE2A",
+          "creditos": 5,
+          "pagina_pdf": 12,
+          "nombre_carga": "PROGRAMACION VISUAL"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "956",
+      "nombre_fuente": "VALLE TRUJILLO PAUL ANTONIO",
+      "materias": [
+        {
+          "nombre_fuente": "TALLER DE INVESTIGACION II",
+          "clave_grupo": "IE9A",
+          "creditos": 4,
+          "pagina_pdf": 13,
+          "nombre_carga": "TALLER DE INVESTIGACION II"
+        },
+        {
+          "nombre_fuente": "MODELADO DE SISTEMAS FISIOLOGICOS",
+          "clave_grupo": "BM7A",
+          "creditos": 5,
+          "pagina_pdf": 13,
+          "nombre_carga": "MODELADO DE SISTEMAS FISIOLOGICOS"
+        },
+        {
+          "nombre_fuente": "MODELADO DE SISTEMAS FISIOLOGICOS",
+          "clave_grupo": "BM7B",
+          "creditos": 5,
+          "pagina_pdf": 13,
+          "nombre_carga": "MODELADO DE SISTEMAS FISIOLOGICOS"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "932",
+      "nombre_fuente": "VAZQUEZ ALCARAZ GILBERTO ENRICO",
+      "materias": [
+        {
+          "nombre_fuente": "AMPLIFICADORES DE BIOSEÑALES",
+          "clave_grupo": "BM6A",
+          "creditos": 5,
+          "pagina_pdf": 14,
+          "nombre_carga": "AMPLIFICADORES DE BIOSEÑALES"
+        },
+        {
+          "nombre_fuente": "PROCESAMIENTO DE SEÑALES DIGITALES",
+          "clave_grupo": "BM8A",
+          "creditos": 5,
+          "pagina_pdf": 14,
+          "nombre_carga": "PROCESAMIENTO DE SEÑALES DIGITALES"
+        },
+        {
+          "nombre_fuente": "SEÑALES Y SISTEMAS",
+          "clave_grupo": "BM7A",
+          "creditos": 5,
+          "pagina_pdf": 14,
+          "nombre_carga": "SEÑALES Y SISTEMAS"
+        },
+        {
+          "nombre_fuente": "TOPICOS SELECTOS DE MECATRONICA INDUSTRIAL",
+          "clave_grupo": "IE8E",
+          "creditos": 5,
+          "pagina_pdf": 14,
+          "nombre_carga": "TOPICOS SELECTOS DE MECATRONICA INDUSTRIAL"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "3111",
+      "nombre_fuente": "VILLELA SALINAS VINCENT ALEJANDRO",
+      "materias": [
+        {
+          "nombre_fuente": "CONTROL DIGITAL",
+          "clave_grupo": "IE7A",
+          "creditos": 5,
+          "pagina_pdf": 14,
+          "nombre_carga": "CONTROL DIGITAL"
+        }
+      ]
+    },
+    {
+      "numero_empleado": "1007",
+      "nombre_fuente": "Z. FLORES LOPEZ CELIA",
+      "materias": [
+        {
+          "nombre_fuente": "QUIMICA INORGANICA",
+          "clave_grupo": "BM1A",
+          "creditos": 5,
+          "pagina_pdf": 14,
+          "nombre_carga": "QUIMICA INORGANICA"
+        },
+        {
+          "nombre_fuente": "QUIMICA INORGANICA",
+          "clave_grupo": "BM1B",
+          "creditos": 5,
+          "pagina_pdf": 14,
+          "nombre_carga": "QUIMICA INORGANICA"
+        }
+      ]
+    }
+  ]
+}

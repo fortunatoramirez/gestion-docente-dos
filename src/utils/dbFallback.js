@@ -10,7 +10,8 @@ const connectionErrorCodes = new Set([
 let warned = false;
 
 function fallbackEnabled() {
-  return String(process.env.DB_DEMO_FALLBACK || 'true').toLowerCase() !== 'false';
+  return process.env.NODE_ENV !== 'production'
+    && String(process.env.DB_DEMO_FALLBACK || 'true').toLowerCase() !== 'false';
 }
 
 function shouldUseDemoFallback(error) {

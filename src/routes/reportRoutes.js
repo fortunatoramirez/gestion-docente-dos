@@ -8,8 +8,8 @@ const router = express.Router();
 router.use(requireAuth);
 router.use(requirePasswordReady);
 
-router.get('/materias/:assignmentId/parcial/:period', ReportController.showForm);
-router.post('/materias/:assignmentId/parcial/:period', reportUpload, ReportController.save);
+router.get('/materias/:assignmentId/parcial/:period', ReportController.authorizeAssignment, ReportController.showForm);
+router.post('/materias/:assignmentId/parcial/:period', ReportController.authorizeAssignment, reportUpload, ReportController.save);
 router.get('/evidencias/:evidenceId/descargar', ReportController.downloadEvidence);
 router.post('/evidencias/:evidenceId/eliminar', ReportController.deleteEvidence);
 

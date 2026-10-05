@@ -180,7 +180,8 @@ async function persistUploadedFiles({ files, body, reportId, assignment, period 
         path: storedFile.path,
         storage_provider: storedFile.storage_provider,
         storage_key: storedFile.storage_key,
-        web_url: storedFile.web_url
+        web_url: storedFile.web_url,
+        storage_folder_id: storedFile.storage_folder_id || null
       });
     }
   }
@@ -226,7 +227,7 @@ async function showForm(req, res, next) {
       req.params.assignmentId,
       req.session.professor.id
     );
-    if (!assignment) return res.redirect('/dashboard');
+    if (!assignment) return unavailable(res);
 
     const report = await Report.findByAssignmentAndPeriod(assignment.id, period);
     return renderReportForm(req, res, {
@@ -243,13 +244,13 @@ async function showForm(req, res, next) {
 async function save(req, res, next) {
   try {
     const period = parsePeriod(req.params.period);
-    if (!period) return res.redirect('/dashboard');
+    if (!period) { await cleanupUploadedFiles(req.files || {}); return unavailable(res); }
 
     const assignment = await Assignment.findByIdForProfessor(
       req.params.assignmentId,
       req.session.professor.id
     );
-    if (!assignment) return res.redirect('/dashboard');
+    if (!assignment) { await cleanupUploadedFiles(req.files || {}); return unavailable(res); }
 
     const uploadLimitError = validateEvidenceUploadLimits(req.files || {});
     const unitsError = validateEvidenceUnits({ files: req.files || {}, body: req.body });
@@ -319,9 +320,11 @@ async function save(req, res, next) {
       assignment,
       period
     });
+    await evidenceStorage.storeReportSnapshot(assignment, period, reportId);
 
     return res.redirect(`/reportes/materias/${assignment.id}/parcial/${period}?guardado=1`);
   } catch (error) {
+    await cleanupUploadedFiles(req.files || {});
     return next(error);
   }
 }
@@ -332,7 +335,7 @@ async function downloadEvidence(req, res, next) {
       req.params.evidenceId,
       req.session.professor.id
     );
-    if (!evidence) return res.redirect('/dashboard');
+    if (!evidence) return unavailable(res);
 
     return evidenceStorage.downloadEvidence(evidence, res);
   } catch (error) {
@@ -346,7 +349,7 @@ async function deleteEvidence(req, res, next) {
       req.params.evidenceId,
       req.session.professor.id
     );
-    if (!evidence) return res.redirect('/dashboard');
+    if (!evidence) return unavailable(res);
 
     await evidenceStorage.removeEvidence(evidence);
     await Evidence.remove(evidence.id);
@@ -359,8 +362,24 @@ async function deleteEvidence(req, res, next) {
   }
 }
 
+function unavailable(res) {
+  return res.status(404).render('error.html', {
+    title: 'Reporte no disponible',
+    message: 'El reporte o archivo no pertenece a tus materias activas del semestre actual.'
+  });
+}
+
+async function authorizeAssignment(req, res, next) {
+  try {
+    if (!parsePeriod(req.params.period)) return unavailable(res);
+    const assignment = await Assignment.findByIdForProfessor(req.params.assignmentId, req.session.professor.id);
+    return assignment ? next() : unavailable(res);
+  } catch (error) { return next(error); }
+}
+
 module.exports = {
   showForm,
+  authorizeAssignment,
   save,
   downloadEvidence,
   deleteEvidence

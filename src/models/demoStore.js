@@ -1,4 +1,5 @@
 const { professors, semester, careerFromGroup } = require('../../scripts/seed');
+const { admissible } = require('../utils/semesterAccess');
 
 const state = {
   professors: [],
@@ -179,7 +180,7 @@ function assignmentView(assignment) {
     professor_name: professor.full_name,
     subject_name: subject.name,
     subject_code: subject.subject_code,
-    credits: subject.credits,
+    credits: assignment.credits ?? subject.credits,
     active: assignment.active,
     report_1_status: report1.status,
     report_2_status: report2.status,
@@ -190,10 +191,11 @@ function assignmentView(assignment) {
   };
 }
 
-function listAssignmentsForProfessor(professorId) {
+function listAssignmentsForProfessor(professorId, currentSemester = semester) {
   hydrate();
   return state.assignments
     .filter((assignment) => assignment.professor_id === Number(professorId) && assignment.active)
+    .filter((assignment) => assignment.semester === currentSemester && admissible(assignment, findProfessorById(professorId).employee_number))
     .map(assignmentView)
     .sort((a, b) => a.subject_name.localeCompare(b.subject_name) || a.group_code.localeCompare(b.group_code));
 }
@@ -215,13 +217,14 @@ function findAssignmentByIdAdmin(assignmentId) {
   return state.assignments.find((item) => item.id === Number(assignmentId)) || null;
 }
 
-function findAssignmentByIdForProfessor(assignmentId, professorId) {
+function findAssignmentByIdForProfessor(assignmentId, professorId, currentSemester = semester) {
   hydrate();
   const assignment = state.assignments.find(
     (item) => item.id === Number(assignmentId) && item.professor_id === Number(professorId) && item.active
   );
 
-  return assignment ? assignmentView(assignment) : null;
+  return assignment && assignment.semester === currentSemester && admissible(assignment, findProfessorById(professorId).employee_number)
+    ? assignmentView(assignment) : null;
 }
 
 function createAssignment(payload) {
@@ -288,14 +291,14 @@ function listEvidenceByReportId(reportId) {
   return state.evidence.filter((file) => file.report_id === Number(reportId));
 }
 
-function findEvidenceByIdForProfessor(evidenceId, professorId) {
+function findEvidenceByIdForProfessor(evidenceId, professorId, currentSemester = semester) {
   hydrate();
   const evidence = state.evidence.find((file) => file.id === Number(evidenceId));
   if (!evidence) return null;
 
   const report = state.reports.find((item) => item.id === evidence.report_id);
   const assignment = report && state.assignments.find((item) => item.id === report.assignment_id);
-  if (!assignment || assignment.professor_id !== Number(professorId)) return null;
+  if (!assignment || !findAssignmentByIdForProfessor(assignment.id, professorId, currentSemester)) return null;
 
   return {
     ...evidence,

@@ -8,7 +8,10 @@
     "dev": "nodemon src/server.js",
     "db:seed": "node scripts/seed.js",
     "db:normalize-names": "node scripts/normalize-catalog-names.js",
-    "test": "node scripts/smoke.js"
+    "test": "node scripts/smoke.js",
+    "db:migrate-semesters": "node scripts/migrate-semesters.js",
+    "db:import-semester": "node scripts/import-semester.js",
+    "test:semesters": "node scripts/test-semesters.js"
   },
   "keywords": [
     "express",

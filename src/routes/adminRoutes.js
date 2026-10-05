@@ -8,6 +8,8 @@ router.use(requireAdmin);
 router.use(requirePasswordReady);
 
 router.get('/', AdminController.index);
+router.get('/asignaciones/:id/reportes/:period', AdminController.showReport);
+router.get('/evidencias/:evidenceId/descargar', AdminController.downloadEvidence);
 
 router.get('/profesores/nuevo', AdminController.newProfessor);
 router.post('/profesores', AdminController.createProfessor);

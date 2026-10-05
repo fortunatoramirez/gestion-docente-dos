@@ -1,6 +1,8 @@
 const db = require('../config/database');
 const demoStore = require('./demoStore');
 const { withDemoFallback } = require('../utils/dbFallback');
+const { currentAssignmentCondition } = require('../utils/semesterAccess');
+const Semester = require('./semesterModel');
 
 async function create(payload) {
   return withDemoFallback(
@@ -9,6 +11,7 @@ async function create(payload) {
         storage_provider: 'local',
         storage_key: payload.path,
         web_url: null,
+        storage_folder_id: null,
         ...payload
       };
 
@@ -24,7 +27,8 @@ async function create(payload) {
             path,
             storage_provider,
             storage_key,
-            web_url
+            web_url,
+            storage_folder_id
           )
           VALUES (
             :report_id,
@@ -37,7 +41,8 @@ async function create(payload) {
             :path,
             :storage_provider,
             :storage_key,
-            :web_url
+            :web_url,
+            :storage_folder_id
           )`,
         evidence
       );
@@ -78,15 +83,21 @@ async function findByIdForProfessor(evidenceId, professorId) {
           FROM evidence_files e
           INNER JOIN reports r ON r.id = e.report_id
           INNER JOIN teaching_assignments a ON a.id = r.assignment_id
-          WHERE e.id = :evidenceId AND a.professor_id = :professorId
+          INNER JOIN professors p ON p.id = a.professor_id
+          WHERE e.id = :evidenceId AND a.professor_id = :professorId AND ${currentAssignmentCondition}
           LIMIT 1`,
         { evidenceId, professorId }
       );
 
       return rows[0] || null;
     },
-    () => demoStore.findEvidenceByIdForProfessor(evidenceId, professorId)
+    async () => demoStore.findEvidenceByIdForProfessor(evidenceId, professorId, (await Semester.current()).code)
   );
+}
+
+async function findByIdAdmin(evidenceId) {
+  const [rows] = await db.execute('SELECT * FROM evidence_files WHERE id = ?', [evidenceId]);
+  return rows[0] || null;
 }
 
 async function remove(evidenceId) {
@@ -105,5 +116,6 @@ module.exports = {
   create,
   listByReportId,
   findByIdForProfessor,
+  findByIdAdmin,
   remove
 };

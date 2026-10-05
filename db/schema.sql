@@ -39,6 +39,10 @@ CREATE TABLE IF NOT EXISTS teaching_assignments (
   group_code VARCHAR(40) NOT NULL,
   career VARCHAR(160) NULL,
   semester VARCHAR(80) NOT NULL,
+  credits TINYINT UNSIGNED NULL,
+  source_name VARCHAR(220) NULL,
+  source_page SMALLINT UNSIGNED NULL,
+  source_document VARCHAR(180) NULL,
   active TINYINT(1) NOT NULL DEFAULT 1,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -68,6 +72,9 @@ CREATE TABLE IF NOT EXISTS reports (
   progress_notes TEXT NULL,
   status ENUM('draft', 'submitted') NOT NULL DEFAULT 'draft',
   submitted_at DATETIME NULL,
+  drive_file_id VARCHAR(180) NULL,
+  drive_folder_id VARCHAR(180) NULL,
+  drive_web_url VARCHAR(1024) NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
@@ -91,6 +98,7 @@ CREATE TABLE IF NOT EXISTS evidence_files (
   storage_provider VARCHAR(40) NOT NULL DEFAULT 'local',
   storage_key VARCHAR(1024) NULL,
   web_url VARCHAR(1024) NULL,
+  storage_folder_id VARCHAR(180) NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY index_evidence_report (report_id),
@@ -98,3 +106,23 @@ CREATE TABLE IF NOT EXISTS evidence_files (
     FOREIGN KEY (report_id) REFERENCES reports(id)
     ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS academic_semesters (
+  code VARCHAR(80) NOT NULL PRIMARY KEY,
+  label VARCHAR(180) NOT NULL,
+  is_current TINYINT(1) NOT NULL DEFAULT 0,
+  drive_folder_id VARCHAR(180) NULL,
+  legacy_layout TINYINT(1) NOT NULL DEFAULT 0,
+  current_key TINYINT GENERATED ALWAYS AS (CASE WHEN is_current = 1 THEN 1 ELSE NULL END) STORED,
+  UNIQUE KEY unique_current_semester (current_key)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS drive_folders (
+  semester VARCHAR(80) NOT NULL,
+  professor_id INT UNSIGNED NOT NULL,
+  relative_path VARCHAR(512) NOT NULL,
+  folder_id VARCHAR(180) NOT NULL,
+  PRIMARY KEY (semester, professor_id, relative_path),
+  CONSTRAINT fk_drive_folder_semester FOREIGN KEY (semester) REFERENCES academic_semesters(code),
+  CONSTRAINT fk_drive_folder_professor FOREIGN KEY (professor_id) REFERENCES professors(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

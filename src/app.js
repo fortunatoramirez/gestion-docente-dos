@@ -99,6 +99,9 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
+  if (err.status === 409) {
+    return res.status(409).render('error.html', { title: 'Asignación con historial', message: err.message });
+  }
   if (err.code === 'LIMIT_FILE_SIZE') {
     return res.status(413).render('error.html', {
       title: 'Archivo demasiado grande',

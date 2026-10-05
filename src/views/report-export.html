@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Reporte <%= report.period === 3 ? 'Final' : report.period %> - <%= assignment.semester %></title>
+  <style>
+    body { font: 16px/1.5 Arial,sans-serif; color: #172b46; max-width: 960px; margin: 32px auto; padding: 0 20px; }
+    h1 { font-size: 26px; color: #14558b; } h2 { font-size: 20px; border-bottom: 2px solid #bbd4ec; padding-bottom: 8px; }
+    table { width: 100%; border-collapse: collapse; } th,td { text-align: left; border: 1px solid #c4d3e2; padding: 10px; overflow-wrap: anywhere; }
+    th { background: #edf5fc; } p { white-space: pre-wrap; overflow-wrap: anywhere; }
+    @media print { body { margin: 0; max-width: none; } }
+  </style>
+</head>
+<body>
+  <% if (typeof adminBackUrl !== 'undefined') { %><nav><a href="<%= adminBackUrl %>">Volver a los reportes</a></nav><% } %>
+  <h1>Reporte <%= report.period === 3 ? 'Final' : report.period %> - <%= assignment.semester %></h1>
+  <p><strong><%= assignment.professor_name %></strong> · <%= assignment.employee_number %></p>
+  <p><%= assignment.subject_name %> · Grupo <%= assignment.group_code %> · <%= assignment.credits ?? 'Sin datos de' %> créditos</p>
+  <p>Estado: <%= report.status === 'submitted' ? 'Enviado' : 'Borrador' %></p>
+  <table>
+    <thead><tr><th>Inscritos</th><th>Aprobados</th><th>Ausentes</th><th>Aprobación</th><th>Reprobación</th></tr></thead>
+    <tbody><tr><td><%= report.enrolled_students %></td><td><%= report.approved_students %></td><td><%= report.absent_students %></td><td><%= report.approved_percentage %>%</td><td><%= report.reproval_percentage %>%</td></tr></tbody>
+  </table>
+  <h2>Observaciones del grupo</h2><p><%= report.observations || '' %></p>
+  <h2>Actividades adicionales</h2><p><%= report.additional_activities || '' %></p>
+  <h2>Avance</h2><p>Avance inferior al programado: <%= report.progress_delayed ? 'Sí' : 'No' %></p><p><%= report.progress_notes || '' %></p>
+  <h2>Evidencias</h2>
+  <table><thead><tr><th>Archivo</th><th>Unidades</th><th>Tamaño</th></tr></thead><tbody>
+    <% evidence.forEach((file) => { %>
+      <tr><td><% if (typeof evidenceUrl === 'function') { %><a href="<%= evidenceUrl(file) %>"><%= file.stored_name %></a><% } else { %><%= file.stored_name %><% } %></td><td><%= file.units %></td><td><%= (Number(file.size_bytes) / 1024 / 1024).toFixed(2) %> MB</td></tr>
+    <% }) %>
+  </tbody></table>
+</body>
+</html>

@@ -2,6 +2,65 @@
 
 Aplicacion ligera en Node.js, Express y MySQL para que docentes carguen evidencias por materia en tres reportes parciales por semestre.
 
+## Semestre 2026-3
+
+La fuente conciliada esta en `data/semester-2026-3.json`: 35 profesores,
+82 asignaciones y 60 nombres de materia. La importacion no cambia contrasenas,
+correos, nombres de cuentas existentes ni reportes historicos. Las cuentas nuevas
+usan su numero de empleado como contrasena temporal y deben cambiarla al entrar.
+
+Antes de importar, respalda la base de datos y los archivos de configuracion.
+Verifica que `GOOGLE_DRIVE_ROOT_FOLDER_ID` siga apuntando a la raiz historica.
+La importacion busca una sola hija llamada `evidencia-docente-2026-3` y comprueba
+permiso de escritura; no crea otra carpeta de semestre ni escribe en la raiz
+cuando no encuentra la hija.
+
+```bash
+# Solo prepara el esquema, sin eliminar datos.
+npm run db:migrate-semesters
+# Simulacion: muestra altas, reutilizaciones y asociaciones a desactivar.
+npm run db:import-semester
+# Aplicar la conciliacion y crear/reutilizar las carpetas de los 35 docentes.
+npm run db:import-semester -- --apply
+```
+
+El semestre actual se guarda en `academic_semesters`; solo puede haber uno.
+Las asociaciones de otros periodos conservan su identificador y sus archivos.
+El docente solo accede a sus asociaciones activas del semestre actual,
+incluyendo al solicitar enlaces directos. El administrador tiene un filtro por
+semestre y consulta de reportes/archivos historicos en modo lectura.
+No se puede cambiar la identidad de una asignacion que ya contiene reportes;
+se debe desactivar y crear otra. Los creditos de la carga se guardan por
+asignacion, sin sobrescribir el catalogo compartido.
+
+Las carpetas y archivos de Drive guardan sus IDs reales en MySQL. Las nuevas
+evidencias se organizan asi; los archivos anteriores conservan su ubicacion:
+
+```text
+evidencia-docente/
+  evidencia-docente-2026-3/
+    2289_ramirez_arzate_fortunato/
+      reporte_1/
+        tecnologias_de_bases_de_datos/
+          bm5a/
+            reporte_1_bm5a_ID.html
+            evidencias/
+          bm5b/
+            evidencias/
+```
+
+Al guardar se actualiza una copia HTML imprimible del reporte en su propia
+carpeta de materia/grupo, usando el mismo archivo en cada guardado. Los destinos
+se resuelven por semestre; la raiz historica se conserva para los periodos
+anteriores. Los archivos mantienen los permisos existentes de Drive.
+
+`npm test` comprueba el renderizado. `npm run test:semesters` contiene las pruebas
+de importacion repetida, conservacion, acceso docente/administrador, carga y
+cambio inicial de contrasena. Esta prueba requiere una copia aislada de la base
+anterior a la carga, llamada `gestion_docente_2026_3_test`, con credenciales y
+`UPLOAD_DIR` de pruebas; rechaza ejecutarse en otra base. No usar `db:seed` para
+actualizar una instalacion de produccion existente.
+
 ## Stack
 
 - Node.js + Express
@@ -45,7 +104,7 @@ Usa un numero de empleado cargado en la semilla, por ejemplo:
 - `2289` Fortunato Ramirez Arzate
 - `2982` Angelica Maria Garzon Fontecha
 
-Si MySQL no esta disponible en desarrollo local, la app usa automaticamente esos mismos datos en memoria para que puedas entrar y revisar el flujo. Para exigir conexion real a MySQL, configura:
+Si MySQL no esta disponible en desarrollo local, la app puede usar datos de prueba en memoria. En produccion este modo esta deshabilitado. Para exigir conexion real a MySQL tambien en desarrollo, configura:
 
 ```bash
 DB_DEMO_FALLBACK=false
@@ -53,8 +112,8 @@ DB_DEMO_FALLBACK=false
 
 ## Flujo docente
 
-1. El docente entra con su numero de empleado.
-2. El tablero muestra sus materias y los reportes `R1`, `R2` y `Final`.
+1. El docente entra con su numero de empleado y contrasena; las cuentas nuevas deben cambiar su contrasena temporal.
+2. El tablero muestra solo sus materias actuales y los reportes `Reporte 1`, `Reporte 2` y `Reporte Final`.
 3. Cada reporte precarga docente, materia, grupo, carrera y semestre.
 4. El docente captura alumnos inscritos, aprobados, ausentes, observaciones y avance.
 5. Las evidencias se cargan por categoria y unidad.

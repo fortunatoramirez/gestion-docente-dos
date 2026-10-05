@@ -1,6 +1,11 @@
 const Assignment = require('../models/assignmentModel');
 const Professor = require('../models/professorModel');
 const Subject = require('../models/subjectModel');
+const Semester = require('../models/semesterModel');
+const Report = require('../models/reportModel');
+const Evidence = require('../models/evidenceModel');
+const evidenceStorage = require('../services/evidenceStorage');
+const { admissible } = require('../utils/semesterAccess');
 const { normalizeCatalogName } = require('../utils/text');
 
 function blankProfessor() {
@@ -109,18 +114,26 @@ async function adminLookups() {
 
 async function index(req, res, next) {
   try {
-    const [professors, subjects, assignments] = await Promise.all([
+    const [professors, subjects, allAssignments, currentSemester] = await Promise.all([
       Professor.listAll(),
       Subject.listAll(),
-      Assignment.listAllAdmin()
+      Assignment.listAllAdmin(),
+      Semester.current()
     ]);
-    const submittedReportCount = assignments.reduce((total, assignment) => {
+    const semesters = [...new Set([currentSemester.code, ...allAssignments.map((row) => row.semester)])];
+    const selectedSemester = String(req.query.semestre || currentSemester.code);
+    const assignments = allAssignments.filter((row) => selectedSemester === 'todos' || row.semester === selectedSemester);
+    const activeAssignments = assignments.filter((row) => row.active);
+    const submittedReportCount = activeAssignments.reduce((total, assignment) => {
       return total + [1, 2, 3].filter((period) => assignment[`report_${period}_status`] === 'submitted').length;
     }, 0);
-    const expectedReportCount = assignments.length * 3;
+    const expectedReportCount = activeAssignments.length * 3;
 
     return res.render('admin-dashboard.html', {
       title: 'Administración',
+      semesters,
+      selectedSemester,
+      activeSemester: currentSemester.code,
       professors,
       subjects,
       assignments,
@@ -315,7 +328,9 @@ async function newAssignment(req, res, next) {
 async function createAssignment(req, res, next) {
   try {
     const payload = assignmentPayload(req.body);
-    const error = validateAssignment(payload);
+    const professor = await Professor.findById(payload.professor_id);
+    const error = validateAssignment(payload) || (!professor || !admissible(payload, professor.employee_number)
+      ? 'Esta asignación no está permitida para el semestre 2026-3.' : null);
     if (error) {
       return res.status(422).render('admin-assignment-form.html', {
         title: 'Nueva asignación',
@@ -351,7 +366,9 @@ async function editAssignment(req, res, next) {
 async function updateAssignment(req, res, next) {
   try {
     const payload = assignmentPayload(req.body);
-    const error = validateAssignment(payload);
+    const professor = await Professor.findById(payload.professor_id);
+    const error = validateAssignment(payload) || (payload.active && (!professor || !admissible(payload, professor.employee_number))
+      ? 'Esta asignación no está permitida para el semestre 2026-3.' : null);
     if (error) {
       return res.status(422).render('admin-assignment-form.html', {
         title: 'Editar asignación',
@@ -369,6 +386,31 @@ async function updateAssignment(req, res, next) {
   }
 }
 
+async function showReport(req, res, next) {
+  try {
+    const period = Number(req.params.period);
+    if (![1, 2, 3].includes(period)) return res.sendStatus(404);
+    const assignment = await Assignment.findDetailAdmin(req.params.id);
+    if (!assignment) return res.sendStatus(404);
+    const report = await Report.findByAssignmentAndPeriod(assignment.id, period);
+    if (!report) return res.status(404).render('error.html', { title: 'Reporte pendiente', message: 'Este reporte todavía no ha sido guardado.' });
+    const evidence = await Evidence.listByReportId(report.id);
+    return res.render('report-export.html', {
+      assignment, report, evidence,
+      adminBackUrl: res.locals.urlFor(`/admin?semestre=${encodeURIComponent(assignment.semester)}#reportes`),
+      evidenceUrl: (file) => res.locals.urlFor(`/admin/evidencias/${file.id}/descargar`)
+    });
+  } catch (error) { return next(error); }
+}
+
+async function downloadEvidence(req, res, next) {
+  try {
+    const evidence = await Evidence.findByIdAdmin(req.params.evidenceId);
+    if (!evidence) return res.sendStatus(404);
+    return evidenceStorage.downloadEvidence(evidence, res);
+  } catch (error) { return next(error); }
+}
+
 module.exports = {
   createAssignment,
   createProfessor,
@@ -377,6 +419,8 @@ module.exports = {
   editProfessor,
   editSubject,
   index,
+  showReport,
+  downloadEvidence,
   newAssignment,
   newProfessor,
   newSubject,

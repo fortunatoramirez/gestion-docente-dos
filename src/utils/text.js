@@ -5,8 +5,11 @@ function stripAccents(value) {
 }
 
 function normalizeCatalogName(value) {
-  return stripAccents(value)
-    .replace(/[^\w\s./-]/g, '')
+  return String(value || '').normalize('NFC').toUpperCase()
+    .replace(/Ñ/g, '\uE000')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/\uE000/g, 'Ñ')
+    .replace(/[^\wÑ\s./-]/g, '')
     .replace(/\s+/g, ' ')
     .trim()
     .toUpperCase();

@@ -55,6 +55,17 @@
         </div>
       </header>
 
+      <form class="semester-filter" action="<%= urlFor('/admin') %>" method="get">
+        <label for="semester-filter">Semestre</label>
+        <select id="semester-filter" name="semestre">
+          <% semesters.forEach((semester) => { %>
+            <option value="<%= semester %>" <%= selectedSemester === semester ? 'selected' : '' %>><%= semester %><%= semester === activeSemester ? ' (actual)' : '' %></option>
+          <% }) %>
+          <option value="todos" <%= selectedSemester === 'todos' ? 'selected' : '' %>>Todos los semestres</option>
+        </select>
+        <button class="ghost-button" type="submit">Consultar</button>
+      </form>
+
       <% if (saved) { %>
         <div class="notice">Cambios guardados.</div>
       <% } %>
@@ -105,7 +116,7 @@
                     <strong><%= item.subject_name %></strong>
                     <small><%= item.subject_code || 'Sin clave' %></small>
                   </td>
-                  <td><%= item.group_code %></td>
+                  <td><%= item.group_code %><small><%= item.semester %><%= item.active ? '' : ' · Archivada' %></small></td>
                   <% [1, 2, 3].forEach((period) => {
                     const status = item[`report_${period}_status`];
                     const files = item[`report_${period}_files`] || 0;
@@ -113,7 +124,11 @@
                     const label = status === 'submitted' ? 'Enviado' : status === 'draft' ? 'Borrador' : 'Pendiente';
                   %>
                     <td>
-                      <span class="status-chip <%= chipClass %>"><%= label %></span>
+                      <% if (status) { %>
+                        <a class="status-chip <%= chipClass %>" href="<%= urlFor('/admin/asignaciones/' + item.id + '/reportes/' + period) %>"><%= label %></a>
+                      <% } else { %>
+                        <span class="status-chip <%= chipClass %>"><%= label %></span>
+                      <% } %>
                       <small><%= files %> archivos</small>
                     </td>
                   <% }) %>

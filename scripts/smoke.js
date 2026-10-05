@@ -33,7 +33,8 @@ const common = {
   urlFor,
   professor,
   isAdmin: true,
-  passwordChangeRequired: false
+  passwordChangeRequired: false,
+  activeSemester: '2026-3'
 };
 
 async function render(view, locals) {
@@ -103,6 +104,8 @@ async function main() {
   await render('admin-dashboard.html', {
     title: 'Administración',
     saved: null,
+    semesters: ['2026-3', 'Ene-Jun 2026'],
+    selectedSemester: '2026-3',
     professors: [
       {
         id: professor.id,
