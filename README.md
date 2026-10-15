@@ -5,8 +5,13 @@ Aplicacion ligera en Node.js, Express y MySQL para que docentes carguen evidenci
 ## Semestre 2026-3
 
 La fuente conciliada esta en `data/semester-2026-3.json`: 35 profesores,
-82 asignaciones y 60 nombres de materia. La importacion no cambia contrasenas,
-correos, nombres de cuentas existentes ni reportes historicos. Las cuentas nuevas
+82 asignaciones y 60 nombres de materia. La importacion no cambia contrasenas, nombres de cuentas existentes ni reportes historicos.
+Completa un correo vacio con los datos confirmados de Fidel (2956) y Jesus (2957);
+si ya existe un correo distinto o pertenece a otra cuenta, se detiene antes de
+aplicar cambios. Reutiliza y corrige la materia `AUTOMTIZACION ROBOTICA` como
+`AUTOMATIZACION ROBOTICA` cuando el catalogo solo contiene la errata, conservando
+su ID, asociaciones y archivos. Esa correccion del nombre compartido tambien
+se refleja en la consulta historica; no mueve ni renombra los archivos antiguos. Las cuentas nuevas
 usan su numero de empleado como contrasena temporal y deben cambiarla al entrar.
 
 Antes de importar, respalda la base de datos y los archivos de configuracion.
