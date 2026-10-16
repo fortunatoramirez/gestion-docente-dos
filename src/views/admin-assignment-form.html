@@ -47,7 +47,12 @@
           </label>
           <label>
             <span>Semestre</span>
-            <input name="semester" value="<%= assignment.semester || '' %>" required>
+            <select name="semester" required>
+              <option value="">Selecciona</option>
+              <% semesters.forEach((semester) => { %>
+                <option value="<%= semester.code %>" <%= assignment.semester === semester.code ? 'selected' : '' %>><%= semester.code %><%= semester.code === activeSemester ? ' (actual)' : '' %></option>
+              <% }) %>
+            </select>
           </label>
         </div>
 

@@ -95,21 +95,23 @@ function validateSubject(payload) {
   return null;
 }
 
-function validateAssignment(payload) {
+function validateAssignment(payload, semesters) {
   if (!payload.professor_id) return 'Selecciona un profesor.';
   if (!payload.subject_id) return 'Selecciona una materia.';
   if (!payload.group_code) return 'Ingresa el grupo.';
-  if (!payload.semester) return 'Ingresa el semestre.';
+  if (!semesters.some((semester) => semester.code === payload.semester)) return 'Selecciona un semestre de la lista.';
   return null;
 }
 
 async function adminLookups() {
-  const [professors, subjects] = await Promise.all([
+  const [professors, subjects, semesters, currentSemester] = await Promise.all([
     Professor.listAll(),
-    Subject.listAll()
+    Subject.listAll(),
+    Semester.listAll(),
+    Semester.current()
   ]);
 
-  return { professors, subjects };
+  return { professors, subjects, semesters, activeSemester: currentSemester.code };
 }
 
 async function index(req, res, next) {
@@ -301,13 +303,13 @@ async function updateSubject(req, res, next) {
   }
 }
 
-async function renderAssignmentForm(res, { title, action, assignment, error = null }) {
-  const lookups = await adminLookups();
+async function renderAssignmentForm(res, { title, action, assignment, error = null }, lookups = null) {
+  lookups = lookups || await adminLookups();
 
   return res.render('admin-assignment-form.html', {
     title,
     action,
-    assignment,
+    assignment: { ...assignment, semester: assignment.semester || lookups.activeSemester },
     error,
     ...lookups
   });
@@ -315,7 +317,7 @@ async function renderAssignmentForm(res, { title, action, assignment, error = nu
 
 async function newAssignment(req, res, next) {
   try {
-    return renderAssignmentForm(res, {
+    return await renderAssignmentForm(res, {
       title: 'Nueva asignación',
       action: '/admin/asignaciones',
       assignment: blankAssignment()
@@ -328,21 +330,22 @@ async function newAssignment(req, res, next) {
 async function createAssignment(req, res, next) {
   try {
     const payload = assignmentPayload(req.body);
+    const lookups = await adminLookups();
     const professor = await Professor.findById(payload.professor_id);
-    const error = validateAssignment(payload) || (!professor || !admissible(payload, professor.employee_number)
+    const error = validateAssignment(payload, lookups.semesters) || (!professor || !admissible(payload, professor.employee_number)
       ? 'Esta asignación no está permitida para el semestre 2026-3.' : null);
     if (error) {
-      return res.status(422).render('admin-assignment-form.html', {
+      res.status(422);
+      return await renderAssignmentForm(res, {
         title: 'Nueva asignación',
         action: '/admin/asignaciones',
         assignment: payload,
-        error,
-        ...(await adminLookups())
-      });
+        error
+      }, lookups);
     }
 
     await Assignment.create(payload);
-    return res.redirect('/admin?guardado=asignacion');
+    return res.redirect(`/admin?guardado=asignacion&semestre=${encodeURIComponent(payload.semester)}#asignaciones`);
   } catch (error) {
     return next(error);
   }
@@ -353,7 +356,7 @@ async function editAssignment(req, res, next) {
     const assignment = await Assignment.findByIdAdmin(req.params.id);
     if (!assignment) return res.redirect('/admin');
 
-    return renderAssignmentForm(res, {
+    return await renderAssignmentForm(res, {
       title: 'Editar asignación',
       action: `/admin/asignaciones/${assignment.id}`,
       assignment
@@ -366,21 +369,22 @@ async function editAssignment(req, res, next) {
 async function updateAssignment(req, res, next) {
   try {
     const payload = assignmentPayload(req.body);
+    const lookups = await adminLookups();
     const professor = await Professor.findById(payload.professor_id);
-    const error = validateAssignment(payload) || (payload.active && (!professor || !admissible(payload, professor.employee_number))
+    const error = validateAssignment(payload, lookups.semesters) || (payload.active && (!professor || !admissible(payload, professor.employee_number))
       ? 'Esta asignación no está permitida para el semestre 2026-3.' : null);
     if (error) {
-      return res.status(422).render('admin-assignment-form.html', {
+      res.status(422);
+      return await renderAssignmentForm(res, {
         title: 'Editar asignación',
         action: `/admin/asignaciones/${req.params.id}`,
         assignment: { id: req.params.id, ...payload },
-        error,
-        ...(await adminLookups())
-      });
+        error
+      }, lookups);
     }
 
     await Assignment.update(req.params.id, payload);
-    return res.redirect('/admin?guardado=asignacion');
+    return res.redirect(`/admin?guardado=asignacion&semestre=${encodeURIComponent(payload.semester)}#asignaciones`);
   } catch (error) {
     return next(error);
   }

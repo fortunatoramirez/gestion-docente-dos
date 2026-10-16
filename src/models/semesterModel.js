@@ -17,4 +17,16 @@ async function findByCode(code) {
   }, () => ({ code, legacy_layout: 1, drive_folder_id: process.env.GOOGLE_DRIVE_ROOT_FOLDER_ID }));
 }
 
-module.exports = { current, findByCode };
+async function listAll() {
+  return withDemoFallback(async () => {
+    const [rows] = await db.execute('SELECT code,is_current FROM academic_semesters ORDER BY is_current DESC,code DESC');
+    return rows;
+  }, async () => {
+    const active = (await current()).code;
+    const assignments = require('./demoStore').listAssignmentsAdmin();
+    const codes = [...new Set([active, ...assignments.map((assignment) => assignment.semester)])];
+    return codes.map((code) => ({ code, is_current: code === active ? 1 : 0 }));
+  });
+}
+
+module.exports = { current, findByCode, listAll };

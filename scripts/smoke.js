@@ -200,6 +200,7 @@ async function main() {
   await render('admin-assignment-form.html', {
     title: 'Nueva asignación',
     action: '/admin/asignaciones',
+    semesters: [{ code: '2026-3', is_current: 1 }, { code: 'Ene-Jun 2026', is_current: 0 }],
     assignment: {
       professor_id: '',
       subject_id: '',
