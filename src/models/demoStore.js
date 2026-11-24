@@ -307,6 +307,11 @@ function findEvidenceByIdForProfessor(evidenceId, professorId, currentSemester =
   };
 }
 
+function findEvidenceById(evidenceId) {
+  hydrate();
+  return state.evidence.find((file) => file.id === Number(evidenceId)) || null;
+}
+
 function removeEvidence(evidenceId) {
   hydrate();
   const index = state.evidence.findIndex((file) => file.id === Number(evidenceId));
@@ -330,6 +335,7 @@ module.exports = {
   upsertReport,
   createEvidence,
   listEvidenceByReportId,
+  findEvidenceById,
   findEvidenceByIdForProfessor,
   removeEvidence,
   recordProfessorLogin,

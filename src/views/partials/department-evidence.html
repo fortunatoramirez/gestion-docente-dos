@@ -1,0 +1,14 @@
+<% if (c.automatic.length || c.manual.length) { %>
+  <ul class="dept-evidence">
+    <% c.automatic.forEach((e) => { %>
+      <li><a href="<%= urlFor(autoUrl(e)) %>"><%= e.title %></a>
+        <small>Plataforma · <%= e.context %><%= e.date ? ' · ' + dateFor(e.date) : '' %></small></li>
+    <% }) %>
+    <% c.manual.forEach((e) => { %>
+      <li><a href="<%= urlFor(base + '/evidencias/' + e.id + '/descargar') %>"><%= e.title %></a>
+        <small><%= sources[e.source] %> · <%= e.contributor %> · <%= dateFor(e.created_at) %> · <%= e.original_name %></small></li>
+    <% }) %>
+  </ul>
+<% } else { %>
+  <p class="dept-muted"><%= actor.full ? 'Sin evidencias registradas.' : 'Tu oficina aún no ha aportado comprobantes a este criterio.' %></p>
+<% } %>

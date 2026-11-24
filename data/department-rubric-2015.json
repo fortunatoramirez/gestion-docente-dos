@@ -1,0 +1,286 @@
+[
+  {
+    "id": 1,
+    "area": "docencia",
+    "title": "Formación docente y actualización profesional",
+    "page": 1,
+    "examples": "Constancias de cursos o diplomado, asistencia al evento externo y muestra de la innovación que aplicaste.",
+    "levels": [
+      "Sin cursos acreditados de formación docente o actualización profesional.",
+      "Un curso acreditado en cualquiera de las dos áreas.",
+      "Dos cursos acreditados, uno de formación docente y uno de actualización profesional.",
+      "Tres cursos combinados de esas áreas y asistencia a un evento académico externo.",
+      "Tres cursos combinados, asistencia a un evento académico externo y evidencia de innovación al aplicar lo aprendido en clase.",
+      "Diplomado acreditado en los últimos tres años o cuatro cursos combinados. En ambas vías se requiere asistir a un evento académico externo y mostrar la innovación en clase al aplicar la formación recibida."
+    ],
+    "officeEvidence": {},
+    "academicSupport": "Desarrollo Académico puede aportar constancias que ya custodie. Docencia puede aportar una muestra del curso donde se aplicó lo aprendido."
+  },
+  {
+    "id": 2,
+    "area": "docencia",
+    "title": "Planeación y evaluación del desarrollo de la asignatura",
+    "page": 2,
+    "examples": "Instrumentación colegiada, bibliografía, acuse de entrega, proyecto integrador y muestra de innovación.",
+    "levels": [
+      "Sin instrumentación didáctica individual ni captura de calificaciones finales.",
+      "Instrumentación individual y captura de calificaciones finales.",
+      "Instrumentación individual, bibliografía, calificaciones finales capturadas y evidencias entregadas en tiempo y forma.",
+      "Instrumentación colegiada, bibliografía, captura de avances de desempeño y calificaciones finales, y evidencias en tiempo y forma.",
+      "Cumple las condiciones del nivel 3 y participa en un proyecto integrador.",
+      "Cumple las condiciones del nivel 4 e incorpora innovaciones en la implementación del curso."
+    ],
+    "officeEvidence": {
+      "vinculacion": "Si resguarda el proyecto integrador con una contraparte, aporta la ficha de participantes."
+    },
+    "academicSupport": "Academia puede aportar la minuta de trabajo colegiado. Docencia puede agregar instrumentación, bibliografía o acuses. Los reportes enviados se incorporan desde la plataforma."
+  },
+  {
+    "id": 3,
+    "area": "docencia",
+    "title": "Desarrollo y aplicación de estrategias y recursos didácticos para el fortalecimiento académico",
+    "page": 2,
+    "examples": "Guía o recurso digital y muestra de una práctica o visita. Identifica materia, innovación y colaboradores.",
+    "levels": [
+      "Sin aplicación de estrategias o recursos didácticos en las asignaturas del periodo.",
+      "Aplica estrategias y recursos en las asignaturas que impartió.",
+      "Aplica estrategias y recursos, y realiza prácticas de campo, de laboratorio o visitas a empresas según la asignatura.",
+      "Desarrolla y aplica estrategias y recursos e innova en las prácticas o visitas de sus asignaturas.",
+      "Cumple las condiciones del nivel 3 utilizando tecnologías de la información y la comunicación.",
+      "Además del nivel 4, trabaja de manera colaborativa con otros profesores y estudiantes."
+    ],
+    "officeEvidence": {
+      "vinculacion": "Para una visita que coordinó, aporta programa, grupo participante y constancia de realización."
+    },
+    "academicSupport": "Academia o laboratorio aporta registro de práctica o minuta que identifique a los docentes colaboradores, si existe."
+  },
+  {
+    "id": 4,
+    "area": "docencia",
+    "title": "Asesora a estudiantes en el proceso académico y de titulación integral",
+    "page": 3,
+    "examples": "Oficio de asesor de residencia, plan de trabajo, bitácora y resultados. Para titulación, designación como asesor o revisor.",
+    "levels": [
+      "Sin asesoría académica de asignatura.",
+      "Brinda asesoría académica de asignatura.",
+      "Con plan de trabajo, acredita una vía de asesoría. Puede ser un programa de asesoría académica junto con actividad complementaria, un evento académico local (Innovación Tecnológica y Ciencias Básicas) o una residencia profesional.",
+      "Con plan y bitácora, acredita asesoría en un programa académico junto con residencia profesional, o asesoría a estudiantes en proyectos de investigación.",
+      "Con plan, bitácora y resultados o productos, acredita una de dos vías. Puede asesorar un proyecto integrador o eventos académicos regionales (Innovación Tecnológica y Ciencias Básicas), o combinar residencia con asesoría o revisión en titulación integral.",
+      "Con plan, bitácora y resultados o productos, acredita una de dos vías. La primera combina asesoría en un proyecto integrador y en eventos académicos nacionales (Innovación Tecnológica y Ciencias Básicas). La segunda combina residencia profesional, proyectos de investigación y asesoría o revisión en titulación integral."
+    ],
+    "officeEvidence": {
+      "vinculacion": "Para eventos nacionales, aporta constancia del alcance y la función de asesor. Para residencias, aporta la designación como asesor.",
+      "investigacion": "Aporta el registro del proyecto que identifica al estudiante y a su asesor, o la ficha del proyecto integrador si la custodia."
+    },
+    "academicSupport": "Academia o Docencia puede acreditar el proyecto integrador. Titulación puede aportar la designación o el acta de asesor o revisor."
+  },
+  {
+    "id": 5,
+    "area": "tutoria",
+    "title": "Participa en procesos continuos de formación como tutor",
+    "page": 4,
+    "examples": "Constancias fechadas del diplomado o de los cursos y registro de reuniones con asistencia y participación.",
+    "levels": [
+      "Sin cursos acreditados de apoyo tutorial en los últimos dos años.",
+      "Un curso de apoyo tutorial acreditado en los últimos dos años.",
+      "Un curso en los últimos dos años y asistencia y participación en el 70 % de las reuniones de coordinación.",
+      "Dos cursos en los últimos dos años y asistencia y participación en el 80 % de las reuniones.",
+      "Tres cursos en los últimos dos años y asistencia y participación en el 90 % de las reuniones.",
+      "Asistencia y participación en el 100 % de las reuniones y una de dos opciones. Se admite un diplomado en tutoría de los últimos tres años o cuatro cursos de apoyo tutorial de los últimos dos años."
+    ],
+    "officeEvidence": {
+      "tutorias": "Relación de reuniones convocadas y asistencias por tutor, con fechas. Integra constancias de formación que ya tenga registradas."
+    },
+    "academicSupport": "Desarrollo Académico aporta constancias de capacitación institucional si las custodia."
+  },
+  {
+    "id": 6,
+    "area": "tutoria",
+    "title": "Planeación, seguimiento y evaluación de la actividad tutorial",
+    "page": 5,
+    "examples": "Plan e informe tutorial con acuses, diagnóstico institucional o plan del periodo con seguimiento. Usa informes disociados cuando haya información personal de tutorados.",
+    "levels": [
+      "Sin diagnóstico del tutorado ni detección de áreas de atención.",
+      "Diagnostica al tutorado e identifica sus áreas de atención.",
+      "Además del diagnóstico y la detección de necesidades, realiza sesiones planeadas individuales o grupales y entrega un informe.",
+      "Además del diagnóstico, la detección de necesidades y las sesiones planeadas, realiza canalizaciones y entrega el informe en tiempo y forma.",
+      "Cumple las condiciones del nivel 3 e integra las evidencias de las actividades del Programa de Acción Tutorial en el informe.",
+      "Hay tres vías. 1) Diagnostica, detecta necesidades, elabora y entrega el plan, realiza sesiones planeadas individuales o grupales, canaliza y entrega el informe con evidencias en tiempo y forma. 2) Elabora el diagnóstico institucional para generar y aplicar el Programa Institucional de Tutoría. 3) Elabora el Plan de Acción Tutorial del periodo y le da seguimiento."
+    ],
+    "officeEvidence": {
+      "tutorias": "Según la actividad, aporta la asignación de tutorados y los acuses de plan e informe, el diagnóstico institucional con autoría, o el plan del periodo con su seguimiento."
+    },
+    "academicSupport": "La jefatura puede consultar el expediente tutorial restringido y aportar su acuse de revisión."
+  },
+  {
+    "id": 7,
+    "area": "investigacion",
+    "title": "Dirección y desarrollo de proyectos de investigación",
+    "page": 6,
+    "examples": "Ficha del proyecto, designación, financiamiento y acuse fechado del informe final.",
+    "levels": [
+      "Sin protocolo de investigación.",
+      "Cuenta con un protocolo de investigación.",
+      "Dirige al menos un proyecto de investigación básica, aplicada o educativa registrado en Posgrado e Investigación del Instituto o su equivalente.",
+      "Dirige o colabora en al menos un proyecto de ese tipo registrado en el TecNM.",
+      "Colabora en al menos un proyecto de ese tipo con financiamiento externo o del TecNM.",
+      "Dirige y realiza al menos un proyecto de ese tipo con financiamiento externo o del TecNM y entregó un informe final el semestre anterior."
+    ],
+    "officeEvidence": {
+      "investigacion": "Registro del proyecto, oficio de responsable, resolución de financiamiento y acuse fechado del informe final. Recupera los comprobantes de Posgrado e Investigación o del financiador."
+    },
+    "academicSupport": "La jefatura comprueba que el acuse corresponda al semestre anterior."
+  },
+  {
+    "id": 8,
+    "area": "investigacion",
+    "title": "Participación en grupos, cuerpos académicos o redes de investigación",
+    "page": 6,
+    "examples": "Reconocimiento del cuerpo académico y su grado de consolidación, y constancia de adscripción a la red.",
+    "levels": [
+      "Sin pertenencia a una línea de investigación.",
+      "Integra una línea de investigación.",
+      "Lidera una línea o pertenece a un grupo de investigación institucional.",
+      "Integra un cuerpo académico en formación o un grupo de investigación interinstitucional.",
+      "Integra un cuerpo académico consolidado o en consolidación, o una red de investigación interinstitucional.",
+      "Lidera o integra un cuerpo académico consolidado y además pertenece a una red de investigación interinstitucional o internacional."
+    ],
+    "officeEvidence": {
+      "investigacion": "Reconocimiento del cuerpo con grado consolidado e integrantes, y constancia de membresía en la red con su alcance."
+    }
+  },
+  {
+    "id": 9,
+    "area": "investigacion",
+    "title": "Publicación de resultados de investigación",
+    "page": 7,
+    "examples": "Artículo con autoría y respaldo del arbitraje, como dictamen o constancia editorial.",
+    "levels": [
+      "Sin publicación técnica en un medio de divulgación institucional.",
+      "Publicación técnica en un medio institucional.",
+      "Publicación en revista científica, tecnológica o educativa de divulgación nacional externa a la institución.",
+      "Publicación en revista de divulgación internacional externa en esas áreas, o publicación en Universia (OpenCourseWare).",
+      "Publicación en congreso nacional o internacional con ISSN o ISBN.",
+      "Cuenta con una publicación arbitrada."
+    ],
+    "officeEvidence": {
+      "investigacion": "Ficha institucional de la publicación con autoría, referencia editorial y evidencia de arbitraje."
+    }
+  },
+  {
+    "id": 10,
+    "area": "vinculacion",
+    "title": "Educación continua",
+    "page": 8,
+    "examples": "Acuerdo institucional, constancia de diseño e impartición, contenidos, cronograma, materiales e informe final.",
+    "levels": [
+      "Sin diagnóstico de los sectores empresarial, gubernamental y social relacionados con su especialidad.",
+      "Elabora un diagnóstico de esos sectores en su área de conocimiento.",
+      "Representa a la institución en reuniones, concertaciones y actividades de vinculación con esos sectores.",
+      "Representa a la institución en actividades de vinculación y además actúa como jurado institucional en concursos o participa activamente en una asociación académica o profesional.",
+      "Brinda asesoría técnica a los sectores bajo un acuerdo institucional, con contenido, cronograma y entrega de informe final.",
+      "Diseña e imparte un curso de capacitación o un diplomado para los sectores bajo un acuerdo institucional. Incluye contenidos, cronograma y materiales de apoyo, y entrega el informe final."
+    ],
+    "officeEvidence": {
+      "vinculacion": "Acuerdo institucional, datos de la contraparte y constancia que identifique al docente como diseñador e instructor. Resguarda el reporte recibido."
+    }
+  },
+  {
+    "id": 11,
+    "area": "vinculacion",
+    "title": "Dirección y colaboración de proyectos de vinculación con sectores empresarial, gubernamental y social",
+    "page": 9,
+    "examples": "Ficha del proyecto y de la contraparte, designación como responsable y registro de propiedad obtenido.",
+    "levels": [
+      "Sin colaboración en proyectos formativos disciplinares vinculados con los sectores empresarial, gubernamental y social.",
+      "Colabora en un proyecto formativo disciplinar vinculado con esos sectores.",
+      "Colabora en un proyecto formativo multidisciplinar vinculado con esos sectores.",
+      "Colabora en un proyecto integrador de desarrollo tecnológico, incubación de empresas o transferencia de tecnología que responde a necesidades de los sectores, o realiza una estancia registrada.",
+      "Es responsable de al menos un proyecto integrador de uno de esos tipos que responda a una necesidad de los sectores.",
+      "Además de la responsabilidad y el alcance del nivel 4, obtiene un registro de propiedad intelectual o industrial."
+    ],
+    "officeEvidence": {
+      "vinculacion": "Ficha que identifique necesidad, contraparte y responsable. Integra el documento de registro de propiedad correspondiente al proyecto.",
+      "investigacion": "Si el proyecto se tramitó por Investigación, aporta expediente técnico y comprobante de registro obtenido."
+    }
+  },
+  {
+    "id": 12,
+    "area": "gestion",
+    "title": "Diseño e impartición de programas de formación docente y actualización profesional",
+    "page": 10,
+    "examples": "Por cada curso, constancia de diseño e impartición y acuse de entrega del programa y materiales.",
+    "levels": [
+      "Sin colaboración en cursos de capacitación docente o profesional para personal de los Institutos Tecnológicos.",
+      "Colabora en un curso de capacitación para ese personal.",
+      "Imparte al menos un curso de formación docente o actualización profesional para ese personal.",
+      "Diseña al menos un curso para ese personal y entrega programa y materiales a Desarrollo Académico.",
+      "Diseña e imparte al menos un curso para ese personal y entrega programa y materiales a Desarrollo Académico.",
+      "Diseña e imparte al menos dos cursos para ese personal y entrega los programas y materiales a Desarrollo Académico."
+    ],
+    "officeEvidence": {},
+    "academicSupport": "Desarrollo Académico aporta constancias de diseño e impartición y acuses de programas y materiales de los dos cursos."
+  },
+  {
+    "id": 13,
+    "area": "gestion",
+    "title": "Participación en el trabajo colegiado y actividades de la academia",
+    "page": 10,
+    "examples": "Acta de academia, relación de encargos y productos entregados, oficios y cumplimiento de las comisiones.",
+    "levels": [
+      "Sin asistencia ni cumplimiento de actividades encomendadas por la academia.",
+      "Asiste a la academia y deja pendientes las actividades encomendadas.",
+      "Asiste a reuniones y cumple las comisiones de la academia y la Dirección del Instituto.",
+      "Participa en la academia, acredita al menos el 60 % de los encargos previstos en el lineamiento y cumple las comisiones de Dirección o del TecNM.",
+      "Mismas condiciones del nivel 3, con al menos el 80 % de los encargos de academia acreditados.",
+      "Mismas condiciones del nivel 3, con el 100 % de los encargos de academia acreditados."
+    ],
+    "officeEvidence": {
+      "vinculacion": "Para encargos a su cargo, aporta oficio, producto recibido y acuse.",
+      "investigacion": "Para encargos a su cargo, aporta oficio, producto recibido y acuse.",
+      "tutorias": "Para encargos a su cargo, aporta oficio, producto recibido y acuse."
+    },
+    "academicSupport": "Academia aporta actas, asistencia y listado completo de encargos y cumplimientos. Jefatura integra las comisiones de Dirección o TecNM y su cierre."
+  },
+  {
+    "id": 14,
+    "area": "gestion",
+    "title": "Participación en procesos académico-administrativos y eventos académicos",
+    "page": 11,
+    "examples": "Designación en comité y constancias de promoción, examen de ingreso, inscripción, reinscripción y participación del grupo.",
+    "levels": [
+      "Sin participación con su grupo en eventos institucionales.",
+      "Participa con su grupo en eventos institucionales.",
+      "Además de participar con su grupo, colabora en promoción de la oferta, aplicación del examen de ingreso o inducción.",
+      "Colabora en al menos un evento institucional, o participa en promoción de la oferta, aplicación del examen de ingreso o inducción.",
+      "Integra el comité organizador de al menos un evento institucional local, regional, nacional o internacional, o participa en promoción, examen de ingreso, inducción, inscripción, reinscripción y eventos institucionales con su grupo.",
+      "Integra el comité organizador de al menos un evento institucional local, regional, nacional o internacional. Además participa en promoción de la oferta, aplicación del examen de ingreso, inscripción, reinscripción y eventos institucionales con su grupo."
+    ],
+    "officeEvidence": {
+      "vinculacion": "Aporta constancia de promoción y designación de comité si coordinó el evento.",
+      "investigacion": "Si organizó el evento, aporta nombramiento y relación del comité.",
+      "tutorias": "Si coordinó la participación grupal, aporta registro del evento con docente y grupo."
+    },
+    "academicSupport": "Docencia, Servicios Escolares y organizadores aportan relaciones de aplicadores y de apoyo a inscripción y reinscripción, y registro de participación grupal."
+  },
+  {
+    "id": 15,
+    "area": "gestion",
+    "title": "Participación como evaluador interno o externo",
+    "page": 12,
+    "examples": "Oficio o constancia donde se identifiquen comité, alcance y función, o designación como auditor líder.",
+    "levels": [
+      "Sin participación como observador en auditorías de sistemas de gestión.",
+      "Observa auditorías de sistemas de gestión como SGC, SGA o MEG.",
+      "Integra un comité evaluador local de proyectos, concursos o eventos, o realiza auditoría interna de sistemas de gestión.",
+      "Integra un comité local de evaluación de concursos o eventos y realiza auditoría interna de sistemas de gestión.",
+      "Integra una comisión académica especial de Institutos Tecnológicos o Centros y cumple una vía adicional. Puede integrar un comité regional interno o externo en concursos o eventos, o ser auditor interno de un sistema de gestión.",
+      "Hay tres vías. 1) Integrar un comité externo nacional de evaluación de concursos o eventos. 2) Ser auditor líder de un sistema de gestión. 3) Integrar un comité evaluador externo como CIEES, COPAES, COEPES, CONACyT, INADEM u otro de ciencia, tecnología, innovación o calidad."
+    ],
+    "officeEvidence": {
+      "vinculacion": "Si gestionó el concurso nacional, aporta designación donde consten su alcance y el carácter externo del comité.",
+      "investigacion": "Si gestionó la evaluación científica externa, aporta designación y constancia de participación."
+    },
+    "academicSupport": "Calidad aporta nombramiento de auditor líder y registro de auditoría cuando se elija esa vía."
+  }
+]

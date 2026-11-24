@@ -31,3 +31,9 @@ const reportUploadFields = evidenceCategories.map((category) => ({
 }));
 
 module.exports = upload.fields(reportUploadFields);
+
+module.exports.departmentUpload = multer({
+  dest: tempUploadRoot,
+  defParamCharset: 'utf8',
+  limits: { fileSize: MAX_UPLOAD_BYTES, files: 1, fields: 4, parts: 6, fieldSize: 1024 }
+}).single('file');

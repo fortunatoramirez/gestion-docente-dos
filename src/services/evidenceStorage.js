@@ -238,9 +238,9 @@ async function uniqueDriveFileName(drive, parentId, fileName) {
   return candidateName;
 }
 
-async function storeLocalFile({ file, storedName, assignment, period }) {
+async function storeLocalFile({ file, storedName, assignment, period, folderSegments }) {
   const semester = await Semester.findByCode(assignment.semester);
-  const segments = await assignmentFolderSegments(assignment, period);
+  const segments = folderSegments || await assignmentFolderSegments(assignment, period);
   const targetDir = path.join(uploadRoot, ...(semester.legacy_layout ? [] : [cleanFolderSegment(assignment.semester)]), ...segments);
   await fsp.mkdir(targetDir, { recursive: true });
 
@@ -256,10 +256,10 @@ async function storeLocalFile({ file, storedName, assignment, period }) {
   };
 }
 
-async function storeDriveFile({ file, storedName, assignment, period }) {
+async function storeDriveFile({ file, storedName, assignment, period, folderSegments }) {
   try {
     const drive = await getDriveClient();
-    const parentId = await ensureDriveFolderPath(assignment, await assignmentFolderSegments(assignment, period));
+    const parentId = await ensureDriveFolderPath(assignment, folderSegments || await assignmentFolderSegments(assignment, period));
     const uniqueName = await uniqueDriveFileName(drive, parentId, storedName);
     const response = await drive.files.create({
       requestBody: {
@@ -334,6 +334,18 @@ async function storeEvidenceFile(payload) {
   return storeLocalFile(payload);
 }
 
+async function storeDepartmentFile(dossier, criterion, file) {
+  const assignment = { ...dossier, professor_name: dossier.full_name };
+  const [professorFolder] = evidenceFolderSegments(assignment, 1);
+  const ext = path.extname(file.originalname).toLowerCase();
+  const suffix = /^\.[a-z0-9]{1,12}$/.test(ext) ? ext : '.bin';
+  return storeEvidenceFile({
+    assignment, file,
+    storedName: `criterio_${criterion}_${crypto.randomUUID()}${suffix}`,
+    folderSegments: [professorFolder, 'evaluacion_departamental', `criterio_${criterion}`]
+  });
+}
+
 function providerForEvidence(evidence) {
   if (evidence.storage_provider) return evidence.storage_provider;
   return String(evidence.path || '').startsWith(`${DRIVE_PROVIDER}:`) ? DRIVE_PROVIDER : LOCAL_PROVIDER;
@@ -363,8 +375,8 @@ async function downloadEvidence(evidence, res) {
     { responseType: 'stream' }
   );
 
+  res.attachment(downloadFileName(evidence.stored_name));
   res.setHeader('Content-Type', evidence.mime_type || 'application/octet-stream');
-  res.setHeader('Content-Disposition', `attachment; filename="${downloadFileName(evidence.stored_name)}"`);
   response.data.on('error', (error) => res.destroy(error));
   return response.data.pipe(res);
 }
@@ -393,6 +405,7 @@ module.exports = {
   findDriveFolder,
   getDriveClient,
   removeEvidence,
+  storeDepartmentFile,
   storeReportSnapshot,
   storeEvidenceFile
 };

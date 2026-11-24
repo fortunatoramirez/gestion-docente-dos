@@ -96,8 +96,10 @@ async function findByIdForProfessor(evidenceId, professorId) {
 }
 
 async function findByIdAdmin(evidenceId) {
-  const [rows] = await db.execute('SELECT * FROM evidence_files WHERE id = ?', [evidenceId]);
-  return rows[0] || null;
+  return withDemoFallback(async () => {
+    const [rows] = await db.execute('SELECT * FROM evidence_files WHERE id = ?', [evidenceId]);
+    return rows[0] || null;
+  }, () => demoStore.findEvidenceById(evidenceId));
 }
 
 async function remove(evidenceId) {
