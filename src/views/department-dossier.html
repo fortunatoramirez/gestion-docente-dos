@@ -11,7 +11,7 @@
     <% if (print) { %><a href="<%= urlFor(base) %>">Volver al expediente</a><% } %>
   </nav>
   <header class="page-header">
-    <div><p class="eyebrow">Evaluación departamental · <%= item.semester %></p>
+    <div><p class="eyebrow">Evaluación departamental · <%= item.semester %><%= print ? ' · Instrumento TecNM 2015' : '' %></p>
       <h1><%= print ? 'Reporte individual' : item.full_name %></h1>
       <p><% if (print) { %><strong><%= item.full_name %></strong> · <% } %>No. de empleado <%= item.employee_number %> · Tiempo completo</p>
     </div>
@@ -111,7 +111,7 @@
       <% }) %>
     </section>
   <% } %>
-  <footer>Instrumento de la Evaluación Departamental del TecNM, edición 2015.</footer>
+  <% if (!print) { %><footer>Instrumento de la Evaluación Departamental del TecNM, edición 2015.</footer><% } %>
 </main>
 </body>
 </html>
