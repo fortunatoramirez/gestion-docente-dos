@@ -1,0 +1,117 @@
+<%- include('partials/head.html', { title, departmentPage: true }) %>
+<body class="app-screen">
+<main class="dept-page">
+  <% const dateFor = (d) => new Date(d).toLocaleDateString('es-MX', { timeZone: 'America/Tijuana' });
+     const applicable = records.filter((c) => c.scope === 'Aplica');
+     const valued = applicable.filter((c) => c.score != null);
+  %>
+  <nav class="dept-nav" aria-label="Navegación">
+    <a href="<%= urlFor('/perfil') %>">Mi perfil</a>
+    <% if (actor.admin || actor.offices.length) { %><a href="<%= urlFor('/evaluacion/departamento?semestre=' + encodeURIComponent(item.semester)) %>">Expedientes del departamento</a><% } %>
+    <% if (print) { %><a href="<%= urlFor(base) %>">Volver al expediente</a><% } %>
+  </nav>
+  <header class="page-header">
+    <div><p class="eyebrow">Evaluación departamental · <%= item.semester %></p>
+      <h1><%= print ? 'Reporte individual' : item.full_name %></h1>
+      <p><% if (print) { %><strong><%= item.full_name %></strong> · <% } %>No. de empleado <%= item.employee_number %> · Tiempo completo</p>
+    </div>
+    <% if (actor.full && !print) { %><a class="ghost-button" href="<%= urlFor(base + '/reporte') %>">Ver reporte individual</a><% } %>
+    <% if (print) { %><button class="primary-button no-print" type="button" onclick="window.print()">Imprimir o guardar PDF</button><% } %>
+  </header>
+  <% if (saved && !print) { %><p class="notice notice-success" role="status">Cambios guardados.</p><% } %>
+  <% if (actor.full) { %>
+    <p class="dept-summary"><strong><%= valued.length %> de <%= applicable.length %></strong> criterios aplicables valorados
+      · <%= records.filter((c) => c.scope === 'Por definir').length %> con aplicabilidad por definir
+      · <%= records.filter((c) => c.scope === 'No aplica').length %> no aplicables</p>
+  <% } %>
+  <% if (!current && !print) { %><p class="notice">Expediente histórico de consulta.</p><% } %>
+
+  <% if (actor.admin && current && !print) { %>
+    <details class="form-section" <%= conditionalAreas.some((area) => item[area] == null) ? 'open' : '' %>>
+      <summary>Aplicabilidad de los rubros</summary>
+      <form class="dept-form" action="<%= urlFor(base + '/rubros') %>" method="post">
+        <% conditionalAreas.forEach((key) => { %>
+          <label><strong><%= areas[key].name %></strong><small><%= areas[key].condition %></small>
+            <select name="<%= key %>">
+              <option value="" <%= item[key] == null ? 'selected' : '' %>>Por definir</option>
+              <option value="1" <%= item[key] === 1 ? 'selected' : '' %>>Aplica</option>
+              <option value="0" <%= item[key] === 0 ? 'selected' : '' %>>No aplica</option>
+            </select>
+          </label>
+        <% }) %>
+        <button type="submit" class="ghost-button">Guardar aplicabilidad</button>
+      </form>
+    </details>
+  <% } %>
+
+  <% for (const [key, area] of Object.entries(areas)) {
+       const group = records.filter((c) => c.area === key);
+       if (!group.length) continue; %>
+    <section class="dept-area">
+      <header><h2><%= area.name %></h2><span><%= applicability(item, key) %></span></header>
+      <% group.forEach((c) => { const count = c.manual.length + c.automatic.length; %>
+        <% if (print) { %>
+          <article class="dept-print-criterion">
+            <h3><%= c.id %>. <%= c.title %></h3>
+            <p><strong>Valoración</strong> · <%= resultLabel(c) %></p>
+            <% if (c.note) { %><p class="dept-note"><%= c.note %></p><% } %>
+            <%- include('partials/department-evidence.html', { c, dateFor }) %>
+          </article>
+        <% } else { %>
+          <details class="dept-criterion" id="criterio-<%= c.id %>" <%= opened === c.id ? 'open' : '' %>>
+            <summary><span><strong><%= c.id %>. <%= c.title %></strong></span>
+              <small><%= actor.full ? resultLabel(c) + ' · ' : '' %><%= count %> <%= count === 1 ? 'evidencia' : 'evidencias' %></small>
+            </summary>
+            <div class="dept-body">
+              <p><strong>Comprobantes sugeridos</strong> · <%= c.examples %></p>
+              <% if (c.academicSupport || c.offices.length) { %>
+                <details class="dept-rubric"><summary>Qué comprobantes puede aportar cada oficina</summary>
+                  <ul>
+                    <% c.offices.forEach((o) => { %><li><strong><%= sources[o] %></strong> · <%= c.officeEvidence[o] %></li><% }) %>
+                    <% if (c.academicSupport) { %><li><strong>Docencia y otras instancias</strong> · <%= c.academicSupport %></li><% } %>
+                  </ul>
+                </details>
+              <% } %>
+              <details class="dept-rubric"><summary>Consultar niveles 0 a 5</summary>
+                <p>Guía del instrumento TecNM 2015, página <%= c.page %>.</p>
+                <ol start="0"><% c.levels.forEach((desc, i) => { %><li><strong><%= levels[i] %></strong> · <%= desc %></li><% }) %></ol>
+              </details>
+              <h3>Evidencias</h3>
+              <% if (actor.full && c.id === 2) { %><p>Al enviar un reporte parcial o final, aquí aparecen el reporte y los exámenes que contiene.</p><% } %>
+              <% if (actor.full && c.id === 3) { %><p>Aquí aparecen las prácticas, ejercicios, presentaciones e investigaciones del alumnado que se adjuntaron a reportes enviados.</p><% } %>
+              <%- include('partials/department-evidence.html', { c, dateFor }) %>
+              <% if (current && c.options.length) { %>
+                <form class="dept-form" action="<%= urlFor(base + '/criterios/' + c.id + '/evidencias') %>" method="post" enctype="multipart/form-data">
+                  <h4>Agregar comprobante</h4>
+                  <input type="hidden" name="token" value="<%= randomToken() %>">
+                  <% if (c.options.length > 1) { %>
+                    <label>Aportar como <select name="source"><% c.options.forEach((o) => { %><option value="<%= o %>"><%= sources[o] %></option><% }) %></select></label>
+                  <% } else { %>
+                    <input type="hidden" name="source" value="<%= c.options[0] %>">
+                    <small>Origen · <%= sources[c.options[0]] %></small>
+                  <% } %>
+                  <label>Título del comprobante <input name="title" maxlength="180" required></label>
+                  <label>Archivo (hasta <%= maxUpload %> MB) <input type="file" name="file" required></label>
+                  <button class="primary-button" type="submit">Agregar al criterio <%= c.id %></button>
+                </form>
+              <% } %>
+              <% if (actor.admin && current && c.scope === 'Aplica') { %>
+                <form class="dept-form" action="<%= urlFor(base + '/criterios/' + c.id + '/valorar') %>" method="post">
+                  <h4>Valoración de la jefatura</h4>
+                  <label>Nivel <select name="score"><option value="">Por valorar</option>
+                    <% levels.forEach((level, i) => { %><option value="<%= i %>" <%= c.score === i ? 'selected' : '' %>><%= i %> · <%= level %></option><% }) %>
+                  </select></label>
+                  <label>Observaciones <textarea name="note" rows="2" maxlength="1500"><%= c.note %></textarea></label>
+                  <button class="ghost-button" type="submit">Guardar valoración</button>
+                </form>
+              <% } else if (c.note) { %><p class="dept-note"><strong>Observaciones de la jefatura</strong> · <%= c.note %></p><% } %>
+            </div>
+          </details>
+        <% } %>
+      <% }) %>
+    </section>
+  <% } %>
+  <footer>Instrumento de la Evaluación Departamental del TecNM, edición 2015.</footer>
+</main>
+</body>
+</html>

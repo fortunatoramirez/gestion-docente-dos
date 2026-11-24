@@ -2,6 +2,41 @@
 
 Aplicacion ligera en Node.js, Express y MySQL para que docentes carguen evidencias por materia en tres reportes parciales por semestre.
 
+## Evaluación departamental
+
+Desde **Administración → Evaluación departamental**, la jefatura habilita un expediente por profesor de **tiempo completo** y semestre. La selección se hace con base en el nombramiento. El profesor entra desde **Mi perfil → Evaluación departamental**, incluso cuando no tiene grupos asignados.
+
+El expediente contiene los 15 criterios del instrumento TecNM 2015, una guía de los seis niveles de cada criterio y ejemplos de comprobantes. Docencia y Gestión aplican a los docentes evaluados. La jefatura indica si corresponden Tutoría, Investigación y Vinculación según las actividades o el nombramiento del periodo.
+
+| Aportación | Cómo llega al expediente |
+| --- | --- |
+| Reportes parciales y finales enviados, y sus exámenes | El criterio 2 enlaza los originales de las asignaturas del profesor y semestre. El reporte aporta información de avance y cierre del grupo. |
+| Prácticas, ejercicios, presentaciones e investigaciones del alumnado en reportes enviados | El criterio 3 enlaza los archivos de la materia y conserva su grupo y parcial. |
+| Comprobantes del profesor | El docente puede agregar archivos a cualquiera de los 15 criterios, incluidos los que ya tienen evidencia de plataforma. |
+| Comprobantes de oficinas | La oficina elige un expediente y aporta desde su propia cuenta a los criterios que le corresponden. Por ejemplo, Vinculación puede aportar la designación de asesor de residencia al criterio 4 y Tutorías puede aportar el acuse del plan tutorial al 6. |
+
+Cada aportación manual conserva el origen, el nombre de quien la registró, la fecha y el archivo. La jefatura revisa los comprobantes y registra el nivel de 0 a 5 y sus observaciones. **Por valorar**, **Por definir** y **No aplica** se distinguen del nivel cero. El reporte individual se puede imprimir o guardar como PDF desde el navegador. El concentrado CSV de Excel reúne una fila por docente y criterio, con nivel, aplicabilidad y número de aportaciones por origen.
+
+### Activación en una instalación existente
+
+Con el catálogo de semestres ya configurado, ejecuta una vez el siguiente comando en el servidor de la aplicación.
+
+```bash
+npm run db:migrate-department
+```
+
+La migración agrega tres tablas y se puede repetir. Para instalaciones nuevas están incluidas en `db/schema.sql`. Las cuentas con acceso a la jefatura se toman de `ADMIN_EMPLOYEE_NUMBERS`. Para acceso de oficinas, asigna en `.env` sus números de empleado, separados por comas, y reinicia la aplicación.
+
+| Variable | Oficina |
+| --- | --- |
+| `DEPT_TUTORIAS_EMPLOYEES` | Coordinación de Tutorías |
+| `DEPT_INVESTIGACION_EMPLOYEES` | Jefatura de Proyectos de Investigación |
+| `DEPT_VINCULACION_EMPLOYEES` | Jefatura de Vinculación |
+
+La oficina consulta sus propios comprobantes dentro de los criterios habilitados. El profesor consulta todo su expediente del periodo actual. La jefatura consulta también el histórico en modo lectura. Los archivos usan el proveedor configurado en `STORAGE_DRIVER` y quedan en la carpeta del docente, bajo `evaluacion_departamental/criterio_N`.
+
+`npm run test:department` prueba el flujo HTTP en modo demo. Con `DEPARTMENT_TEST_SQL=1`, la misma prueba usa el servidor de pruebas configurado en `DB_HOST` y `DB_PORT` con sus credenciales, crea una base temporal de nombre aleatorio y la elimina al terminar.
+
 ## Semestre 2026-3
 
 La fuente conciliada esta en `data/semester-2026-3.json`: 35 profesores,

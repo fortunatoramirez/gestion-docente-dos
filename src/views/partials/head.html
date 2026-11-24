@@ -6,5 +6,8 @@
   <title><%= title %> | <%= appName %></title>
   <link rel="stylesheet" href="<%= urlFor('/css/styles.css') %>">
   <link rel="stylesheet" href="<%= urlFor('/css/admin.css') %>">
+  <% if (typeof departmentPage !== 'undefined' && departmentPage) { %>
+    <link rel="stylesheet" href="<%= urlFor('/css/department.css') %>">
+  <% } %>
   <script src="<%= urlFor('/js/app.js') %>" defer></script>
 </head>

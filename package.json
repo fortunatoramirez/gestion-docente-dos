@@ -12,7 +12,9 @@
     "db:migrate-semesters": "node scripts/migrate-semesters.js",
     "db:import-semester": "node scripts/import-semester.js",
     "test:semesters": "node scripts/test-semesters.js",
-    "test:assignment-semesters": "node scripts/test-assignment-semesters.js"
+    "test:assignment-semesters": "node scripts/test-assignment-semesters.js",
+    "db:migrate-department": "node scripts/migrate-department.js",
+    "test:department": "node --test scripts/test-department.js"
   },
   "keywords": [
     "express",

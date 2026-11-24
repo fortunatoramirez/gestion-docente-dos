@@ -63,9 +63,10 @@ async function login(req, res, next) {
     }
 
     await Professor.recordLogin(professor.id);
-    delete professor.password_hash;
+    const sessionProfessor = { ...professor };
+    delete sessionProfessor.password_hash;
     await regenerateSession(req);
-    req.session.professor = professor;
+    req.session.professor = sessionProfessor;
     return res.redirect(professor.must_change_password ? '/perfil' : '/dashboard');
   } catch (error) {
     return next(error);
