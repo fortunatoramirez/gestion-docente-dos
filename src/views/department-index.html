@@ -1,33 +1,45 @@
 <%- include('partials/head.html', { title, departmentPage: true }) %>
 <body class="app-screen">
+<div class="layout dept-layout">
 <main class="dept-page">
-  <nav class="dept-nav" aria-label="Navegación">
-    <a href="<%= urlFor('/perfil') %>">Mi perfil</a>
-    <% if (isAdmin) { %><a href="<%= urlFor('/admin') %>">Administración</a><% } %>
-  </nav>
   <header class="page-header">
     <div>
       <p class="eyebrow">Semestre <%= semester %></p>
       <h1>Evaluación departamental</h1>
     </div>
-    <% if (view === 'office' && isAdmin && items.length) { %>
+    <% if (view === 'office' && (isAdmin || departmentActor.head) && items.length) { %>
       <a class="ghost-button" href="<%= urlFor('/evaluacion/departamento/concentrado.csv?semestre=' + encodeURIComponent(semester)) %>">Descargar concentrado CSV</a>
     <% } %>
   </header>
+  <% if (typeof saved !== 'undefined' && saved) { %><p class="notice notice-success" role="status">Cambios guardados.</p><% } %>
   <% if (view === 'own') { %>
     <section class="form-section"><h2>Sin expediente en este semestre</h2>
       <p>La jefatura habilita los expedientes de tiempo completo. Si te corresponde la evaluación de este periodo, comunícate con Docencia.</p>
     </section>
   <% } else { %>
-    <% if (isAdmin) { %>
+    <% if (isAdmin || departmentActor.head) { %>
       <form class="dept-tools" method="get" action="<%= urlFor('/evaluacion/departamento') %>">
         <label>Semestre <select name="semestre">
           <% semesters.forEach((s) => { %><option value="<%= s.code %>" <%= s.code === semester ? 'selected' : '' %>><%= s.code %><%= s.is_current ? ' (actual)' : '' %></option><% }) %>
         </select></label>
         <button class="ghost-button" type="submit">Consultar</button>
       </form>
+    <% } %>
+    <% if (isAdmin) { %>
+      <section class="dept-settings">
+        <h2>Jefe de departamento</h2>
+        <form class="dept-tools" action="<%= urlFor('/evaluacion/departamento/jefe') %>" method="post">
+          <label>Profesor designado
+            <select name="professor_id">
+              <option value="">Sin jefe designado</option>
+              <% headCandidates.forEach((p) => { %><option value="<%= p.id %>" <%= head?.id === p.id ? 'selected' : '' %>><%= p.full_name %> · <%= p.employee_number %></option><% }) %>
+            </select>
+          </label>
+          <button class="ghost-button" type="submit">Guardar jefe</button>
+        </form>
+      </section>
       <% if (current && candidates.length) { %>
-        <details class="form-section">
+        <details class="dept-settings">
           <summary>Habilitar a un profesor de tiempo completo</summary>
           <form class="dept-tools" action="<%= urlFor('/evaluacion/departamento/alta') %>" method="post">
             <input type="hidden" name="semester" value="<%= semester %>">
@@ -46,12 +58,27 @@
     <section class="form-section">
       <h2>Expedientes de tiempo completo</h2>
       <% if (!items.length) { %><p>Este semestre aún no tiene expedientes habilitados.</p><% } %>
-      <ul class="dept-list">
-        <% items.forEach((item) => { %><li><a href="<%= urlFor('/evaluacion/expedientes/' + item.id) %>"><%= item.full_name %></a>
-          <small>No. de empleado <%= item.employee_number %></small></li><% }) %>
+      <ul class="dept-list dept-roster">
+        <% items.forEach((item) => { %><li><div><a href="<%= urlFor('/evaluacion/expedientes/' + item.id) %>"><%= item.full_name %></a>
+          <small>No. de empleado <%= item.employee_number %></small></div>
+          <% if (isAdmin && current) { %><form action="<%= urlFor('/evaluacion/departamento/expedientes/' + item.id + '/estado') %>" method="post">
+            <input type="hidden" name="enabled" value="0"><button class="ghost-button" type="submit">Deshabilitar</button>
+          </form><% } %>
+        </li><% }) %>
       </ul>
     </section>
+    <% if (isAdmin && disabledItems.length) { %>
+      <details class="dept-settings"><summary>Profesores deshabilitados (<%= disabledItems.length %>)</summary>
+        <ul class="dept-list dept-roster">
+          <% disabledItems.forEach((item) => { %><li><div><a href="<%= urlFor('/evaluacion/expedientes/' + item.id) %>"><%= item.full_name %></a><small>No. de empleado <%= item.employee_number %></small></div>
+            <% if (current) { %><form action="<%= urlFor('/evaluacion/departamento/expedientes/' + item.id + '/estado') %>" method="post"><input type="hidden" name="enabled" value="1"><button class="ghost-button" type="submit">Habilitar</button></form><% } %>
+          </li><% }) %>
+        </ul>
+      </details>
+    <% } %>
   <% } %>
 </main>
+<%- include('partials/department-sidebar.html', { records: [], areas: {} }) %>
+</div>
 </body>
 </html>

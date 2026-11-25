@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS department_evaluations (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   professor_id INT UNSIGNED NOT NULL,
   semester VARCHAR(80) NOT NULL,
+  enabled TINYINT UNSIGNED NOT NULL DEFAULT 1,
   tutoria TINYINT UNSIGNED NULL,
   investigacion TINYINT UNSIGNED NULL,
   vinculacion TINYINT UNSIGNED NULL,
@@ -10,6 +11,15 @@ CREATE TABLE IF NOT EXISTS department_evaluations (
   FOREIGN KEY (semester) REFERENCES academic_semesters(code),
   CHECK (tutoria IN (0, 1) AND investigacion IN (0, 1) AND vinculacion IN (0, 1))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS department_leadership (
+  id TINYINT UNSIGNED NOT NULL PRIMARY KEY,
+  professor_id INT UNSIGNED NULL,
+  FOREIGN KEY (professor_id) REFERENCES professors(id),
+  CHECK (id = 1)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO department_leadership (id, professor_id) VALUES (1, NULL);
 
 CREATE TABLE IF NOT EXISTS department_reviews (
   evaluation_id INT UNSIGNED NOT NULL,

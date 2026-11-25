@@ -1,0 +1,19 @@
+<aside class="sidebar dept-sidebar no-print">
+  <div class="sidebar-brand">
+    <span class="brand-mark">GD</span>
+    <div><strong><%= professor.full_name %></strong><span><%= professor.employee_number %></span></div>
+  </div>
+  <nav class="subject-nav" aria-label="Evaluación departamental">
+    <a href="<%= urlFor('/perfil') %>"><span>Mi perfil</span><small>Contraseña</small></a>
+    <a href="<%= urlFor('/dashboard') %>"><span>Tablero docente</span><small>Materias y reportes</small></a>
+    <a href="<%= urlFor('/evaluacion/mi-expediente') %>"><span>Mi expediente</span><small>Actividades de tiempo completo</small></a>
+    <% if (departmentActor.admin || departmentActor.head || departmentActor.offices.length) { %>
+      <a href="<%= urlFor('/evaluacion/departamento') %>"><span>Expedientes del departamento</span><small><%= departmentActor.head && !departmentActor.admin ? 'Jefatura · Consulta' : 'Profesores de tiempo completo' %></small></a>
+    <% } %>
+    <% if (departmentActor.admin) { %><a href="<%= urlFor('/admin') %>"><span>Administración</span><small>Profesores y materias</small></a><% } %>
+    <% Object.entries(areas).forEach(([key, area]) => { if (records.some((c) => c.area === key)) { %>
+      <a href="#rubro-<%= key %>"><span><%= area.name %></span></a>
+    <% } }); %>
+  </nav>
+  <form action="<%= urlFor('/logout') %>" method="post"><button class="ghost-button sidebar-logout" type="submit">Salir</button></form>
+</aside>

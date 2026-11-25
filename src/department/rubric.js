@@ -28,6 +28,7 @@ function officesFor(professor) {
 }
 
 function allowedSources(actor, criterion) {
+  if (actor.head && !actor.owner && !actor.admin) return [];
   return [
     ...(actor.owner ? ['docente'] : []),
     ...(actor.admin ? ['docencia'] : []),
@@ -71,7 +72,8 @@ function automaticRecords(rows) {
     }
     if (row.file_id && categoryCriterion[row.category]) {
       records.push({ evaluation_id: row.evaluation_id, criterion: categoryCriterion[row.category], title: row.original_name,
-        context: context + ' · ' + categoryLabels[row.category], date: row.file_date, file: row.file_id });
+        context: context + ' · ' + categoryLabels[row.category], date: row.file_date, file: row.file_id,
+        assignment: row.assignment_id, period: row.period });
     }
   }
   return records;

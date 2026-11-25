@@ -1,4 +1,13 @@
 .dept-page { width: min(100% - 32px, 980px); margin: 24px auto 60px; }
+.dept-layout { grid-template-columns: minmax(0, 1fr) 280px; }
+.dept-layout .dept-page { grid-column: 1; grid-row: 1; min-width: 0; width: min(100%, 1180px); margin: 0 auto; padding: 32px; }
+.dept-sidebar { grid-column: 2; grid-row: 1; border-right: 0; border-left: 1px solid var(--line); }
+.dept-sidebar .brand-mark { display: grid; color: white; }
+.dept-settings { padding: 18px 0; border-top: 1px solid var(--line); }
+.dept-roster { list-style: none; padding: 0; }
+.dept-roster li { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); padding: 12px 0; }
+.dept-roster button { font-size: .85rem; font-weight: 600; padding: 8px 12px; }
+.dept-tools label { min-width: 0; }
 .dept-page .page-header { align-items: center; flex-wrap: wrap; margin: 18px 0; gap: 12px; }
 .dept-page .page-header p { margin: .35rem 0; }
 .dept-nav, .dept-tools { display: flex; flex-wrap: wrap; align-items: end; gap: 10px 20px; }
@@ -12,7 +21,7 @@
 .dept-tools label { max-width: 100%; }
 .dept-page small { display: block; font-size: .88rem; color: var(--muted); }
 .dept-summary { padding: 12px 16px; border-left: 4px solid var(--brand); background: white; }
-.dept-area { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+.dept-area { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
 .dept-area > header { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 18px; }
 .dept-area > header span { color: var(--muted); }
 .dept-criterion, .dept-print-criterion { border-top: 1px solid var(--line); }
@@ -29,9 +38,22 @@
 .dept-form small { margin: 3px 0; }
 .dept-note { white-space: pre-line; overflow-wrap: anywhere; }
 .dept-page footer { margin-top: 20px; font-size: .85rem; }
+@media (max-width: 920px) {
+  .dept-layout { grid-template-columns: minmax(0, 1fr); }
+  .dept-sidebar { grid-column: 1; grid-row: 1; border-left: 0; }
+  .dept-layout .dept-page { grid-column: 1; grid-row: 2; padding: 24px; }
+  .dept-sidebar .subject-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .dept-layout .dept-page { padding: 18px; }
+  .dept-roster li { align-items: flex-start; flex-direction: column; }
+  .dept-tools > label { width: 100%; }
+}
 @media print {
   body { background: white; color: black; font-size: 10pt; }
   .dept-page { width: 100%; margin: 0; }
+  .dept-layout { display: block; }
+  .dept-layout .dept-page { padding: 0; width: 100%; }
   .dept-nav, .no-print { display: none; }
   .dept-page h1 { font-size: 19pt; }
   .dept-page .dept-area { border: 0; margin: .6em 0; }

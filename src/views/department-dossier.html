@@ -1,30 +1,24 @@
 <%- include('partials/head.html', { title, departmentPage: true }) %>
 <body class="app-screen">
+<div class="layout dept-layout">
 <main class="dept-page">
-  <% const dateFor = (d) => new Date(d).toLocaleDateString('es-MX', { timeZone: 'America/Tijuana' });
-     const applicable = records.filter((c) => c.scope === 'Aplica');
-     const valued = applicable.filter((c) => c.score != null);
-  %>
-  <nav class="dept-nav" aria-label="Navegación">
-    <a href="<%= urlFor('/perfil') %>">Mi perfil</a>
-    <% if (actor.admin || actor.offices.length) { %><a href="<%= urlFor('/evaluacion/departamento?semestre=' + encodeURIComponent(item.semester)) %>">Expedientes del departamento</a><% } %>
-    <% if (print) { %><a href="<%= urlFor(base) %>">Volver al expediente</a><% } %>
-  </nav>
+  <% const dateFor = (d) => new Date(d).toLocaleDateString('es-MX', { timeZone: 'America/Tijuana' }); %>
   <header class="page-header">
     <div><p class="eyebrow">Evaluación departamental · <%= item.semester %><%= print ? ' · Instrumento TecNM 2015' : '' %></p>
       <h1><%= print ? 'Reporte individual' : item.full_name %></h1>
       <p><% if (print) { %><strong><%= item.full_name %></strong> · <% } %>No. de empleado <%= item.employee_number %> · Tiempo completo</p>
     </div>
     <% if (actor.full && !print) { %><a class="ghost-button" href="<%= urlFor(base + '/reporte') %>">Ver reporte individual</a><% } %>
-    <% if (print) { %><button class="primary-button no-print" type="button" onclick="window.print()">Imprimir o guardar PDF</button><% } %>
+    <% if (print) { %><div class="admin-actions no-print"><a class="ghost-button" href="<%= urlFor(base) %>">Volver al expediente</a><button class="primary-button" type="button" onclick="window.print()">Imprimir o guardar PDF</button></div><% } %>
   </header>
   <% if (saved && !print) { %><p class="notice notice-success" role="status">Cambios guardados.</p><% } %>
   <% if (actor.full) { %>
-    <p class="dept-summary"><strong><%= valued.length %> de <%= applicable.length %></strong> criterios aplicables valorados
+    <p class="dept-summary"><strong><%= records.length %></strong> criterios · <%= records.reduce((total, c) => total + c.manual.length + c.automatic.length, 0) %> evidencias
       · <%= records.filter((c) => c.scope === 'Por definir').length %> con aplicabilidad por definir
       · <%= records.filter((c) => c.scope === 'No aplica').length %> no aplicables</p>
   <% } %>
-  <% if (!current && !print) { %><p class="notice">Expediente histórico de consulta.</p><% } %>
+  <% if (historical && !print) { %><p class="notice">Expediente histórico de consulta.</p><% } %>
+  <% if (!item.enabled && !print) { %><p class="notice">Profesor deshabilitado en este semestre.</p><% } %>
 
   <% if (actor.admin && current && !print) { %>
     <details class="form-section" <%= conditionalAreas.some((area) => item[area] == null) ? 'open' : '' %>>
@@ -47,20 +41,19 @@
   <% for (const [key, area] of Object.entries(areas)) {
        const group = records.filter((c) => c.area === key);
        if (!group.length) continue; %>
-    <section class="dept-area">
+    <section class="dept-area" id="rubro-<%= key %>">
       <header><h2><%= area.name %></h2><span><%= applicability(item, key) %></span></header>
       <% group.forEach((c) => { const count = c.manual.length + c.automatic.length; %>
         <% if (print) { %>
           <article class="dept-print-criterion">
             <h3><%= c.id %>. <%= c.title %></h3>
-            <p><strong>Valoración</strong> · <%= resultLabel(c) %></p>
-            <% if (c.note) { %><p class="dept-note"><%= c.note %></p><% } %>
+            <p><%= c.scope %></p>
             <%- include('partials/department-evidence.html', { c, dateFor }) %>
           </article>
         <% } else { %>
           <details class="dept-criterion" id="criterio-<%= c.id %>" <%= opened === c.id ? 'open' : '' %>>
             <summary><span><strong><%= c.id %>. <%= c.title %></strong></span>
-              <small><%= actor.full ? resultLabel(c) + ' · ' : '' %><%= count %> <%= count === 1 ? 'evidencia' : 'evidencias' %></small>
+              <small><%= count %> <%= count === 1 ? 'evidencia' : 'evidencias' %></small>
             </summary>
             <div class="dept-body">
               <p><strong>Comprobantes sugeridos</strong> · <%= c.examples %></p>
@@ -95,16 +88,6 @@
                   <button class="primary-button" type="submit">Agregar al criterio <%= c.id %></button>
                 </form>
               <% } %>
-              <% if (actor.admin && current && c.scope === 'Aplica') { %>
-                <form class="dept-form" action="<%= urlFor(base + '/criterios/' + c.id + '/valorar') %>" method="post">
-                  <h4>Valoración de la jefatura</h4>
-                  <label>Nivel <select name="score"><option value="">Por valorar</option>
-                    <% levels.forEach((level, i) => { %><option value="<%= i %>" <%= c.score === i ? 'selected' : '' %>><%= i %> · <%= level %></option><% }) %>
-                  </select></label>
-                  <label>Observaciones <textarea name="note" rows="2" maxlength="1500"><%= c.note %></textarea></label>
-                  <button class="ghost-button" type="submit">Guardar valoración</button>
-                </form>
-              <% } else if (c.note) { %><p class="dept-note"><strong>Observaciones de la jefatura</strong> · <%= c.note %></p><% } %>
             </div>
           </details>
         <% } %>
@@ -113,5 +96,7 @@
   <% } %>
   <% if (!print) { %><footer>Instrumento de la Evaluación Departamental del TecNM, edición 2015.</footer><% } %>
 </main>
+<%- include('partials/department-sidebar.html', { records, areas }) %>
+</div>
 </body>
 </html>

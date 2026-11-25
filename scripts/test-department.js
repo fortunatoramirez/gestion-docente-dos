@@ -32,6 +32,7 @@ test('expediente departamental por HTTP', async (t) => {
     const schema = await fs.readFile(path.join(__dirname, '../db/schema.sql'), 'utf8');
     await connection.query(schema.slice(schema.indexOf('CREATE TABLE')));
     await connection.execute("INSERT INTO academic_semesters(code,label,is_current) VALUES ('2026-3','Actual',1),('2027-1','Siguiente',0)");
+    await connection.query('ALTER TABLE department_evaluations DROP COLUMN enabled');
     const migrate = require('./migrate-department');
     await migrate();
     await migrate();
@@ -69,6 +70,7 @@ test('expediente departamental por HTTP', async (t) => {
   const teacher = await account('TEST-P', 'Docente de prueba');
   const office = await account('TEST-T', 'Tutorías de prueba');
   const other = await account('TEST-O', 'Otro docente');
+  const head = await account('TEST-H', 'Jefe de departamento de prueba');
   const registry = '/evaluacion/departamento';
   const semester = '2026-3';
   const enroll = { professor_id: teacher.id, semester };
@@ -168,21 +170,18 @@ test('expediente departamental por HTTP', async (t) => {
     assert.deepEqual(await fs.readdir(path.join(uploads, 'tmp')), []);
   });
 
-  await t.test('aplicabilidad, nivel cero, reporte individual y concentrado CSV', async () => {
+  await t.test('aplicabilidad, consulta sin calificaciones y concentrado CSV', async () => {
     const review = dossier + '/criterios/5/valorar';
-    const note = '=Nota, "inicial"';
     const scope = { tutoria: '1', investigacion: '', vinculacion: '0' };
-    assert.equal((await request(review, admin.cookie, { score: '5' })).status, 422);
+    assert.equal((await request(review, admin.cookie, { score: '5' })).status, 403);
     assert.equal((await request(dossier + '/rubros', teacher.cookie, scope)).status, 403);
     assert.equal((await request(dossier + '/rubros', admin.cookie, scope)).status, 302);
     assert.equal((await request(review, office.cookie, { score: '5' })).status, 403);
-    assert.equal((await request(review, admin.cookie, { score: '6' })).status, 422);
-    assert.equal((await request(review, admin.cookie, { score: '0', note })).status, 302);
+    assert.equal((await request(review, admin.cookie, { score: '0' })).status, 403);
     const html = await (await request(dossier + '/reporte', teacher.cookie)).text();
-    assert.match(html, /0 · Cero/);
     assert.match(html, /Por definir/);
     assert.match(html, /No aplica/);
-    assert.match(html, /Por valorar/);
+    assert.doesNotMatch(html, /Por valorar|name="score"|Guardar valoración/);
     assert.match(html, /Asistencia tutorial/);
     assert.doesNotMatch(html, /type="file"/);
     await request(registry + '/alta', admin.cookie, { professor_id: other.id, semester });
@@ -194,10 +193,111 @@ test('expediente departamental por HTTP', async (t) => {
     assert.equal(csv.trim().split('\r\n').length, 31);
     const otherRows = csv.split('\r\n').filter((row) => row.includes('"TEST-O"'));
     assert.equal(otherRows.length, 15);
-    assert(otherRows.every((row) => !row.includes('inicial')));
-    assert.match(csv, /"0 · Cero","0"/);
-    assert.match(csv, /"'=Nota, ""inicial"""/);
-    assert.match(csv, /"No aplica","No aplica",""/);
+    assert.doesNotMatch(csv, /"Valoración"|"Nivel \(0/);
+    assert.match(csv, /"No aplica"/);
+  });
+
+  await t.test('jefe independiente de administrador, acceso completo de consulta y actividad docente propia', async () => {
+    const designate = (user, id) => request(registry + '/jefe', user.cookie, { professor_id: String(id) });
+    assert.equal((await designate(teacher, head.id)).status, 403);
+    assert.equal((await designate(admin, admin.id)).status, 422);
+    assert.equal((await designate(admin, '99999999')).status, 422);
+    assert.equal((await designate(admin, head.id)).status, 302);
+    assert.equal((await request(registry, head.cookie)).status, 200);
+    assert.equal((await request('/admin', head.cookie)).status, 403);
+    assert.equal((await request('/evaluacion', head.cookie)).headers.get('location'), prefix + registry);
+    const html = await (await request(dossier, head.cookie)).text();
+    assert.equal((html.match(/class="dept-criterion"/g) || []).length, 15);
+    assert.doesNotMatch(html, /name="score"|name="file"|Guardar aplicabilidad|href="\/prueba\/admin"/);
+    assert.match(html, /dept-sidebar/);
+    assert.equal(await (await request(practiceLink, head.cookie)).text(), 'parcial');
+    assert.equal(await (await request(manualLink, head.cookie)).text(), 'archivo de prueba');
+    assert.equal(await (await request(officeLink, head.cookie)).text(), 'archivo de prueba');
+    const reportLink = [...html.matchAll(/href="([^"]+\/reportes\/\d+\/1)"/g)][0][1].slice(prefix.length);
+    assert.equal((await request(reportLink, head.cookie)).status, 200);
+    assert.equal((await request(reportLink, other.cookie)).status, 404);
+    assert.equal((await request(reportLink.replace(/\/1$/, '/2'), head.cookie)).status, 404, 'Draft reports are not shared');
+    const foreignCourse = (await Assignment.listForProfessor(other.id))[0];
+    const foreignReport = await require('../src/models/reportModel').findByAssignmentAndPeriod(foreignCourse.id, 1);
+    const foreignFile = (await require('../src/models/evidenceModel').listByReportId(foreignReport.id))[0];
+    assert.equal((await request(practiceLink.replace(/\d+$/, String(foreignFile.id)), head.cookie)).status, 404, 'Files must belong to the selected report and dossier');
+    assert.equal((await request(registry + '/alta', head.cookie, enroll)).status, 403);
+    assert.equal((await request(dossier + '/rubros', head.cookie, { tutoria:'1', investigacion:'1', vinculacion:'1' })).status, 403);
+    assert.equal((await request(dossier + '/criterios/3/evidencias', head.cookie, fileForm('docente', 'No autorizado'))).status, 403);
+    const opened = await request(registry + '/alta', admin.cookie, { professor_id:head.id, semester });
+    head.dossier = opened.headers.get('location').slice(prefix.length);
+    assert.equal((await request('/evaluacion/mi-expediente', head.cookie)).headers.get('location'), prefix + head.dossier);
+    assert.equal((await request(head.dossier + '/criterios/3/evidencias', head.cookie, fileForm('docente', 'Comprobante propio del jefe'))).status, 302);
+    const subject = await Subject.create({ name:'Materia del jefe', subject_code:'JEF', credits:4 });
+    const course = await Assignment.create({ professor_id:head.id, subject_id:subject, group_code:'BT3', career:null, semester, active:1 });
+    const partial = await request('/reportes/materias/' + course + '/parcial/1', head.cookie, {
+      enrolled_students:'5', approved_students:'5', absent_students:'0', action:'draft'
+    });
+    assert.equal(partial.status, 302);
+    assert.match(await (await request('/dashboard', head.cookie)).text(), /Materia del jefe|MATERIA DEL JEFE/);
+    const ownStatus = registry + '/expedientes/' + head.dossier.split('/').at(-1) + '/estado';
+    assert.equal((await request(ownStatus, admin.cookie, { enabled:'0' })).status, 302);
+    assert.equal((await request(head.dossier, head.cookie)).status, 404);
+    assert.equal((await request(dossier, head.cookie)).status, 200, 'Head role is independent of own full-time enrollment');
+    assert.equal((await request(ownStatus, admin.cookie, { enabled:'1' })).status, 302);
+    assert.equal((await designate(admin, other.id)).status, 302);
+    assert.equal((await request(registry, head.cookie)).status, 403, 'Replaced head loses access without signing out');
+    assert.equal((await request(dossier, head.cookie)).status, 404);
+    assert.equal((await request(head.dossier, head.cookie)).status, 200, 'Former head retains their own dossier');
+    assert.equal((await request(dossier, other.cookie)).status, 200);
+    assert.equal((await designate(admin, '')).status, 302);
+    assert.equal((await request(registry, other.cookie)).status, 403);
+    assert.equal((await designate(admin, head.id)).status, 302);
+  });
+
+  await t.test('deshabilitación reversible sin borrar actividades ni alterar la gestión docente', async () => {
+    const model = require('../src/department/model');
+    const id = Number(dossier.split('/').at(-1));
+    const before = await model.evidenceData(semester, { id });
+    const status = registry + '/expedientes/' + id + '/estado';
+    assert.equal((await request(status, head.cookie, { enabled:'0' })).status, 403);
+    assert.equal((await request(status, admin.cookie, { enabled:'7' })).status, 422);
+    assert.equal((await request(status, admin.cookie, { enabled:'0' })).status, 302);
+    if (sql) {
+      await require('./migrate-department')();
+      assert.equal((await model.getHead()).id, head.id, 'Repeated migration must preserve the selected head');
+      assert.equal((await model.find(id)).enabled, 0, 'Repeated migration must not reactivate disabled dossiers');
+    }
+    assert.equal((await request(dossier, teacher.cookie)).status, 404);
+    assert.equal((await request(manualLink, teacher.cookie)).status, 404);
+    assert.equal((await request(practiceLink, head.cookie)).status, 404);
+    assert.equal((await request(dossier, head.cookie)).status, 404);
+    const headList = await (await request(registry, head.cookie)).text();
+    assert(!headList.includes('href="' + prefix + dossier + '"'));
+    assert.match(await (await request(registry, admin.cookie)).text(), /Profesores deshabilitados/);
+    assert.match(await (await request('/evaluacion/mi-expediente', teacher.cookie)).text(), /Sin expediente/);
+    assert.match(await (await request('/dashboard', teacher.cookie)).text(), /Asignatura de prueba|ASIGNATURA DE PRUEBA/);
+    const disabledView = await (await request(dossier, admin.cookie)).text();
+    assert.match(disabledView, /Profesor deshabilitado/);
+    assert.doesNotMatch(disabledView, /name="file"/);
+    assert.deepEqual(await model.evidenceData(semester, { id }), before);
+    assert.equal((await request(status, admin.cookie, { enabled:'1' })).status, 302);
+    assert.equal(await (await request(manualLink, teacher.cookie)).text(), 'archivo de prueba');
+    assert.deepEqual(await model.evidenceData(semester, { id }), before);
+    assert.equal((await request(status, admin.cookie, { enabled:'0' })).status, 302);
+    assert.equal((await request(registry + '/alta', admin.cookie, enroll)).headers.get('location'), prefix + dossier);
+    assert.equal((await request(dossier, head.cookie)).status, 200);
+    const storage = require('../src/services/evidenceStorage');
+    const originalStore = storage.storeDepartmentFile;
+    storage.storeDepartmentFile = async (...args) => {
+      const stored = await originalStore(...args);
+      await model.setEnabled(id, semester, 0);
+      return stored;
+    };
+    try {
+      const failed = await request(dossier + '/criterios/3/evidencias', teacher.cookie, fileForm('docente', 'Carga interrumpida'));
+      assert.equal(failed.status, 409, 'Disabling during upload must prevent registration');
+    } finally {
+      storage.storeDepartmentFile = originalStore;
+      await model.setEnabled(id, semester, 1);
+    }
+    assert.deepEqual(await model.evidenceData(semester, { id }), before);
+    assert.deepEqual(await fs.readdir(path.join(uploads, 'tmp')), []);
   });
 
   await t.test('cambio de semestre y consulta histórica en modo lectura', async () => {
@@ -212,6 +312,8 @@ test('expediente departamental por HTTP', async (t) => {
     assert.equal((await request(officeLink, office.cookie)).status, 404);
     assert.equal((await request(practiceLink, teacher.cookie)).status, 404);
     assert.equal((await request(dossier, admin.cookie)).status, 200);
+    assert.equal((await request(dossier, head.cookie)).status, 200);
+    assert.equal((await request(registry + '?semestre=2026-3', head.cookie)).status, 200);
     assert.equal((await request(dossier + '/reporte', admin.cookie)).status, 200);
     assert.equal((await request(manualLink, admin.cookie)).status, 200);
     assert.equal((await request(dossier + '/criterios/3/valorar', admin.cookie, { score: '1' })).status, 403);

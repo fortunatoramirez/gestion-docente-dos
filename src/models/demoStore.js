@@ -173,6 +173,7 @@ function assignmentView(assignment) {
 
   return {
     id: assignment.id,
+    professor_id: assignment.professor_id,
     group_code: assignment.group_code,
     career: assignment.career,
     semester: assignment.semester,

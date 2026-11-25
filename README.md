@@ -15,7 +15,11 @@ El expediente contiene los 15 criterios del instrumento TecNM 2015, una guía de
 | Comprobantes del profesor | El docente puede agregar archivos a cualquiera de los 15 criterios, incluidos los que ya tienen evidencia de plataforma. |
 | Comprobantes de oficinas | La oficina elige un expediente y aporta desde su propia cuenta a los criterios que le corresponden. Por ejemplo, Vinculación puede aportar la designación de asesor de residencia al criterio 4 y Tutorías puede aportar el acuse del plan tutorial al 6. |
 
-Cada aportación manual conserva el origen, el nombre de quien la registró, la fecha y el archivo. La jefatura revisa los comprobantes y registra el nivel de 0 a 5 y sus observaciones. **Por valorar**, **Por definir** y **No aplica** se distinguen del nivel cero. El reporte individual se puede imprimir o guardar como PDF desde el navegador. El concentrado CSV de Excel reúne una fila por docente y criterio, con nivel, aplicabilidad y número de aportaciones por origen.
+Cada aportación manual conserva el origen, el nombre de quien la registró, la fecha y el archivo. La valoración se realiza en la plataforma nacional: este sistema reúne los expedientes y permite consultar los 15 criterios, sus guías y comprobantes, sin capturar calificaciones. El reporte individual se puede imprimir o guardar como PDF desde el navegador. El concentrado CSV reúne una fila por docente y criterio, con aplicabilidad y número de aportaciones por origen.
+
+En **Administración → Evaluación departamental**, el administrador puede designar a un profesor activo como jefe de departamento o retirar la designación. Este acceso permite consultar expedientes, reportes enviados y archivos de los semestres disponibles; no concede permisos de administrador, ni permite modificar expedientes ajenos. El jefe conserva sus materias y reportes docentes. Si también está habilitado como profesor de tiempo completo, entra a **Mi expediente** para aportar sus propios comprobantes.
+
+El administrador puede deshabilitar y volver a habilitar profesores de tiempo completo por semestre. Deshabilitar oculta el expediente al profesor, al jefe y a las oficinas, pero conserva sus archivos, aportaciones y datos para reactivarlo con el mismo identificador. No afecta sus asignaciones ni sus reportes de gestión docente. Los expedientes deshabilitados permanecen disponibles para consulta del administrador. La navegación departamental se mantiene en una barra lateral derecha en escritorio y se adapta a una columna en pantallas pequeñas.
 
 ### Activación en una instalación existente
 

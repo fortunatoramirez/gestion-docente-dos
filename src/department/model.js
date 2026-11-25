@@ -8,6 +8,7 @@ const { automaticRecords, applicability, criteria } = require('./rubric');
 const demoFiles = [];
 const demoEvaluations = [];
 const demoReviews = [];
+let demoHeadId = null;
 const dossierSelect = `SELECT d.*, p.full_name, p.employee_number
   FROM department_evaluations d JOIN professors p ON p.id = d.professor_id`;
 
@@ -17,11 +18,11 @@ function demoDossier(row) {
   return { ...row, full_name, employee_number };
 }
 
-async function list(semester) {
+async function list(semester, { includeDisabled = false } = {}) {
   return withDemoFallback(async () => {
-    const [rows] = await db.execute(dossierSelect + ' WHERE d.semester = ? ORDER BY p.full_name', [semester]);
+    const [rows] = await db.execute(dossierSelect + ' WHERE d.semester = ?' + (includeDisabled ? '' : ' AND d.enabled=1') + ' ORDER BY p.full_name', [semester]);
     return rows;
-  }, () => demoEvaluations.filter((row) => row.semester === semester).map(demoDossier)
+  }, () => demoEvaluations.filter((row) => row.semester === semester && (includeDisabled || row.enabled)).map(demoDossier)
     .sort((a, b) => a.full_name.localeCompare(b.full_name)));
 }
 
@@ -34,9 +35,35 @@ async function find(id) {
 
 async function findOwn(professorId, semester) {
   return withDemoFallback(async () => {
-    const [rows] = await db.execute('SELECT id FROM department_evaluations WHERE professor_id = ? AND semester = ?', [professorId, semester]);
+    const [rows] = await db.execute('SELECT id FROM department_evaluations WHERE professor_id = ? AND semester = ? AND enabled=1', [professorId, semester]);
     return rows[0];
-  }, () => demoEvaluations.find((row) => row.professor_id === professorId && row.semester === semester));
+  }, () => demoEvaluations.find((row) => row.professor_id === professorId && row.semester === semester && row.enabled));
+}
+
+async function getHead() {
+  return withDemoFallback(async () => {
+    const [rows] = await db.query(`SELECT p.id,p.employee_number,p.full_name,p.active FROM department_leadership l
+      JOIN professors p ON p.id=l.professor_id WHERE l.id=1`);
+    return rows[0] || null;
+  }, () => demoHeadId === null ? null : demo.findProfessorById(demoHeadId));
+}
+
+async function setHead(professorId) {
+  return withDemoFallback(() => db.execute('UPDATE department_leadership SET professor_id=? WHERE id=1', [professorId]),
+    () => { demoHeadId = professorId; });
+}
+
+async function setEnabled(id, semester, enabled) {
+  return withDemoFallback(async () => {
+    const [result] = await db.execute(`UPDATE department_evaluations d JOIN academic_semesters s ON s.code=d.semester
+      SET d.enabled=? WHERE d.id=? AND d.semester=? AND s.is_current=1`, [enabled, id, semester]);
+    if (!result.affectedRows) throw changed();
+  }, async () => {
+    if ((await Semester.current()).code !== semester) throw changed();
+    const item = demoEvaluations.find((row) => row.id === id && row.semester === semester);
+    if (!item) throw changed();
+    item.enabled = enabled;
+  });
 }
 
 function changed() {
@@ -49,16 +76,17 @@ async function enroll(professorId, semester) {
   return withDemoFallback(async () => {
     const [result] = await db.execute(`INSERT INTO department_evaluations (professor_id, semester)
       SELECT ?, code FROM academic_semesters WHERE code = ? AND is_current = 1
-      ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)`, [professorId, semester]);
+      ON DUPLICATE KEY UPDATE enabled=1, id = LAST_INSERT_ID(id)`, [professorId, semester]);
     if (!result.insertId) throw changed();
     return result.insertId;
   }, async () => {
     if ((await Semester.current()).code !== semester) throw changed();
     let row = demoEvaluations.find((r) => r.professor_id === professorId && r.semester === semester);
     if (!row) {
-      row = { id: demoEvaluations.length + 1, professor_id: professorId, semester, tutoria: null, investigacion: null, vinculacion: null };
+      row = { id: demoEvaluations.length + 1, professor_id: professorId, semester, enabled: 1, tutoria: null, investigacion: null, vinculacion: null };
       demoEvaluations.push(row);
     }
+    row.enabled = 1;
     return row.id;
   });
 }
@@ -71,7 +99,7 @@ async function editCurrent(id, write, demoWrite) {
     try {
       await conn.beginTransaction();
       const [rows] = await conn.execute(`SELECT d.* FROM department_evaluations d
-        JOIN academic_semesters s ON s.code = d.semester WHERE d.id = ? AND s.is_current = 1 FOR UPDATE`, [id]);
+        JOIN academic_semesters s ON s.code = d.semester WHERE d.id = ? AND d.enabled=1 AND s.is_current = 1 FOR UPDATE`, [id]);
       if (!rows.length) throw changed();
       await write(conn, rows[0]);
       await conn.commit();
@@ -83,7 +111,7 @@ async function editCurrent(id, write, demoWrite) {
     }
   }, async () => {
     const semester = (await Semester.current()).code;
-    const item = demoEvaluations.find((d) => d.id === id && d.semester === semester);
+    const item = demoEvaluations.find((d) => d.id === id && d.semester === semester && d.enabled);
     if (!item) throw changed();
     return demoWrite(item);
   });
@@ -136,8 +164,8 @@ async function findFile(evaluationId, id) {
 // Todas las uniones parten de un expediente, incluso cuando un docente no tiene carga frente a grupo.
 async function evidenceData(semester, { id = null, current = true, full = true } = {}) {
   const params = id === null ? [semester] : [semester, id];
-  const filter = ' WHERE d.semester = ?' + (id === null ? '' : ' AND d.id = ?');
-  const matches = (r) => demoEvaluations.some((d) => d.id === r.evaluation_id && d.semester === semester && (id === null || d.id === id));
+  const filter = ' WHERE d.semester = ?' + (id === null ? ' AND d.enabled=1' : ' AND d.id = ?');
+  const matches = (r) => demoEvaluations.some((d) => d.id === r.evaluation_id && d.semester === semester && (id === null ? d.enabled : d.id === id));
   const manual = await withDemoFallback(async () => {
     const [rows] = await db.execute(`SELECT f.id, f.evaluation_id, f.criterion, f.source, f.title, f.original_name, f.created_at,
       p.full_name AS contributor FROM department_evaluations d JOIN department_evidence f ON f.evaluation_id = d.id
@@ -163,7 +191,7 @@ async function evidenceData(semester, { id = null, current = true, full = true }
     return items.filter((a) => admissible(a, a.employee_number));
   }, () => {
     const items = [];
-    for (const d of demoEvaluations.filter((r) => r.semester === semester && (id === null || r.id === id))) {
+    for (const d of demoEvaluations.filter((r) => r.semester === semester && (id === null ? r.enabled : r.id === id))) {
       const { employee_number } = demo.findProfessorById(d.professor_id);
       for (const a of demo.listAssignmentsAdmin().filter((a) => a.employee_number === employee_number && a.semester === semester
         && (!current || a.active) && admissible(a, employee_number))) {
@@ -183,4 +211,4 @@ async function evidenceData(semester, { id = null, current = true, full = true }
   return { manual, automatic: automaticRecords(rows), reviews };
 }
 
-module.exports = { list, find, findOwn, enroll, setScope, saveReview, saveFile, findFile, evidenceData };
+module.exports = { list, find, findOwn, enroll, setScope, saveReview, saveFile, findFile, evidenceData, getHead, setHead, setEnabled };
